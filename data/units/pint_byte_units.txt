@@ -1,0 +1,4 @@
+# see https://github.com/hgrecco/pint/issues/674
+bit = [information]
+byte = 8 * bit = B = octet
+baud = bit / second = Bd = bps

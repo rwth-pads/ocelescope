@@ -1,0 +1,108 @@
+This chapter addresses \RGone{} by outlining the fundamentals and advances in topics related to our work.
+These include the basics of CA and emission factors, the application of PM for sustainability, and OCPM techniques relevant for our method.
+
+% ---------------------------------------------------------------------
+\subsection*{Carbon Accounting}
+\label{sec:rw-ca}
+% ---------------------------------------------------------------------
+
+% Storyline: There are standards for reporting, there are more tools emerging, but many are sector-specific or top-down.
+% Need for sector-agnostic calculation tool based on actual process data.
+
+The GHG Protocol from 2004 remains the de-facto standard for carbon emission reporting~\cite{GHG:Corporate04}.
+Other standards focus on particular sectors.
+For example, in logistics, the GLEC framework provides reporting standards and emission factors for different modes of transport~\cite{GLEC3}.
+The target quantity in CA is the Global Warming Potential (GWP), measured by the weight of carbon dioxide equivalents (e.g., \unit{\kgcotwoe}).
+This allows summarizing the contribution to global warming in just one quantity while considering not just carbon dioxide, but a variety of GHGs, such as methane and nitrous oxide~\cite{Schaltegger12carbon}.
+Publicly available emission factors used for CA mostly follow this principle.
+%
+% Various calculation tools for emission estimation have emerged, many of which are sector-specific.
+% % Again, many are specific to particular business processes or sectors.
+% For example, the scope3transparent project provides a list of over 30 calculation tools and emission factor databases for electronics components manufacturing~\cite{scope3transparent24ubersicht}.
+
+In CA, as well as in emission factor databases, two fundamental patterns are visible~\cite{GHG:Corporate04}: The top-down approach and the bottom-up approach.
+The top-down approach employs Environmentally Extended Input-Output Analy\-sis (EEIOA)~\cite{Davis10consumption}, aggregating emissions and spendings of whole sectors and countries. The outcome is spend-based emission factors.
+Such factors are offered by databases such as EXIOBASE~\cite{Stadler18EXIOBASE} or WIOD~\cite{Timmer15WIOD}.
+
+In the bottom-up approach, emission data are determined for particular process activities based on direct measurement, scientific studies or industry standards.
+These factors are also called activity-based emission factors
+and map quantities in different physical units to carbon equivalents~\cite{GHG:Corporate04}.
+Major databases providing activity-based emission factors include
+ecoinvent~\cite{ecoinvent24ecoinvent}
+and the UK government conversion factors~\cite{UKGovCF24}.
+
+While spend-based factors are universally applicable due to the macroeconomic fashion of input-output analysis,
+they lack precision when applied to granular process data.
+Therefore, the use of activity-based factors is preferable in the context of event logs~\cite{Recker10measuring}.
+%
+The aforementioned databases exhibit a variety of data formats and access interfaces, which presents a challenge when attempting to combine them for use in CA for heterogeneous processes.
+APIs like climatiq solve this problem by bundling emission factors from currently 39 sources including all of the aforementioned vendors~\cite{climatiq24}.
+
+% ---------------------------------------------------------------------
+\subsection*{Process Mining for Sustainability}
+\label{sec:rw-pm4s}
+% ---------------------------------------------------------------------
+
+PM itself is noted for not being capable of generating emission data,
+as this requires access to emission factors and the selection of those appropriate to the event or object in question~\cite{Brehm22process}.
+%
+Therefore, applications of PM for sustainability purposes are still rare and assume availability of event data with sustainability-related KPIs.
+Given that these data are available, PM can unveil emission drivers within the process, such as different activities or trace variants~\cite{Brehm22process,Graves23rethink}.
+OCPM is considered especially useful as emission-intense objects can be identified and LCA is enabled~\cite{Graves23rethink}.
+
+In LCA, environmental impacts of a product or process output are analyzed, rather than those of single events. LCA considers specific parts of a product's lifecycle, like \textit{cradle-to-grave} or \textit{gate-to-gate}~\cite{Ortmeier21framework}.
+%
+PM's potential to aid the implementation of LCA has been acknowledged, with process discovery being employed in order to relate environmental impacts to different process variants, saving time and costs compared to classical LCA~\cite{Ortmeier21framework}. Again, this approach requires integration of all impact factors needed into the event log. Also, as classical PM is used, the objectives can only be determined at a single case level~\cite{Ortmeier21framework}.
+% To this day, there is no LCA approach employing OCPM.
+
+A recent approach to LCA in electronics manufacturing represents environmental impacts as activities in a Petri net~\cite{Fritsch24scope}.
+This allows performing LCA by replaying the model, making the approach both visual and scalable to large data. However, the model represents a pre-defined control flow within the process and cannot handle outliers correctly.
+
+Activity-Based Costing (ABC) is an accounting technique for assigning indirect costs to services or products based on the different activities they require. 
+Though originally intended for purely monetary costs, ABC has also been used for GHG emission allocation, distributing an overall carbon footprint among products~\cite{Tsai12integrating}. The high complexity of ABC lead to the proposal of Time-Driven ABC (TDABC), considering activity duration as the only cost driver~\cite{Kaplan04time}.
+% ABC relies on relation models between activities and products. While such models can be provided by PM techniques, the approach does not make use of 
+%
+PM is used in ABC mostly to capture timespans between events, serving as input for TDABC. Classical PM is used to discover BPMN models annotated with waiting time~\cite{Halaska21tdabc}. Another approach does not rely on process discovery but makes use of event logs containing start and end timestamps for each event~\cite{Riesener21time}.
+Classical event logs in the XES format support cost annotations by means of the XES cost extension~\cite{Wynn3framework}. However, a similar concept for OCELs is still missing.
+
+Celonis, a major PM vendor, recently presented their ``Material Emissions'' app in cooperation with climatiq. The app facilitates reporting of scope 3 emissions from procurement based on event data, and helps identifying emission reduction potentials, for example by changing vendors~\cite{CelonisMaterial23,vanderAalst23twin}.
+%
+Another Celonis app allows for freight emission calculation, enabling reporting and optimization in logistics processes~\cite{CelonisFreight22}.
+%
+Horsthofer-Rauch et~al.~\cite{HorsthoferRauch24sustainability}
+utilize the Celonis platform for sustainability enhancement of generic production processes. To this end, they employ an ontology of common entity relations for data extraction, which includes object types such as machines, products, energy, and waste.
+OCPM is considered especially useful in this context as it captures production steps and product composition as inter-object relations~\cite{HorsthoferRauch24sustainability}.
+%
+The aforementioned commercial solutions all employ PM for sustainability assessment.
+However, there is currently no tool that is both platform-independent and sector-agnostic.
+
+% ---------------------------------------------------------------------
+\subsection*{Object-Centric Process Mining}
+\label{sec:rw-ocpm}
+% ---------------------------------------------------------------------
+
+OCPM is a recent concept based on the approach to associate events with multiple objects instead of one unique case identifier. This way, the single-case assumption from classical PM is dropped, allowing for a more holistic view of the process~\cite{vanderAalst19object}.
+%
+However, with the new event log format, new challenges arise:
+Many existing process mining techniques are no longer applicable and need flattening of the data to again extract a classical event log.
+%
+In process discovery, the Object-Centric Petri Net (OCPN) is proposed, with the mining algorithm based on existing techniques applied on flattened logs for each object type~\cite{vanderAalst20OCPNs}.
+%
+Regarding data formats, the OCEL standard is developed in an attempt to provide an interoperable, scalable file format.
+The first version of the standard~\cite{OCEL1} is extended by the current version OCEL~2.0 that introduces object-to-object (O2O) relations, qualifiers for event-to-object (E2O) and O2O relations, dynamic object attributes and a new, more efficient way of storing the data using an \texttt{sqlite} database file~\cite{OCEL2}.
+
+Many OCPM techniques involve the use of object interaction graphs, in which two objects are connected if they interact in some event.
+%
+The graph is used in order to create a concept similar to cases in classical process mining, with \textit{process executions} either defined as connected components or sets of those objects closest to a representative of a selected type. Isomorphic process executions are then considered \textit{variants}~\cite{Adams22defining}.
+%
+Another approach directly views an OCEL as an \textit{event knowledge graph} made from events and objects together with their interactions and directly-follows relations~\cite{Fahland22process}.
+%
+A new graph-based process model is presented with the TOTeM model~\cite{Liss24totem}, extracting temporal relations between object lifespans, grouping by object types, and visualizing relations between the types including cardinalities.
+
+
+\textit{Resources} in classical PM are entities like machines or employees that execute events or are used by an event. In this context, resources are often included in event logs as an additional attribute, and used in tasks like social network discovery~\cite{vanderAalst16process}.
+In OCPM, resources are naturally represented as objects instead of event attribute values, facilitating the inclusion of further properties of the resource as object attributes~\cite{Graves23rethink}, and allowing for multiple resource links per event.
+A special role of resources in event knowledge graphs~\cite{Fahland22process} is brought up as well as their importance for applications for sustainability~\cite{Graves23rethink}.
+
+Viewing processes from the perspective of different object types is noted to be especially valuable in sustainability assessment~\cite{Graves23rethink,vanderAalst23twin}.
+When applying LCA or ABC, employing OCPM allows selecting different object types as targets for assessing impacts like GHG emissions caused by the respective objects instead of being limited to a one-dimensional case output perspective.

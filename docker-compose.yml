@@ -1,0 +1,17 @@
+name: ocean
+version: '0.9.12'
+services:
+  frontend:
+    build:
+      dockerfile: Dockerfile
+      context: ./src/frontend
+    ports:
+      - 3000:3000
+  backend:
+    build:
+      dockerfile: src/backend/Dockerfile
+      context: ./
+    ports:
+      - 8000:8000
+    environment:
+      - DATA_DIR=data

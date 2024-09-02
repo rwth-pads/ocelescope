@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "ocean-backend"
+version = "0.9.9"
+description = ""
+authors = ["Raimund Hensen <raimund.hensen@rwth-aachen.de>"]
+readme = "README.md"
+repository = "https://github.com/rwth-pads/ocean"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+numpy = "^1.26"
+pm4py = {git = "https://github.com/raihensen/pm4py-ocean", branch = "release"}
+pandas = "^2.1"
+pint = "^0.23"
+cachetools = "^5.3.2"
+pydantic = "^2.6.3"
+pydantic-settings = "^2.2.1"
+fastapi = "^0.110.0"
+uvicorn = "^0.28.0"
+python-multipart = "^0.0.9"
+
+[tool.poetry.group.dev.dependencies]
+jupyterlab = "^4.0.7"
+dependentspy = {git = "https://github.com/raihensen/dependentspy", branch = "main"}
+iso4 = "^0.0.2"
+seaborn = "^0.13.0"
+matplotlib = "^3.8.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100
+exclude = ".*\\.ipynb"
+
+[tool.pyright]
+exclude = ["drafts", "data"]
+
+[tool.isort]
+profile = "black"

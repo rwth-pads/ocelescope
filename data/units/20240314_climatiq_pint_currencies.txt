@@ -1,0 +1,81 @@
+eur = [currency] = eur = Euro
+
+afn = nan eur = afn = Afghani
+dzd = nan eur = dzd = Dinar
+ars = nan eur = ars = Peso
+aud = nan eur = aud = Dollar
+bhd = nan eur = bhd = Dinar
+brl = nan eur = brl = Real
+cad = nan eur = cad = Dollar
+kyd = nan eur = kyd = Dollar
+cny = nan eur = cny = Yuan
+dkk = nan eur = dkk = Krone
+egp = nan eur = egp = Pound
+hkd = nan eur = hkd = Dollar
+huf = nan eur = huf = Forint
+isk = nan eur = isk = Krona
+inr = nan eur = inr = Rupee
+iqd = nan eur = iqd = Dinar
+ils = nan eur = ils = NewShekel
+jpy = nan eur = jpy = Yen
+lbp = nan eur = lbp = Pound
+mxn = nan eur = mxn = Peso
+mad = nan eur = mad = Dirham
+nzd = nan eur = nzd = Dollar
+nok = nan eur = nok = Kroner
+qar = nan eur = qar = Rial
+rub = nan eur = rub = Ruble
+sar = nan eur = sar = Riyal
+sgd = nan eur = sgd = Dollar
+zar = nan eur = zar = Rand
+krw = nan eur = krw = Won
+sek = nan eur = sek = Krona
+chf = nan eur = chf = Franc
+twd = nan eur = twd = Dollar
+thb = nan eur = thb = Baht
+tnd = nan eur = tnd = Dinar
+try = nan eur = try = NewLira
+aed = nan eur = aed = Dirham
+gbp = nan eur = gbp = Pound
+usd = nan eur = usd = Dollar
+
+@context FX_20240314
+    afn = 0.01285 eur
+    dzd = 0.006809 eur
+    ars = 0.00108 eur
+    aud = 0.6044 eur
+    bhd = 2.4364 eur
+    brl = 0.1841 eur
+    cad = 0.6787 eur
+    kyd = 1.1 eur
+    cny = 0.1277 eur
+    dkk = 0.1341 eur
+    egp = 0.0192 eur
+    hkd = 0.1174 eur
+    huf = 0.002526 eur
+    isk = 0.00672 eur
+    inr = 0.01107 eur
+    iqd = 0.0007006 eur
+    ils = 0.2513 eur
+    jpy = 0.006198 eur
+    lbp = 1.03e-05 eur
+    mxn = 0.055 eur
+    mad = 0.09131 eur
+    nzd = 0.563 eur
+    nok = 0.0869 eur
+    qar = 0.2517 eur
+    rub = 0.01004 eur
+    sar = 0.2449 eur
+    sgd = 0.6873 eur
+    zar = 0.049 eur
+    krw = 0.0006938 eur
+    sek = 0.0889 eur
+    chf = 1.0393 eur
+    twd = 0.02909 eur
+    thb = 0.02564 eur
+    tnd = 0.296 eur
+    try = 0.0286 eur
+    aed = 0.2501 eur
+    gbp = 1.1708 eur
+    usd = 0.9185 eur
+@end

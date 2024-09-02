@@ -1,0 +1,464 @@
+[
+  {
+    "unit_type": "Area",
+    "unit": "m2",
+    "pint_short": "m**2",
+    "pint_long": "meter ** 2"
+  },
+  {
+    "unit_type": "Area",
+    "unit": "km2",
+    "pint_short": "km**2",
+    "pint_long": "kilometer ** 2"
+  },
+  {
+    "unit_type": "Area",
+    "unit": "ft2",
+    "pint_short": "ft**2",
+    "pint_long": "foot ** 2"
+  },
+  {
+    "unit_type": "Area",
+    "unit": "ha",
+    "pint_short": "ha",
+    "pint_long": "hectare"
+  },
+  {
+    "unit_type": "Data",
+    "unit": "MB",
+    "pint_short": "MB",
+    "pint_long": "megabyte"
+  },
+  {
+    "unit_type": "Data",
+    "unit": "GB",
+    "pint_short": "GB",
+    "pint_long": "gigabyte"
+  },
+  {
+    "unit_type": "Data",
+    "unit": "TB",
+    "pint_short": "TB",
+    "pint_long": "terabyte"
+  },
+  {
+    "unit_type": "Distance",
+    "unit": "m",
+    "pint_short": "m",
+    "pint_long": "meter"
+  },
+  {
+    "unit_type": "Distance",
+    "unit": "km",
+    "pint_short": "km",
+    "pint_long": "kilometer"
+  },
+  {
+    "unit_type": "Distance",
+    "unit": "ft",
+    "pint_short": "ft",
+    "pint_long": "foot"
+  },
+  {
+    "unit_type": "Distance",
+    "unit": "mi",
+    "pint_short": "mi",
+    "pint_long": "mile"
+  },
+  {
+    "unit_type": "Distance",
+    "unit": "nmi",
+    "pint_short": "nmi",
+    "pint_long": "nautical_mile"
+  },
+  {
+    "unit_type": "Energy",
+    "unit": "Wh",
+    "pint_short": "Wh",
+    "pint_long": "watt_hour"
+  },
+  {
+    "unit_type": "Energy",
+    "unit": "kWh",
+    "pint_short": "kWh",
+    "pint_long": "kilowatt_hour"
+  },
+  {
+    "unit_type": "Energy",
+    "unit": "MWh",
+    "pint_short": "MWh",
+    "pint_long": "megawatt_hour"
+  },
+  {
+    "unit_type": "Energy",
+    "unit": "MJ",
+    "pint_short": "MJ",
+    "pint_long": "megajoule"
+  },
+  {
+    "unit_type": "Energy",
+    "unit": "GJ",
+    "pint_short": "GJ",
+    "pint_long": "gigajoule"
+  },
+  {
+    "unit_type": "Energy",
+    "unit": "TJ",
+    "pint_short": "TJ",
+    "pint_long": "terajoule"
+  },
+  {
+    "unit_type": "Energy",
+    "unit": "BTU",
+    "pint_short": "Btu",
+    "pint_long": "british_thermal_unit"
+  },
+  {
+    "unit_type": "Energy",
+    "unit": "therm",
+    "pint_short": "thm",
+    "pint_long": "therm"
+  },
+  {
+    "unit_type": "Energy",
+    "unit": "MMBTU",
+    "pint_short": "MBtu",
+    "pint_long": "megabritish_thermal_unit"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "usd",
+    "pint_short": "usd",
+    "pint_long": "usd"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "afn",
+    "pint_short": "afn",
+    "pint_long": "afn"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "dzd",
+    "pint_short": "dzd",
+    "pint_long": "dzd"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "ars",
+    "pint_short": "ars",
+    "pint_long": "ars"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "aud",
+    "pint_short": "aud",
+    "pint_long": "aud"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "bhd",
+    "pint_short": "bhd",
+    "pint_long": "bhd"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "brl",
+    "pint_short": "brl",
+    "pint_long": "brl"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "cad",
+    "pint_short": "cad",
+    "pint_long": "cad"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "kyd",
+    "pint_short": "kyd",
+    "pint_long": "kyd"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "cny",
+    "pint_short": "cny",
+    "pint_long": "cny"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "dkk",
+    "pint_short": "dkk",
+    "pint_long": "dkk"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "egp",
+    "pint_short": "egp",
+    "pint_long": "egp"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "eur",
+    "pint_short": "eur",
+    "pint_long": "eur"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "hkd",
+    "pint_short": "hkd",
+    "pint_long": "hkd"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "huf",
+    "pint_short": "huf",
+    "pint_long": "huf"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "isk",
+    "pint_short": "isk",
+    "pint_long": "isk"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "inr",
+    "pint_short": "inr",
+    "pint_long": "inr"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "iqd",
+    "pint_short": "iqd",
+    "pint_long": "iqd"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "ils",
+    "pint_short": "ils",
+    "pint_long": "ils"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "jpy",
+    "pint_short": "jpy",
+    "pint_long": "jpy"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "lbp",
+    "pint_short": "lbp",
+    "pint_long": "lbp"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "mxn",
+    "pint_short": "mxn",
+    "pint_long": "mxn"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "mad",
+    "pint_short": "mad",
+    "pint_long": "mad"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "nzd",
+    "pint_short": "nzd",
+    "pint_long": "nzd"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "nok",
+    "pint_short": "nok",
+    "pint_long": "nok"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "qar",
+    "pint_short": "qar",
+    "pint_long": "qar"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "rub",
+    "pint_short": "rub",
+    "pint_long": "rub"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "sar",
+    "pint_short": "sar",
+    "pint_long": "sar"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "sgd",
+    "pint_short": "sgd",
+    "pint_long": "sgd"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "zar",
+    "pint_short": "zar",
+    "pint_long": "zar"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "krw",
+    "pint_short": "krw",
+    "pint_long": "krw"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "sek",
+    "pint_short": "sek",
+    "pint_long": "sek"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "chf",
+    "pint_short": "chf",
+    "pint_long": "chf"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "thb",
+    "pint_short": "thb",
+    "pint_long": "thb"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "twd",
+    "pint_short": "twd",
+    "pint_long": "twd"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "tnd",
+    "pint_short": "tnd",
+    "pint_long": "tnd"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "try",
+    "pint_short": "try",
+    "pint_long": "try"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "aed",
+    "pint_short": "aed",
+    "pint_long": "aed"
+  },
+  {
+    "unit_type": "Money",
+    "unit": "gbp",
+    "pint_short": "gbp",
+    "pint_long": "gbp"
+  },
+  {
+    "unit_type": "Time",
+    "unit": "ms",
+    "pint_short": "ms",
+    "pint_long": "millisecond"
+  },
+  {
+    "unit_type": "Time",
+    "unit": "s",
+    "pint_short": "s",
+    "pint_long": "second"
+  },
+  {
+    "unit_type": "Time",
+    "unit": "m",
+    "pint_short": "min",
+    "pint_long": "minute"
+  },
+  {
+    "unit_type": "Time",
+    "unit": "h",
+    "pint_short": "h",
+    "pint_long": "hour"
+  },
+  {
+    "unit_type": "Time",
+    "unit": "day",
+    "pint_short": "d",
+    "pint_long": "day"
+  },
+  {
+    "unit_type": "Time",
+    "unit": "year",
+    "pint_short": "a",
+    "pint_long": "year"
+  },
+  {
+    "unit_type": "Volume",
+    "unit": "ml",
+    "pint_short": "ml",
+    "pint_long": "milliliter"
+  },
+  {
+    "unit_type": "Volume",
+    "unit": "l",
+    "pint_short": "l",
+    "pint_long": "liter"
+  },
+  {
+    "unit_type": "Volume",
+    "unit": "m3",
+    "pint_short": "m**3",
+    "pint_long": "meter ** 3"
+  },
+  {
+    "unit_type": "Volume",
+    "unit": "standard_cubic_foot",
+    "pint_short": "ft**3",
+    "pint_long": "foot ** 3"
+  },
+  {
+    "unit_type": "Volume",
+    "unit": "gallon_us",
+    "pint_short": "gal",
+    "pint_long": "gallon"
+  },
+  {
+    "unit_type": "Volume",
+    "unit": "bbl",
+    "pint_short": "bbl",
+    "pint_long": "barrel"
+  },
+  {
+    "unit_type": "Weight",
+    "unit": "g",
+    "pint_short": "g",
+    "pint_long": "gram"
+  },
+  {
+    "unit_type": "Weight",
+    "unit": "kg",
+    "pint_short": "kg",
+    "pint_long": "kilogram"
+  },
+  {
+    "unit_type": "Weight",
+    "unit": "t",
+    "pint_short": "t",
+    "pint_long": "metric_ton"
+  },
+  {
+    "unit_type": "Weight",
+    "unit": "ton",
+    "pint_short": "ton",
+    "pint_long": "ton"
+  },
+  {
+    "unit_type": "Weight",
+    "unit": "lb",
+    "pint_short": "lb",
+    "pint_long": "pound"
+  }
+]

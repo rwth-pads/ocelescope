@@ -1,0 +1,44 @@
+
+In this thesis, we explored the potential of OCPM in CA, motivated by the growing need for organizations to report their GHG emissions.
+As a novel approach, OCPM offers a more comprehensive analysis of processes involving multiple types of objects, addressing key limitations of classical PM.
+
+Our contributions are both theoretical and practical.
+On a theoretical level, emissions are integrated into an OCEL in two steps:
+First, we propose a framework employing emission rules capable of estimating event and E2O emissions based on hand-selected emission factors.
+Second, allocation to events and objects is applied in order to create various emission perspectives and gain sustainability-related insights.
+Allocation to objects hereby determines carbon footprints along an object's lifecycle, aligning with LCA principles.
+To this end, three different allocation rules are proposed.
+
+As a practical contribution, we developed the OCEAn web application,
+which serves as a frontend tool enabling users to apply these methods in practice.
+OCEAn allows for the annotation of event logs with emission data, facilitates the execution of different allocation rules, and the export of enriched OCEL files for further use.
+
+% Using publicly available OCELs, the performance of different allocation rules is compared .
+
+After evaluating the emission rules w.r.t. runtime and different characteristics of the resulting emission distribution,
+a clear recommendation is deduced:
+Only the graph-based approach is capable of correctly allocating emissions to objects,
+% We find that a graph-based approach allocates most precisely,
+at the cost of high runtime when interactions of process resources are considered.
+With the distinction of resources and HUs,
+runtime is lowered by 93.1\% (11s, median).
+In addition, more logical object relationships are captured, and allocation is more precise.
+Pruning of the object interaction graph by removing edges between objects of the same type is suggested, reducing runtime further, while results are fully preserved on the test datasets.
+
+For future directions, emission estimation can be extended by additional techniques such as the discovery of event intervals for the use in time-based emission rules.
+Apart from that, sustainability and domain knowledge is needed for defining emission rules.
+Future research should address this limitation, for example by automatic emission factor recommendation.
+
+Evaluation shows the importance of the distinction of resources and HUs.
+This partition, currently defined manually, exhibits clear patterns in terms of the lifecycle lengths and degrees in the object interaction graph.
+However, we have identified outliers.
+Therefore, automating this setting is desirable for deployment in industry,
+but needs to be thoroughly addressed.
+
+The object allocation framework can be equipped with further rules using directed graphs, allowing for footprint annotation of intermediate products in manufacturing.
+Other enhancements could include the sequential execution of multiple allocation rules, making the framework more robust to different OCEL characteristics.
+Furthermore, the option of using object attributes for weighted emission distribution has been discussed.
+
+In summary, this work lays the groundwork for applying OCPM to emission assessments and carbon accounting.
+It provides both theoretical tools and a practical implementation that allows enriching event data with emission values.
+Next to direct utilization for CA and LCA, providing emission-enriched datasets supports further research in the application of PM for sustainability.

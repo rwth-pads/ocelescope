@@ -1,0 +1,137 @@
+
+The evaluation of the object allocation framework gives insights into various quantities extracted from target emission distribution and the number of target objects the events are allocated to. This amount is summarized by counting the number of events allocated to exactly one target (uniquely) or all targets (uniformly).
+
+% ---------------------------------------------------------------------
+\subsection*{Unique and Uniform Allocation}
+% ---------------------------------------------------------------------
+
+Uniform allocation leads to distributing an event's emissions evenly among all target objects. We claim that in most cases, this is not desirable:
+Object allocation is intended to identify the target objects closest related to each event, and uniform allocation means that the allocation rule is not capable of narrowing down the set of related targets.
+Assuming an HU type is chosen as target object type, these object types typically exhibit a high count and short object lifetimes. This leads to many non-overlapping target lifespans within the event log. This assumption is contradictory to all targets getting assigned the emissions of a single event.
+
+This picture changes when regarding emissions that are caused by the use of resources. This scenario is of high relevance as process resources like machines and vehicles are considered main emission drivers~\cite{Graves23rethink}.
+Whenever a resource emission is not closely linked to a target HU or to no HU at all, the long resource lifetime justifies allocating this emission to many or even all target objects. This is for example the case in regularly scheduled events like a vehicle that needs to undergo inspection (see example from \autoref{sec:intro-motiv}).
+
+The experiment, however, considers constant emissions per event, and it is found that in the four OCELs, each event is linked to at least one HU.
+This nullifies the aforementioned scenario for the scope of this evaluation, in which uniform allocation is, therefore, considered undesirable.
+Moreover, the \allocrule{AllTargets} rule allocates every event uniformly ($\funiform(\alphaAT)=1$, \cref{coroll:unif} \ref{coroll:unif-a-AT}), ignoring all information contained in the OCEL.
+Thus, its use is discouraged, and the rule is considered a minimal example demonstrating trivial allocation.
+
+Comparing the other two allocation rules, \allocrule{ParticipatingTargets} and \allocrule{ClosestTargets}, \cref{coroll:unif} \ref{coroll:unif-c-CT-PT} states that \allocrule{ClosestTargets} always allocates fewer or equally many events uniformly. This also becomes visible in \autoref{tab:eva-results-alloc}.
+Additionally, any event not allocated uniformly by \allocrule{ParticipatingTargets} is allocated to the same set of targets by \allocrule{ClosestTargets}, no matter what object interaction graph is used (\cref{coroll:unif} \ref{coroll:unif-d-PT-CT-eq}).
+%
+All in all, this means that if the allocation of \allocrule{ParticipatingTargets} is desirable, so is the one of \allocrule{ClosestTargets}, no matter what object interaction graph is chosen.
+Note that this only implies that \allocrule{ClosestTargets} is at least as powerful as \allocrule{ParticipatingTargets}. It does not prove that results from \allocrule{ClosestTargets} are always desirable.
+Still, we recommend always choosing \allocrule{ClosestTargets} over \allocrule{ParticipatingTargets}.
+
+As an opposite to uniform allocation, unique allocation signals that a single connection between the event in question and a target object is found. This is desirable for multiple reasons:
+First, it shows that the allocation rule is capable of narrowing down the target set to a maximum extent.
+Second, the emissions are assigned as a whole and no distribution is needed.
+Considering approaches different from evenly splitting the emissions is a possible extension of the current framework. For example, attributes of the target objects could be used as a weighting factor. In a transport of multiple packages, the individual emission shares are usually determined by the packages' weights and individual transport distances~\cite{Jevinger16consignment}. This is currently achieved by specifying an E2O emission rule using those attributes. As opposed to object allocation, this requires a direct E2O relation. Moreover, it has to be performed during emission estimation and cannot be used to apportion existing event emission values.
+
+Still, unique allocation is not always the desired result. In the aforementioned package example, multiple packages are the correct allocation result. Therefore, $\funiquealpha=1$ does \textit{not} necessarily indicate an optimal result.
+
+% ---------------------------------------------------------------------
+\subsection*{HU Interaction Graph vs. Full Object Interaction Graph}
+% ---------------------------------------------------------------------
+
+With \allocrule{ClosestTargets} identified as the recommended rule among the three presented, the implications of using different object interaction graphs are now assessed.
+
+First, the experiment shows that the HU interaction graph has significantly fewer edges as compared to the full version. Among the OCELs featuring resources (all but P2P), \num{97278} edges are saved (median), corresponding to \qty{65.6}{\percent} of all edges. Values observed range from \qtyrange{5.6}{89.4}{\percent}.
+\autoref{fig:eva-effects} shows edge number reduction in relation to runtime savings. There is a clear correlation as BFS runtime depends on graph size.
+What also changes upon limiting the graph to HUs is the degree of objects. This is due to resources usually interacting with significantly more objects than do HUs.
+The maximum degree in HU interaction graphs is on average 4847.5 lower than in the corresponding full graph.
+The degrees determine to how many vertices BFS traverses, scaling exponentially by path distance.
+In total, runtime in HU graphs is lower by up to \qty{99.6}{\percent} (3m56s), \qty{93.1}{\percent} (11s) on median.
+
+The allocation results also show why the HU graph is to be preferred:
+Uniform allocation drops further, occurring in only 4 of 30 target object types (in 14 object types using the full graph, 27 using \allocrule{ParticipatingTargets}).
+Apart from these measures, interactions between HUs are considered more meaningful than those involving resources.
+Allocating emissions using a path containing a resource thus makes use of weaker object relations that do not make objects part of the same process execution.
+This becomes especially clear in production processes, like the one portrayed in the Hinge OCEL: When a \otype{SteelSheet} interacts with a \otype{FormedPart}, this means the \otype{FormedPart} is produced from the \otype{SteelSheet}.
+Therefore, upstream emissions stemming from producing the \otype{SteelSheet} are rightfully allocated to a \otype{FormedPart}.
+This is not the case in interactions with resources like \otype{Machines}:
+A machine producing both a \otype{SteelSheet} and a \otype{FormedPart} does not make them connected in any way.
+
+The distance-1 paths in the order management log (\autoref{fig:orderManagementWithDistances-subgraph-createPackage})
+support this argument. Here, \otype{products} are resources corresponding to \otype{items} as their tangible instances. It is not logical to allocate emissions to other orders which contain items of the same product.
+In total, the use of the HU interaction graph over the full object interaction graph is recommended for three reasons:
+First, it captures more logical connections between objects.
+Second, results are more precise, allocating fewer events uniformly.
+Third, runtime drops significantly.
+
+% Runtime reduction (full -> HU graph)
+% abs: \qty{30.87}{\second} [\qtyrange{-0.33}{236.73}{\second}], mean 77.79
+% rel: \qty{95.4}{\percent} [\qtyrange{-21.7}{99.6}{\percent}], mean 85.1%
+% Edge number reduction (full -> HU graph)
+% abs: \num{97278} [\numrange{3572}{128674}], mean 70501.65
+% rel: \qty{65.6}{\percent} [\qtyrange{5.6}{89.4}{\percent}], mean 53.4%
+
+% ---------------------------------------------------------------------
+\subsection*{Removing Object Type Self-Loops}
+% ---------------------------------------------------------------------
+
+Another option to reduce graph size has been proposed by removing edges between objects of the same type, called OT self-loops.
+The experiment shows that on the data tested, allocation results are fully preserved.
+Edge numbers hereby drop by up to \qty{70.8}{\percent} (median \qty{17.4}{\percent}), runtime by up to 11.7s (\qty{32.9}{\percent}), 0.08s (\qty{2.8}{\percent}) on median.
+While this influence is much lower than the one introduced by the HU graph, it does further optimize performance.
+
+Though results are not affected on the data tested, we are not able to prove this in general. One can easily construct counterexamples, for example by making an object interaction graph consist only of OT self-loops. However, this implies that each event's participating objects are of the same type.
+In the four OCELs tested, each event is related to objects of at least two types. Assuming this property holds and a shortest path now contains one OT loop from shared participation in event $e$, there is always a path longer by just 1 using an object of a different type that also participates in $e$.
+This illustrates how the influence of the adjustment is bounded, but still does not suffice to prove full result preservation.
+
+% {\small\color{gray}
+% \begin{outline}
+%   \1 Quantities:
+%     \2 Runtime reduction (abs.): \qty{0.08}{\second} [\qtyrange{-2.31}{11.69}{\second}]
+%     \2 Runtime reduction (rel.): \qty{2.8}{\percent} [\qtyrange{-2.4}{32.9}{\percent}]
+%     \2 Edge number reduction (abs.): \num{13050} [\numrange{0}{37392}]
+%     \2 Edge number reduction (rel.): \qty{17.4}{\percent} [\qtyrange{0.0}{70.8}{\percent}]
+% \end{outline}}
+  
+% ---------------------------------------------------------------------
+\subsection*{Emission Estimation}
+% ---------------------------------------------------------------------
+
+As opposed to the object allocation framework, rule-based emission estimation is not included in the experiment.
+Accuracy of emission rules is influenced by many uncertainties, including quality of the input data from OCEL attributes, and the choice of the emission factor.
+Here, the OCEAn application relies on the user's domain and sustainability knowledge.
+The concept of emission rules itself is designed to be domain-agnostic. Its only limitation is to exclusively use emission factors linear to the input data, an assumption supported by all major emission factor databases~\cite{climatiq24}, with the word \textit{factor} already hinting towards linearity.
+
+Emission rules can be applied on event level and on E2O level. The only difference is that the E2O rules allow counting objects and using attribute values of multiple objects.
+Towards object allocation, E2O emission rules bind emissions to an object, ensuring unique allocation in case the object is chosen as target.
+When exporting emission data to the OCEL~2.0 format, E2O emissions are aggregated on event level.
+This is due to OCEL~2.0 not supporting E2O attributes. When again importing such data, the above linkage of E2O emissions to a potential target object is lost.
+
+The framework does not support rule-based emission computation on object level.
+For adding upstream emissions along a supply chain, emissions have to be assigned to a certain activity, e.g., corresponding to ordering a certain product.
+This practice only works when there is a one-to-one correspondence between the objects and the chosen activity, i.e., the activity appears exactly once within the object's lifecycle. In order to drop this prerequisite and directly attach the emission to the object, an artificial activity can be added. This is however currently not supported by the OCEAn application.
+
+% ---------------------------------------------------------------------
+\subsection*{Limitations and Extensions}
+% ---------------------------------------------------------------------
+
+Data-driven emission computation has the inherent limitation of being restricted to the scope of the data available. 
+In PM, this is usually a certain business process.
+In order to perform corporate CA, this is a major issue as businesses need to report their overall emissions~\cite{Brehm22process}.
+Therefore, employing OCEAn only partially performs corporate CA.
+
+% Emission rules - Intervals -> TDABC
+Possible extensions of emission rules include the discovery of interval durations.
+This allows for employing time-based emission factors, for example for machines with constant energy consumptions, relating to TDABC principles that have already been combined with process mining~\cite{Riesener21time,Halaska21tdabc}.
+
+% Resource emissions -> Allocation strategy
+In object allocation, certain scenarios require approaches not solvable by the current framework. This includes events only linked to resources, for example the inspection of vehicles mentioned before.
+If some vehicle requires more carbon-intesne inspections than others, it may be desirable to allocate these emissions only to targets interacting with the vehicle -- to this end, the full object interaction graph is required.
+However, other emissions are more logically allocated via the HU interaction graph.
+A modified allocation framework that executes multiple allocation rules after each other is capable of satisfying both conditions, gradually allocating events based on different conditions.
+
+% Directed graph -> TOTeM
+In order to compute shortest distances between objects, an undirected object interaction graph is used. However, directed graphs are also applicable, with a different outcome: Modified emission rules then could only allow passing the emissions in one direction. The hinge production process serves as an application example for this: As stated before, many object interactions here correspond to production steps. This is clearly a directed relation, as one object is produced from the other. The TOTeM model~\cite{Liss24totem} is capable of extracting this information from the event log.
+
+Choosing directed graphs allows for an entirely different notion of object carbon footprints. In the production example, it is logical to assign each (intermediate) product a footprint, accumulating emissions along the process (i.e., with increasing event timestamps). This contradicts the allocation invariant (\cref{def:valid-obj-emissions}), raising the need for a different allocation framework.
+However, this idea is not applicable in all processes and object types.
+For example, an \otype{order} should be assigned all downstream emissions from package delivery.
+These examples indicate that a universal solution to the object allocation problem does not exist.
+
+%     \2 Arguing by this logic, OT self-loops do not make much sense, as objects are only converted to other objects when they have different types. When an object is changed throughout the process and it keeps its type, it stays the same object. (Especially because dynamic object attributes are now supported)

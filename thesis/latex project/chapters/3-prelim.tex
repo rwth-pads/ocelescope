@@ -1,0 +1,406 @@
+This chapter introduces all concepts and notation that are used in the remainder of this thesis.
+In \autoref{sec:prelim-math}, basic mathematical foundations are introduced,
+followed by object-centric event logs (OCELs) in \autoref{sec:prelim-ocel}.
+
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+\section{Mathematical Foundations}
+\label{sec:prelim-math}
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+
+% TODO check for usage!
+\begin{outline}
+  \1 $\N = \{1, 2, 3, \dots\}$ denotes the set of \textit{natural numbers}, $\N_0=\N\cup\{0\}$ the set of \textit{natural numbers including zero}, $\Z$ the set of \textit{integers} and $\R$ the set of \textit{real numbers}. \textit{Infinity} is denoted by $\infty$ and is not contained in any of the aforementioned sets.
+  %
+  \1 For a set $X$, $\Pot(X)$ denotes the \textit{powerset} of $X$, i.e., the set of subsets of $X$.
+  A \textit{partition} of $X$ is a set of subsets $P\subseteq\Pot(X)$ s.t. the subsets in $P$ are pairwise disjoint ($X' {\cap} X'' = \emptyset\;\forall X',X''\in P$) and their union is $X$, i.e., ($\bigcup_{X'\in P} X' = X$).
+  %
+  \1 A \textit{function} $f\colon X \to Y$ assigns a value $f(x)\in Y$ to each $x\in X$.
+  A \textit{partial function} $f\colon X \pfunc Y$ does not necessarily map all $x\in X$ to a value in $Y$.
+  For those $x\in X$ where $f(x)$ is undefined, we write $f(x)=\bot$.
+  
+  For a function or partial function $f\colon X\to Y$,
+  the \textit{range} of $f$ is given by $\rng(f)=\{f(x)\mid x\in X\}\setminus\{\bot\}$.
+  The \textit{domain} of $f$ is denoted by $\dom(f)=\{x\in X \mid f(y)\neq\bot\}$.
+  %
+  The \textit{inverse image} of a set $Y'\subseteq Y$ under $f$ is defined as
+  $f^{-1}(Y) = \{ x\in X \mid f(x) \in Y \}$,
+  making $f^{-1}$ a function $\Pot(Y)\to\Pot(X)$.
+  %
+  \1 We denote the \textit{minimum}
+  %and {maximum}
+  of a finite set $Y\subseteq\R\cup\{\infty\}$
+  by $\min Y$.
+  % and $\max X$, respectively.
+  We assume $\min\emptyset=\infty$.
+  % and $\max\emptyset=-\infty$.
+
+  For sets $X$ and $Y\subseteq\R\cup\{\infty\}$, a function $f\colon X\to Y$ and a finite set $X'\subseteq X$, we write
+  \begin{align*}
+    \argmin_{x\in X'} f(x) &\coloneqq
+    f^{-1}\Bigl( \Bigl\{ \min\{f(x) \mid x\in X'\} \Bigr\} \Bigr).
+  \end{align*}
+  %
+  \1 A \textit{sequence} of length $n\in\N_0$ over a domain set $X$ is an ordered list containing elements $x_1,\dots,x_n\in X$ and is denoted by $\sigma=\seq{x_1,\dots,x_n}$. The length of a sequence is $\abs{\sigma}\coloneqq n$. The set of sequences over $X$ is denoted by $X^*$. The set of sequences of a specific length $n\in\N_0$ over $X$ is denoted by $X^n$. Sequences can be empty, with $X^0 = \{\emptysequence\}$.
+  %
+  \1 An \textit{undirected graph} is a tuple $G=(V,E)$
+  where $\Vertices(G)\coloneqq V$ is the set of vertices
+  and $\Edges(G)\coloneqq E\subseteq\bigl\{ \{u,v\}\subseteq V \bigm| u \neq v \bigr\}$ is the set of edges.
+    %
+    \2 Two vertices $u,v\in V$ are \textit{connected} in $G$ if $\{u,v\}\in E$.
+    %
+    \2 A \textit{path} of length $n\in\N_0$ from $v_0$ to $v_n$ in $G$ is a sequence of vertices $\seq{v_0, \dots, v_n}\in V^{n+1}$ where $\{v_i,v_{i+1}\}\in E$ for all $0 \leq i \leq n$.
+    %
+    \2 A vertex $v\in V$ is \textit{reachable} in $G$ from $u\in V$ if there exists a path from $u$ to $v$ in $G$.
+    %
+    \2 A \textit{connected component} of $G$ is a maximal set $V'\subseteq V$ s.t. all vertices in $V'$ are mutually reachable. The set of connected components of $G$ is a partition of $V$ and is denoted by $\Comp(G)$.
+    %
+    \2 The \textit{distance} of $u$ and $v$ in $G$ is the minimal $n\in\N_0$ s.t. there exists a path of length $n$ from $u$ to $v$ in $G$ and is denoted by $\dist{G}(u,v)\coloneqq n$. If $v$ is not reachable from $u$ in $G$, then $\dist{G}(u,v)\coloneqq \infty$. This makes $\dist{G}$ a function $V {\times} V \to \N_0 \cup\{\infty\}$.
+    Note that $\dist{G}(u, v)=0$ if and only if $u=v$.
+    %
+    \2 The \textit{neighborhood} of $v\in V$ is the set of vertices $v$ is connected to. The \textit{degree} of $v$ is the size of the neighborhood of $v$ and is denoted by
+    $\deg_G(v)\coloneqq\abs{\bigl\{ u \in V \bigm| \{u,v\}\in \Edges(G) \bigr\}}$
+    %
+    \2 A \textit{clique} in $G$ is a set of vertices that are mutually connected.
+  %
+
+\0 For data visualization and evaluation purposes, some descriptive statistics are used. These measures are defined for a given sequence of numbers
+$x = \seq{x_1,\dots,x_n}\in\R^n$, $n\in\N$.
+  \1 The \textit{mean} of $x$ is defined as
+  $\mean(x)\coloneqq\frac{1}{n} \sum_{i=1}^n x_i$.
+  % \2 The minimum and maximum of $x$ are defined as
+  % $\min(x)\coloneqq \min\{x_1,\dots,x_n\}$ and
+  % $\max(x)\coloneqq \max\{x_1,\dots,x_n\}$.
+  %
+  \1 For an ordering $x^{(1)} \leq\dots\leq x^{(n)}$ of $x$, the \textit{median} of $x$ is denoted by
+  \begin{align*}
+    \median(x) &\coloneqq \begin{cases}
+      x^{((n+1)/2)} & \text{if $n$ is odd}, \\
+      \frac{1}{2} \Bigl(
+        x^{(n/2)} + x^{(n/2+1)}
+      \Bigr) & \text{if $n$ is even}.
+    \end{cases}
+  \end{align*}
+  %
+  \1 For $n>1$, the \textit{standard deviation} of $x$ is defined as
+  \begin{align*}
+    \std(x) &\coloneqq \sqrt{
+      \tfrac{1}{n-1} \sum_{i=1}^n \bigl(x_i - \mean(x)\bigr)^2
+    }.
+  \end{align*}
+  The \textit{variation coefficient} is a relative version of the standard deviation and is denoted by
+  $\cv(x)\coloneqq\frac{\std(x)}{\mean(x)}$.
+
+\0 In the remainder of the thesis, the compact notation ``$m\,[a - b]$'' is used to summarize a number series $x\in\R^*$ with $\median(x)=m,\min(x)=a$ and $\max(x)=b$.
+\end{outline}
+
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+\section{Object-Centric Event Logs}
+\label{sec:prelim-ocel}
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+
+As mentioned in \autoref{chap:rw}, there have been two versions of the OCEL standard as of now.
+This project's concept is built around the most recent one of them, the OCEL~2.0 standard~\cite{OCEL2}.
+In the following, the formal definition of an OCEL according to the standard is given.
+
+First, universe notation is used to denote a set of unique identifiers for events, objects and other entities.
+The following universes are defined as pairwise disjoint sets:
+\begin{itemize}
+  \item $\Univ{ev}$ is the universe of events,
+  \item $\Univ{etype}$ is the universe of event types,
+  \item $\Univ{obj}$ is the universe of objects,
+  \item $\Univ{otype}$ is the universe of object types,
+  \item $\Univ{attr}$ is the universe of attribute names,
+  \item $\Univ{qual}$ is the universe of qualifiers.
+\end{itemize}
+Additionally,
+\begin{itemize}
+  \item $\Univ{val}$ is the universe of attribute values,
+  \item $\Univ{time}$ is the universe of timestamps, including $0,\infty\in\Univ{time}$, totally ordered with $0\leq t \leq \infty$ for all $t\in\Univ{time}$.
+\end{itemize}
+
+\begin{definition}
+  An Object-Centric Event Log (OCEL) is a tuple
+  \begin{align*}
+    L &= (E,O,\EA,\OA,\evtype,\mathit{time},\objtype,\eatype,\oatype,\eaval,\oaval,\EtoO,\OtoO)
+  \end{align*}
+  where
+  \begin{itemize}
+    \item $E\subseteq\Univ{ev}$ is the set of events,
+    \item $O\subseteq\Univ{obj}$ is the set of objects,
+    \item $\evtype\colon E \to \Univ{etype}$ assigns event types to events,
+    \item $\mathit{time}\colon E \to \Univ{time}$ assigns timestamps to events,
+    \item $\objtype\colon O \to \Univ{otype}$ assigns object types to objects,
+    \item $\EA\subseteq\Univ{attr}$ is the set of event attributes,
+    \item $\OA\subseteq\Univ{attr}$ is the set of object attributes,
+    \item $\eatype\colon \EA \to \Univ{etype}$ assigns event types to event attributes,
+    \item $\oatype\colon \OA \to \Univ{otype}$ assigns object types to object attributes,
+    \item $\eaval\colon(E {\times} \EA) \pfunc \Univ{val}$ assigns values to event attributes,
+    \item $\oaval\colon(O {\times} \OA {\times} \Univ{time}) \pfunc \Univ{val}$ assigns values to object attributes,
+    \item $\EtoO \subseteq E {\times} \Univ{qual} {\times} O$ are the qualified event-to-object relations,
+    \item $\OtoO \subseteq O {\times} \Univ{qual} {\times} O$ are the qualified object-to-object relations.
+  \end{itemize}
+  \label{def:ocel}
+\end{definition}
+
+In the following, we define auxiliary notation for an OCEL $L$. Parts of these are originally proposed by the OCEL~2.0 standard:
+\begin{itemize}
+  \item $\ETL = \{\evtype(e) \mid e \in E\}$ is the set of event types (activities),
+  \item $\OTL = \{\objtype(o) \mid o \in O\}$ is the set of object types,
+  %
+  % \item $\QEtoOL = \{q \in\Univ{qual} \mid \exists e,o: (e,q,o)\in\EtoO \}$ is the set of event-to-object qualifiers,
+  %
+  % \item $\QOtoOL = \{q \in\Univ{qual} \mid \exists o_1,o_2: (o_1,q,o_2)\in\OtoO \}$ is the set of object-to-object qualifiers,
+  %
+  % $\objL(e)$
+  \item For an event $e\in E$, the set of objects participating in $e$ is denoted by
+  \begin{align*}
+    \objL(e) &\coloneqq \{o \in O \mid \exists q\in\Univ{qual}\colon(e, q, o)\in\EtoO \}.
+  \end{align*}
+  %
+  % eaval aux
+  % \item For an event $e\in E$ and an event attribute $\ea\in\Univ{attr}$ with $\evtype(e)=\eatype(\ea)$:
+  % \begin{align*}
+  %   \eaval _{\ea}(e) &\coloneqq\left\{\begin{array}{ll}
+  %     \eaval(e, \ea)
+  %     & \text{if } (e, \ea) \in\dom(\eaval), \\
+  %     \bot & \text{else}.
+  %   \end{array}\right. \\
+  %   &\hspace*{30em}
+  % \end{align*}
+  % \vspace*{-3.5em}
+  %
+  % oaval aux
+  % \item For an object $o\in O$, an object attribute $\oa\in\Univ{attr}$ with $\objtype(o)=\oatype(\oa)$, and a timestamp $t\in\Univ{time}$:
+  % \begin{align*}
+  %   \oaval_{\oa}^t(o) &\coloneqq\left\{\begin{array}{ll}
+  %     \oaval(o, \oa, t')
+  %     & \begin{array}{l}
+  %       \exists t'\in\Univ{time} \colon t'\leq t \land (o, \oa, t') \in\dom(\oaval), \\
+  %       \land \neg\exists t''\in\Univ{time} \colon \\
+  %       \;\bigl(
+  %         t' < t'' \leq t
+  %         \land (o, \oa, t') \in\dom(\oaval)
+  %       \bigr)
+  %     \end{array}\\
+  %     \bot & \text{else},
+  %     % \hspace*{19em}
+  %   \end{array}\right. \\
+  %   \oaval_{\oa}(o) &\coloneqq \oaval_{\oa}^\infty(o). \\
+  %   &\hspace*{30em}
+  % \end{align*}
+  % \vspace*{-3.5em}
+  %
+\end{itemize}
+
+% ---------------------------------------------------------------------
+\subsection{Example Log}
+\label{ssec:prelim-ocel-rex}
+% ---------------------------------------------------------------------
+
+\begin{table}[t]
+  \caption{An OCEL from a logistics process, represented by three tables: On the left, events and objects are given with identifiers, activity resp. object type, and further attributes. On the right, the E2O relations are listed, i.e., participations of objects in events.}
+  \label{tab:rex-ocel}
+  \centering
+  \small
+  \begin{minipage}[t]{.65\textwidth}
+    \strut\vspace*{-\baselineskip}\newline
+    % Events
+    \begin{tabularx}{\textwidth}{p{2cm}p{2cm}S[table-format=3.1,table-number-alignment=center]X}
+      \toprule
+      \textbf{Event} & \textbf{Activity} & \textbf{Distance} & \textbf{Timestamp} \\
+      \midrule
+      \ev{receive}{o1} & receive order & {\textemdash} & 05-07 21:00 \\
+      \ev{get}{i1} & get item & {\textemdash} & 05-10 18:00 \\
+      \ev{receive}{o2} & receive order & {\textemdash} & 05-14 10:30 \\
+      \ev{load}{p1} & load & {\textemdash} & 05-14 12:00 \\
+      \ev{deliver}{1} & deliver & 52.00 & 05-14 13:00 \\
+      \ev{get}{i3} & get item & {\textemdash} & 05-15 13:00 \\
+      \ev{get}{i2} & get item & {\textemdash} & 05-20 13:00 \\
+      \ev{get}{i4} & get item & {\textemdash} & 05-20 13:10 \\
+      \ev{load}{p2} & load & {\textemdash} & 05-20 14:00 \\
+      \ev{load}{p3} & load & {\textemdash} & 05-20 14:05 \\
+      \ev{deliver}{p2p3} & deliver & 20.00 & 05-20 15:00 \\
+      \ev{deliver}{p3} & deliver & 40.00 & 05-20 15:42 \\
+      \ev{inspect}{v1} & inspect & 118.00 & 05-22 15:00 \\
+      \ev{inspect}{v2} & inspect & 115.00 & 05-26 16:30 \\
+      \bottomrule
+    \end{tabularx}
+    
+    \vspace*{.25em}
+    % \vfill
+
+    % Objects
+    \begin{tabularx}{\textwidth}{p{2cm}p{2cm}S[table-format=2.1,table-number-alignment=center]X}
+      % \toprule
+      \textbf{Object} & \textbf{Obj. type} & \textbf{Consumption} & \\
+      \midrule
+      \texttt{o1} & Order & {\textemdash} &  \\
+      \texttt{o2} & Order & {\textemdash} &  \\
+      \texttt{i1} & Item & {\textemdash} &  \\
+      \texttt{i2} & Item & {\textemdash} &  \\
+      \texttt{i3} & Item & {\textemdash} &  \\
+      \texttt{i4} & Item & {\textemdash} &  \\
+      \texttt{p1} & Pallet & {\textemdash} &  \\
+      \texttt{p2} & Pallet & {\textemdash} &  \\
+      \texttt{p3} & Pallet & {\textemdash} &  \\
+      \texttt{v1} & Vehicle & 10 &  \\
+      \texttt{v2} & Vehicle & 12.5 &  \\
+      \bottomrule
+    \end{tabularx}
+  \end{minipage}
+  \hspace*{1em}
+  \begin{minipage}[t]{.3\textwidth}%\rule{2cm}{1cm}
+    \strut\vspace*{-\baselineskip}\newline
+    % E2O
+    \begin{tabular}{ll}
+      \toprule
+      \textbf{Event} & \textbf{Object} \\
+      \midrule
+      \ev{receive}{o1} & \texttt{o1} \\
+      \ev{get}{i1} & \texttt{o1} \\
+      \ev{get}{i1} & \texttt{i1} \\
+      \ev{receive}{o2} & \texttt{o2} \\
+      \ev{load}{p1} & \texttt{i1} \\
+      \ev{load}{p1} & \texttt{p1} \\
+      \ev{load}{p1} & \texttt{v1} \\
+      \ev{deliver}{1} & \texttt{p1} \\
+      \ev{deliver}{1} & \texttt{v1} \\
+      \ev{get}{i3} & \texttt{o2} \\
+      \ev{get}{i3} & \texttt{i3} \\
+      \ev{get}{i2} & \texttt{o1} \\
+      \ev{get}{i2} & \texttt{i2} \\
+      \ev{get}{i4} & \texttt{o2} \\
+      \ev{get}{i4} & \texttt{i4} \\
+      \ev{load}{p2} & \texttt{i2} \\
+      \ev{load}{p2} & \texttt{p2} \\
+      \ev{load}{p2} & \texttt{v2} \\
+      \ev{load}{p3} & \texttt{i3} \\
+      \ev{load}{p3} & \texttt{i4} \\
+      \ev{load}{p3} & \texttt{p3} \\
+      \ev{load}{p3} & \texttt{v2} \\
+      \ev{deliver}{p2p3} & \texttt{p2} \\
+      \ev{deliver}{p2p3} & \texttt{p3} \\
+      \ev{deliver}{p2p3} & \texttt{v2} \\
+      \ev{deliver}{p3} & \texttt{p3} \\
+      \ev{deliver}{p3} & \texttt{v2} \\
+      \ev{inspect}{v1} & \texttt{v1} \\
+      \ev{inspect}{v2} & \texttt{v2} \\
+      \bottomrule
+    \end{tabular}
+  %
+  \end{minipage}
+\end{table}
+
+\autoref{tab:rex-ocel} shows an exemplary OCEL.
+The dataset corresponds to the same logistics process introduced in \autoref{sec:intro-motiv}: The company receives \otype{orders} consisting of multiple \otype{items}. These items get loaded onto \otype{pallets} and are then delivered using \otype{vehicles}.
+
+The data are shown by means of three tables: events, objects, and E2O relations.
+As opposed to other formats like OCEL 1.0~\cite{OCEL1}, the second version of the standard uses this relational data model to efficiently store object-centric process data in an \texttt{sqlite} database file, avoiding sparse tables.
+
+The events (top left table) are represented by an identifier and are assigned an activity, a timestamp, and more attributes, in this case a distance (for the activities \activity{deliver} and \activity{inspect}).
+Objects (bottom left) have an identifier and a type, with \otype{vehicles} having the attribute \textit{consumption}.
+E2O relations (right) are pairs of one event and one object.
+For simplicity, the example does not contain qualified relations.
+
+\autoref{chap:method} introduces the method employed for emission analysis of OCELs.
+For this, the logistics event log is used as a minimal example to demonstrate different parts of the method.
+
+% ---------------------------------------------------------------------
+\subsection{Object Interaction Graphs}
+\label{ssec:prelim-ocel-og}
+% ---------------------------------------------------------------------
+
+In OCPM, the object interaction graph captures relations between pairs of objects extracted from the log.
+Two objects have are connected in this graph if they share some common event~\cite{Fahland22process,Adams22defining}.
+With the advent of OCEL~2.0~\cite{OCEL2}, object interaction graphs have been enriched with the newly added O2O relations, or vice versa~\cite{Liss24totem}.
+This concept is used in this work as well,
+allowing to explictly add more edges to the graph if two objects do not interact in an event.
+
+Object interaction graphs are used in this work for allocating emissions to a subset of the objects, called target objects.
+To this end, shortest paths from other objects to target objects are computed.
+As edges between pairs of target objects are not relevant for this use case, they are removed in order to reduce graph size.
+
+\begin{nobreaks}
+  \begin{definition}[Object Interaction Graph]
+    For an OCEL~$L$ and a set of target objects~$\Omega\subseteq O$ with~$\Omega\neq\emptyset$, the \textit{object interaction graph} $\OGOmegaL$ is an undirected graph defined by
+    \begin{alignat*}{6}
+      \Vertices\bigl(\OGOmegaL\bigr) &\,&=&&\,& O, \\
+      \Edges\bigl(\OGOmegaL\bigr) &&=&&&
+        \Bigl(\Bigl\{
+          \{ o_1, o_2 \} \subseteq O
+        \Bigm|
+          o_1 {\neq} o_2 \land
+          \exists e\in E \colon o_1,o_2 \in\objL(e)
+        \Bigr\} \\
+        &&\cup&&&
+        \hphantom{\Big(} \Bigl\{
+          \{o_1,o_2\} \subseteq O
+        \Bigm|
+          o_1 {\neq} o_2 \land
+          (o_1,q,o_2)\in\OtoO
+        \Bigr\} \Bigr) \\
+        % \;\setminus\; \Pot(\Omega)
+        &&\setminus&&& \Pot(\Omega)
+    \end{alignat*}
+    \label{def:og}
+  \end{definition}
+\end{nobreaks}
+
+\begin{figure}[t]
+	\centering
+  \small
+  \begin{tikzpicture}[
+    event/.style={rectangle,draw,inner sep=0,minimum size=.6cm},
+    object/.style={circle,draw,inner sep=.25em,font=\ttfamily},
+    target object/.style={object,double},
+    order/.style={object,fill=order!25},
+    item/.style={target object,fill=item!25},
+    pallet/.style={object,fill=pallet!25},
+    vehicle/.style={object,fill=vehicle!25},
+  ]
+    \node[item] (i1) {i1};
+    \node[item,right=1cm of i1] (i2) {i2};
+    \node[item,right=2cm of i2] (i3) {i3};
+    \node[item,right=1cm of i3] (i4) {i4};
+    \coordinate (n_i1_i2) at ($(i1.north)!.5!(i2.north)$);
+    \coordinate (n_i3_i4) at ($(i3.north)!.5!(i4.north)$);
+    \node[order,above=.75cm of n_i1_i2] (o1) {o1};
+    \node[order,above=.75cm of n_i3_i4] (o2) {o2};
+    \node[pallet,below=.75cm of i1] (p1) {p1};
+    \node[pallet,below=.75cm of i2] (p2) {p2};
+    % \node[pallet] (p3) at ($(i3)!.5!(i4) + (0,1cm)$) {p\_3};
+    \coordinate (s_i3_i4) at ($(i3.south)!.5!(i4.south)$);
+    \node[pallet,below=.75cm of s_i3_i4] (p3) {p3};
+    \node[vehicle,below=.75cm of p1] (v1) {v1};
+    \coordinate (s_p2_p3) at ($(p2.south)!.5!(p3.south)$);
+    \node[vehicle,below=.75cm of s_p2_p3] (v2) {v2};
+    %
+    \draw
+      (o1) edge (i1) (o1) edge (i2)
+      (o2) edge (i3) (o2) edge (i4)
+      (i1) edge (p1)
+      (p1) edge (v1)
+      (i2) edge (p2)
+      (i3) edge (p3) (i4) edge (p3)
+      (p2) edge (v2) (p3) edge (v2)
+      (i2) edge (v2) (i3) edge (v2)
+      (p2) edge (p3);
+    \draw[bend left=40] (i4) edge (v2);
+    \draw[bend right=60] (i1) edge (v1);
+    \draw[rwthred,dashed] (i3) -- (i4)
+      node[draw,solid,strike out,color=rwthred,pos=.45] {}
+      node[draw,solid,strike out,color=rwthred,pos=.55] {};
+      % node[draw,strike out,color=rwthred,pos=.55] {};
+  \end{tikzpicture}
+	\caption{Object interaction graph of the logistics example log. For visualization, objects are colored depending on their type, target objects (here all \otype{items}) are highlighted with double borders. The \otype{items} \texttt{i3} and \texttt{i4} are \textbf{not} connected as they are both target objects.}
+	\label{fig:og-example}
+\end{figure}
+
+\autoref{fig:og-example} shows the object interaction graph $\OGOmegaL$ extracted from the example log from \autoref{tab:rex-ocel}, with
+$\Omega\coloneqq\{ \texttt{i1}, \texttt{i2}, \texttt{i3}, \texttt{i4} \}$ defined as the set of target objects.
+As the OCEL does not contain O2O relations, the edges all correspond to object interactions.
+There is no edge between the \otype{item} objects \texttt{i3} and \texttt{i4} as they are both target objects. When instead labeling the \otype{pallet} objects as targets, the items will be connected, and the edge betweeen \texttt{p2} and \texttt{p3} will be removed.

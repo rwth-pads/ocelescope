@@ -1,0 +1,21 @@
+:root {
+  --rwth-red: #D22027;
+  --rwth-orange: #F89C0E;
+  --rwth-maygreen: #A6D71C;
+  --rwth-green: #4DBD38;
+  --rwth-turquoise: #00AAAF;
+  --rwth-teal: #0A6167;
+  --rwth-violet: #5B215F;
+  --rwth-purple: #7264B8;
+  --rwth-bordeaux: #9E1639;
+  --rwth-blue: #176FC1;
+  --rwth-lightblue: #8EBFE9;
+  --rwth-magenta: #EC0772;
+  --rwth-yellow: #FFF200;
+
+  --ocean-green: var(--rwth-green);
+}
+
+.text-ocean-green {
+  color: var(--ocean-green);
+}

@@ -1,0 +1,40 @@
+﻿order;iso_currency_code;country;currency;symbol;rel;rate
+1;afn;Afghanistan;Afghani;Afs;AFN/EUR;0,01285000
+2;dzd;Algeria;Dinar;DA;DZD/EUR;0,00680900
+3;ars;Argentina;Peso;$;ARS/EUR;0,00108000
+4;aud;Australia;Dollar;$;AUD/EUR;0,60440000
+5;bhd;Bahrain;Dinar;BD;BHD/EUR;2,43640000
+6;brl;Brazil;Real;R$;BRL/EUR;0,18410000
+7;cad;Canada;Dollar;$;CAD/EUR;0,67870000
+8;kyd;Cayman Islands;Dollar;$;KYD/EUR;1,10000000
+9;cny;China;Yuan;¥;CNY/EUR;0,12770000
+10;dkk;Denmark;Krone;kr;DKK/EUR;0,13410000
+11;egp;Egypt;Pound;LE;EGP/EUR;0,01920000
+12;eur;Euro Zone;Euro;€;eur/eur;
+13;hkd;Hong Kong;Dollar;$;HKD/EUR;0,11740000
+14;huf;Hungary;Forint;Ft;HUF/EUR;0,00252600
+15;isk;Iceland;Krona;kr;ISK/EUR;0,00672000
+16;inr;India;Rupee;₹;INR/EUR;0,01107000
+17;iqd;Iraq;Dinar;ID;IQD/EUR;0,00070060
+18;ils;Israel;New Shekel;NIS;ILS/EUR;0,25130000
+19;jpy;Japan;Yen;¥;JPY/EUR;0,00619800
+20;lbp;Lebanon;Pound;LL;LBP/EUR;0,00001030
+21;mxn;Mexico;Peso;$;MXN/EUR;0,05500000
+22;mad;Morocco;Dirham;DH;MAD/EUR;0,09131000
+23;nzd;New Zealand;Dollar;$;NZD/EUR;0,56300000
+24;nok;Norway;Kroner;kr;NOK/EUR;0,08690000
+25;qar;Qatar;Rial;QR;QAR/EUR;0,25170000
+26;rub;Russia;Ruble;₽;RUB/EUR;0,01004000
+27;sar;Saudi Arabia;Riyal;SR;SAR/EUR;0,24490000
+28;sgd;Singapore;Dollar;$;SGD/EUR;0,68730000
+29;zar;South Africa;Rand;R;ZAR/EUR;0,04900000
+30;krw;South Korean;Won;₩;KRW/EUR;0,00069380
+31;sek;Sweden;Krona;kr;SEK/EUR;0,08890000
+32;chf;Switzerland;Franc;Fr;CHF/EUR;1,03930000
+33;twd;Taiwan;Dollar;$;TWD/EUR;0,02909000
+34;thb;Thailand;Baht;B;THB/EUR;0,02564000
+35;tnd;Tunisia;Dinar;DT;TND/EUR;0,29600000
+36;try;Turkey;New Lira;₺;TRY/EUR;0,02860000
+37;aed;United Arab Emirates;Dirham;DH;AED/EUR;0,25010000
+38;gbp;United Kingdom;Pound;£;GBP/EUR;1,17080000
+39;usd;United States;Dollar;$;USD/EUR;0,91850000
