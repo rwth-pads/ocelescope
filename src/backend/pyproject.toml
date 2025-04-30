@@ -3,7 +3,7 @@ name = "ocean-backend"
 version = "0.9.9"
 description = ""
 authors = ["Raimund Hensen <raimund.hensen@rwth-aachen.de>"]
-readme = "README.md"
+package-mode = false
 repository = "https://github.com/rwth-pads/ocean"
 
 [tool.poetry.dependencies]
