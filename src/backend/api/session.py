@@ -13,7 +13,6 @@ from util.types import PathLike
 if TYPE_CHECKING:
     from api.model.app_state import AppState
     from api.task_api import MainTask
-    from emissions.emission_model import EmissionModel
 
 
 class Session:
@@ -22,13 +21,11 @@ class Session:
     def __init__(
         self,
         ocel: OCELWrapper,
-        emission_model: EmissionModel,
         app_state: AppState,
         id: str | None = None,
     ):
         self.id = id or str(uuid.uuid4())
         self.ocel = ocel
-        self.emission_model = emission_model
         self.app_state = app_state
 
         self._tasks = {}
@@ -54,13 +51,18 @@ class Session:
     ) -> dict[str, Any]:
         if route is None:
             if task is None:
-                raise ValueError("Session.respond() needs either route or task specified")
+                raise ValueError(
+                    "Session.respond() needs either route or task specified"
+                )
             # When building a task return value, mimic a normal API response. task-status then assigns it to res["task"]["result"].
             route = task.route
 
         # Need route for the following check
         # Session state should only be updated on some routes
-        if route not in ["load", "update", "sample-objects", "sample-events"] and task is None:
+        if (
+            route not in ["load", "update", "sample-objects", "sample-events"]
+            and task is None
+        ):
             self.update_state()
         if task is not None and task.ready():
             # Task finished
@@ -104,13 +106,14 @@ class Session:
 
     @staticmethod
     def info() -> str:
-        return "[\n  " + ",\n  ".join([str(s) for s in Session.sessions.values()]) + "\n]"
+        return (
+            "[\n  " + ",\n  ".join([str(s) for s in Session.sessions.values()]) + "\n]"
+        )
 
     def update_state(self):
         self.state = str(uuid.uuid4())
 
     def export_sqlite(self, export_path: PathLike):
-
         # Write OCEL
         logger.info(f"Exporting OCEL to '{export_path}' ...")
         self.ocel.write_ocel2_sqlite(export_path)
@@ -141,8 +144,6 @@ class Session:
                     else "---"
                 ),
                 "ocel": str(self.ocel) if self.ocel else None,
-                # "emission_model": ("[" + hash(self.emission_model) + "]") if self.emission_model else None,
-                "emission_model": str(self.emission_model) if self.emission_model else None,
             }.items()
             if v is not None
         }

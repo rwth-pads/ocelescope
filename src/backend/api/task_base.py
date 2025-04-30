@@ -2,17 +2,15 @@ from __future__ import annotations
 
 import warnings
 from abc import ABC
-from copy import copy
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Callable, Iterable, Sized, overload
+from typing import Callable, Iterable, Sized, overload
 
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from api.config import config
 from api.logger import logger
 
 
@@ -56,7 +54,9 @@ class Task(ABC):
         msg: str | None = None,
         subtask: SubTask | None = None,
     ):
-        self.updates.append(ProgressUpdate(percentage=percentage, msg=msg, subtask=subtask))
+        self.updates.append(
+            ProgressUpdate(percentage=percentage, msg=msg, subtask=subtask)
+        )
 
     def reset(self):
         summary = self.summary()
@@ -86,9 +86,13 @@ class Task(ABC):
         key = ["subtask_id", "subtask_name", *(["msg"] if groupby_msg else [])]
         summary = self.summary()
         if not len(summary):
-            return pd.DataFrame([], columns=["subtask_id", "subtask_name", "seconds", "percentage"])
+            return pd.DataFrame(
+                [], columns=["subtask_id", "subtask_name", "seconds", "percentage"]
+            )
         summary["seconds"] = (
-            (summary["timestamp"].shift(-1) - summary["timestamp"]).dt.total_seconds().fillna(0)
+            (summary["timestamp"].shift(-1) - summary["timestamp"])
+            .dt.total_seconds()
+            .fillna(0)
         )
         subtask_durations = summary.groupby(key).agg({"seconds": "sum"}).reset_index()
         subtask_durations["percentage"] = (
@@ -99,7 +103,10 @@ class Task(ABC):
         return subtask_durations
 
     def _progress(
-        self, msg: str | None = None, p: float | None = None, subtask: SubTask | None = None
+        self,
+        msg: str | None = None,
+        p: float | None = None,
+        subtask: SubTask | None = None,
     ) -> None: ...
 
     def _iter_progress(
@@ -153,7 +160,9 @@ class Task(ABC):
             total -- Prediction of the iterator length, should be passed if len(it) is not defined (optional)
         """
         if task is not None:
-            return task._iter_progress(it=it, msg=msg, step=step, start=start, end=end, total=total)
+            return task._iter_progress(
+                it=it, msg=msg, step=step, start=start, end=end, total=total
+            )
         elif NO_TASK_WARNING:
             logger.warning(f"Task.iter(..., msg={msg}) called on task = None")
         return []
@@ -169,7 +178,10 @@ class TqdmTask(Task):
         self.tqdm_kwargs = tqdm_kwargs
 
     def _progress(
-        self, msg: str | None = None, p: float | None = None, subtask: SubTask | None = None
+        self,
+        msg: str | None = None,
+        p: float | None = None,
+        subtask: SubTask | None = None,
     ):
         send_progress(self, msg=msg, p=p, subtask=subtask)
 
@@ -233,7 +245,9 @@ class SubTask(Task):
                 start = 0
             else:
                 others = (
-                    [t.end for t in parent.subtasks if t is not self] if parent.subtasks else []
+                    [t.end for t in parent.subtasks if t is not self]
+                    if parent.subtasks
+                    else []
                 )
                 start = max(others) if others else 0
         if end is None:
@@ -272,7 +286,9 @@ class SubTask(Task):
             subtask_rest = task
         else:
             subtask_func = SubTask(task, p=p, name=name) if task is not None else None
-            subtask_rest = SubTask(task, end=1, name=task.name) if task is not None else None
+            subtask_rest = (
+                SubTask(task, end=1, name=task.name) if task is not None else None
+            )
         result = func(task=subtask_func, *args, **kwargs)
         return result, subtask_rest
 
@@ -286,7 +302,10 @@ class SubTask(Task):
         return self.start + (self.end - self.start) * p
 
     def _progress(
-        self, msg: str | None = None, p: float | None = None, subtask: SubTask | None = None
+        self,
+        msg: str | None = None,
+        p: float | None = None,
+        subtask: SubTask | None = None,
     ):
         if not self.parent:
             return
@@ -325,10 +344,10 @@ def send_progress(
     p: float | None = None,
     subtask: SubTask | None = None,
 ):
-
     s_p = f"{p:.1%}" if p is not None else None
     logger.debug(
-        "progress: " + (f"{msg} ({s_p})" if msg and p is not None else (msg if msg else f"{s_p}"))
+        "progress: "
+        + (f"{msg} ({s_p})" if msg and p is not None else (msg if msg else f"{s_p}"))
     )
     if task is None:
         return
@@ -345,9 +364,10 @@ def send_iter_progress(
     total: int | None = None,
     subtask: SubTask | None = None,
 ) -> Iterable:
-
     s_start_end = f"{start:.1%} - {end:.1%}"
-    logger.debug("iteration progress: " + (f"{msg} ({s_start_end})" if msg else s_start_end))
+    logger.debug(
+        "iteration progress: " + (f"{msg} ({s_start_end})" if msg else s_start_end)
+    )
 
     if task is None:
         return it
@@ -376,4 +396,6 @@ def send_iter_progress(
     if pmap is not None:
         report(pmap(1))
     s_end = f"{end:.1%}"
-    logger.debug("iteration progress: " + (f"{msg} (end / {s_end})" if msg else f"end / {s_end}"))
+    logger.debug(
+        "iteration progress: " + (f"{msg} (end / {s_end})" if msg else f"end / {s_end}")
+    )

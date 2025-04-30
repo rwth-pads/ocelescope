@@ -16,7 +16,6 @@ if TYPE_CHECKING:
 
 
 class MainTask(Task, Generic[ResponseT]):
-
     def __init__(
         self,
         session: Session,
@@ -54,7 +53,9 @@ class MainTask(Task, Generic[ResponseT]):
         except Exception as exc:
             with self._lock:
                 self._state = TaskState.FAILURE
-                self._msg = str(exc) if config.EXPOSE_ERROR_DETAILS else "Internal Server Error"
+                self._msg = (
+                    str(exc) if config.EXPOSE_ERROR_DETAILS else "Internal Server Error"
+                )
             logger.error(f'Task "{self.name}/#{self.id}" failed: {exc}')
             raise exc  # TODO dev only
 
@@ -83,7 +84,10 @@ class MainTask(Task, Generic[ResponseT]):
                 self._msg = msg
 
     def _progress(
-        self, msg: str | None = None, p: float | None = None, subtask: SubTask | None = None
+        self,
+        msg: str | None = None,
+        p: float | None = None,
+        subtask: SubTask | None = None,
     ):
         send_progress(self, msg=msg, p=p, subtask=subtask)
 
@@ -98,7 +102,14 @@ class MainTask(Task, Generic[ResponseT]):
         subtask: SubTask | None = None,
     ):
         return send_iter_progress(
-            self, it, msg=msg, step=step, start=start, end=end, total=total, subtask=subtask
+            self,
+            it,
+            msg=msg,
+            step=step,
+            start=start,
+            end=end,
+            total=total,
+            subtask=subtask,
         )
 
     def reset(self):
@@ -129,7 +140,9 @@ class MainTask(Task, Generic[ResponseT]):
         self, msg: str | None = None, status: int = 200, **data
     ) -> dict[str, Any]:
         """Builds the API response for the next task-status call after the task has finished."""
-        return self.session.respond(task=self, include_task=False, status=status, msg=msg, **data)
+        return self.session.respond(
+            task=self, include_task=False, status=status, msg=msg, **data
+        )
 
     def serialize(self) -> TaskResponse[ResponseT]:
         """Serializes an ApiTask to send progress state via the API"""
@@ -159,7 +172,9 @@ class MainTask(Task, Generic[ResponseT]):
                 res["result"] = self._result
                 default_msg = "Finished"
             else:
-                raise ValueError(f"Unknown task state '{self._state}', failed to serialize.")
+                raise ValueError(
+                    f"Unknown task state '{self._state}', failed to serialize."
+                )
 
             if default_msg is not None and "msg" not in res:
                 res["msg"] = default_msg
@@ -169,32 +184,18 @@ class MainTask(Task, Generic[ResponseT]):
     def export(self, ocel: OCELWrapper, pex_params: dict[str, Any] | None = None):
         """Export Task data to JSON for file logging"""
         raise NotImplementedError()
-        summary = self.summary()
-        t0, t1 = summary["timestamp"].min(), summary["timestamp"].max()
-        task_report = {
-            "ocel": ocel_to_api(ocel, pex_params=pex_params),
-            "task": {
-                "id": self.id,
-                "name": self.name,
-                "route": getattr(self, "route", None),
-                "duration": (t1 - t0).total_seconds(),
-            },
-            "timestamp": str(t0),
-            "subtasks": self.subtask_durations().to_dict("records"),
-        }
-        return task_report
 
 
 def task(route: str):
     """Decorator to define tasks. When calling a function decorated with this, a new thread is started, and a Task object returned."""
 
     def decorator(func: Callable[..., ResponseT]):
-
         @functools.wraps(func)
         def wrapper(session: Session, *args, is_cached: bool = False, **kwargs):
-
             # Create and start the task
-            task = MainTask(session=session, target=func, route=route, args=args, kwargs=kwargs)
+            task = MainTask(
+                session=session, target=func, route=route, args=args, kwargs=kwargs
+            )
             task.start()
 
             if is_cached:
@@ -214,7 +215,9 @@ def task(route: str):
                     raise ValueError("Task finished without a result.")
                     # return session.respond(route=route, msg=msg, status=status, **result)
 
-            return TaskStatusResponse[ResponseT](**session.respond(route=route, task=task))
+            return TaskStatusResponse[ResponseT](
+                **session.respond(route=route, task=task)
+            )
 
         # TODO remove this, functools.wraps should take care of this
         # get the original signature

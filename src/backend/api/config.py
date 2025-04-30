@@ -8,7 +8,6 @@ This file containes a Config class defining all environment parameters, includin
 
 
 class OceanConfig(BaseSettings):
-
     FRONTEND_URL: str = Field(
         default="http://localhost:3000",
         description="The frontend URL, relevant for CORS settings",
@@ -47,7 +46,8 @@ class OceanConfig(BaseSettings):
     )
 
     CLIMATIQ_API_KEY: SecretStr = Field(
-        description="Climatiq API key. TODO pass the key set by the user via the API and remove this field."
+        description="Climatiq API key. TODO pass the key set by the user via the API and remove this field.",
+        default="",
     )
 
     class Config:

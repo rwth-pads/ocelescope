@@ -4,11 +4,10 @@
 # source: https://github.com/tiangolo/fastapi/discussions/3853#discussioncomment-1388209
 
 import json
-from typing import Any, Dict, Literal, Optional
+from typing import Any, Literal
 
 from fastapi import FastAPI
 from fastapi.encoders import jsonable_encoder
-from fastapi.staticfiles import StaticFiles
 from starlette.responses import HTMLResponse
 
 
@@ -23,14 +22,15 @@ def get_swagger_ui_html(
     init_oauth: dict[str, Any] | None = None,
     omit_curl: bool = False,
 ) -> HTMLResponse:
-
     js_oauth2_redirect_url = (
         f"oauth2RedirectUrl: window.location.origin + '{oauth2_redirect_url}',"
         if oauth2_redirect_url
         else ""
     )
     js_init_oauth = (
-        f"ui.initOAuth({json.dumps(jsonable_encoder(init_oauth))})" if init_oauth else ""
+        f"ui.initOAuth({json.dumps(jsonable_encoder(init_oauth))})"
+        if init_oauth
+        else ""
     )
 
     html = f"""

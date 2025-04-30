@@ -1,7 +1,7 @@
 import inspect
 import json
 import re
-from typing import Any, Callable
+from typing import Callable
 
 from fastapi import FastAPI, Request, Response
 from fastapi import params as fastapi_params
@@ -44,51 +44,15 @@ def custom_snake2camel(s: str):
     """Converts the input from snake to camel case, with parts like 'e2o' being either completely capitalized or not at all."""
     parts = s.split("_")
     x2y_regex = re.compile(r"^[a-z]2[a-z]$")
-    camel_parts = [p.capitalize() if not x2y_regex.match(p) else p.upper() for p in parts[1:]]
+    camel_parts = [
+        p.capitalize() if not x2y_regex.match(p) else p.upper() for p in parts[1:]
+    ]
     return parts[0] + "".join(camel_parts)
 
 
-def param_alias_generator(
-    # *,
-    # model: type[BaseModel] | None = None,
-    alias_generator: Callable[[str], str],
-) -> Any:
-    """Route decorator generating field aliases consistent with a given BaseModel configuration.
-    source: https://github.com/tiangolo/fastapi/issues/3662#issuecomment-961837270
-    """
-    raise NotImplementedError(
-        "Functions modifed by makefun seem to have problems with imported type annotations (pydantic.errors.PydanticUndefinedAnnotation: name 'ApiSession' is not defined)"
-    )
-
-    def decorator(func: Any) -> Any:
-        if not alias_generator:
-            logger.warning("param_alias_generator did not find an alias generator (route '')")
-            return func
-
-        func_sig = inspect.signature(func)
-        parameters = list(func_sig.parameters.values())
-        for i, parameter in enumerate(parameters):
-            if (
-                parameter.default
-                and isinstance(parameter.default, (fastapi_params.Query, fastapi_params.Path))
-                and parameter.default.alias is None
-            ):
-                parameter.default.alias = alias_generator(parameter.name)
-
-        new_sig = func_sig.replace(parameters=parameters)
-
-        # @wraps(func, new_sig=new_sig)
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
-            if "camelcase_parameters_dependency" in kwargs:
-                del kwargs["camelcase_parameters_dependency"]
-            return func(*args, **kwargs)
-
-        return wrapper
-
-    return decorator
-
-
-def verify_parameter_alias_consistency(app: FastAPI, alias_generator: Callable[[str], str]):
+def verify_parameter_alias_consistency(
+    app: FastAPI, alias_generator: Callable[[str], str]
+):
     """Checks if there are parameters of API routes that do not have an alias consistent with a given alias generator."""
     fts = (
         fastapi_params.Query,

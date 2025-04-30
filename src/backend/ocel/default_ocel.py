@@ -12,7 +12,6 @@ from api.logger import logger
 from api.model.app_state import AppState
 from api.model.base import ApiBaseModel
 from api.session import Session
-from emissions.emission_model import EmissionModel
 from ocel.ocel_wrapper import OCELWrapper
 
 data = json.load(open(config.DATA_DIR / "event_logs.json", "r"))
@@ -85,7 +84,9 @@ DEFAULT_OCELS = [
 del data
 
 DEFAULT_OCEL_KEYS = util.unique([d.key for d in DEFAULT_OCELS])
-logger.info(f"{len(DEFAULT_OCELS)} OCELs available (keys: {util.set_str(DEFAULT_OCEL_KEYS)})")
+logger.info(
+    f"{len(DEFAULT_OCELS)} OCELs available (keys: {util.set_str(DEFAULT_OCEL_KEYS)})"
+)
 
 
 def filter_default_ocels(
@@ -108,7 +109,7 @@ def filter_default_ocels(
         filtered = [d for d in filtered if not d.hide]
     if only_preloaded:
         filtered = [d for d in filtered if d.preload]
-    
+
     if only_latest_versions:
         by_key = {}
         for default_ocel in filtered:
@@ -159,9 +160,8 @@ def load_default_ocels() -> list[Session]:
 
         # Init dummy session with consistent key (for API playground)
         ocel = getattr(ocel_data, "__ocel")
-        em = EmissionModel(ocel=ocel)
         app_state = AppState.instantiate(ocel_data.default_app_state or {}, ocel=ocel)
-        session = Session(id=key, ocel=ocel, emission_model=em, app_state=app_state)
+        session = Session(id=key, ocel=ocel, app_state=app_state)
         sessions.append(session)
 
     return sessions

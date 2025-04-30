@@ -20,8 +20,6 @@ def pluralize(
     if pl is None:
         raise ValueError
     if sg is None:
-        if pl is None:
-            raise ValueError
         if not pl.endswith("s"):
             raise ValueError
         if pl.endswith("ies"):
@@ -34,7 +32,6 @@ def pluralize(
         return f"{count} {w}"
     if mode == "word":
         return w
-    raise ValueError
 
 
 T = TypeVar("T", bound=Hashable)
@@ -61,8 +58,7 @@ def set_str(xs: list[str] | set[str], empty_rep: str = "---"):
         xs = list(dict.fromkeys(xs))
     elif isinstance(xs, set):
         xs = sorted(xs)
-    else:
-        raise TypeError
+
     return ", ".join(xs) if xs else empty_rep
 
 
@@ -130,7 +126,8 @@ def example_settings_to_dotenv(
                 env_var_name = model_field.validation_alias
             else:
                 logger.error(
-                    "Unsupported validation alias type '%s'", type(model_field.validation_alias)
+                    "Unsupported validation alias type '%s'",
+                    type(model_field.validation_alias),
                 )
 
         # Description
@@ -166,7 +163,11 @@ def example_settings_to_dotenv(
         # Only leave fields uncommented which need a user defined value
         needs_user_defined_value = is_required and not has_default
         line_prefix = "" if needs_user_defined_value else "# "
-        value = str(model_field.default) if has_default and model_field.default is not None else ""
+        value = (
+            str(model_field.default)
+            if has_default and model_field.default is not None
+            else ""
+        )
 
         output.append(f"{line_prefix}{env_var_name.upper()}={value}")
         output.append("")
