@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+
 from api.logger import logger
 
 import datetime
@@ -8,6 +9,7 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Annotated, Literal
 
+from plugin_loader import register_plugins
 import visualization.ocpn as viz_ocpn
 from api.config import OceanConfig, config
 from api.dependencies import ApiObjectType, ApiObjectTypes, ApiOcel, ApiSession, ApiTask
@@ -69,6 +71,8 @@ app.middleware("http")(ocel_access_middleware)
 
 # Error handler for internal server errors
 app.exception_handler(Exception)(error_handler_server)
+
+register_plugins(app)
 init_custom_docs(app)
 
 
