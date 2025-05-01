@@ -2,7 +2,7 @@
 // pages/index.tsx
 "use client";
 
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 
@@ -17,11 +17,17 @@ import { ParagraphLinks, SkeletonIcon } from '@/components/misc';
 import { DefaultOCEL, OcelEvent, OcelObject } from '@/src/api/generated';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { useImportDefault } from '@/api/ocel/ocel';
+import { useGetDefaultOcel, useImportDefaultOcel, useOcpnOcpnGet } from '@/api/fastapi/default/default';
 
 
 const StartPage: React.FC = () => {
-  const defaultOcels: DefaultOCEL[] = [];
+  const { data: defaultOcels } = useGetDefaultOcel({ only_latest_versions: true }, {})
+  const [isCookieSet, setIsCookieSet] = useState(false);
+  const { mutate } = useImportDefaultOcel({ mutation: { onSuccess: () } fetch: { credentials: "include" } })
+
+  const { data: ocpn } = useOcpnOcpnGet({ query: { enabled: false } })
+
+
   return (<>
     <h4>OCEL 2.0 Import</h4>
     <div className="mb-5">
@@ -42,29 +48,23 @@ const StartPage: React.FC = () => {
             <SkeletonIcon />
             <Skeleton count={1} width={200} />
           </p>)}
-          {!!defaultOcels && defaultOcels.map(({ key, name, version, url }, i) => {
+          {!!defaultOcels && defaultOcels.status === 200 && defaultOcels.data.map(({ key, name, version, url }, i) => {
             const Icon = _.get(defaultOcelIcons, key, FaFileLines)
             return (
               <div key={i}>
                 <Icon className="text-secondary" />
-                <a className="stretched-link d-flex align-items-center me-auto" >
+                <a className="stretched-link d-flex align-items-center me-auto" onClick={(e) => { mutate({ params: { key } }) }}>
                   {name}
                 </a>
-                {/* <span className="me-auto">{name}</span> */}
                 {!!url && (
                   <div>
                     <a
-                      // size={30}
-                      // size="sm"
-                      // variant="link"
                       className="text-secondary"
                       href={url}
-                      onClick={e => e.stopPropagation()}
+                      onClick={e => { e.stopPropagation() }}
                       target="_blank"
                       style={{ position: "relative", zIndex: 2 }}
                     >
-                      {/* <FaUpRightFromSquare /> */}
-                      {/* <FaGlobe /> */}
                       <FaCircleInfo />
                     </a>
                   </div>

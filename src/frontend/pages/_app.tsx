@@ -1,18 +1,21 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import { AppProps } from 'next/app';
-// import { appWithTranslation } from 'next-i18next';
-import ConfirmationModalProvider from '@/components/common/Confirmation';
 import Layout from '@/components/layout/Layout';
 import "@/global.css";
-import { useImportDefaultOcelImportDefaultGet } from '@/api/default/default';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useState } from 'react';
 
 const OceanApp: React.FC<AppProps> = ({ pageProps, Component }) => {
-  const { } = useImportDefaultOcelImportDefaultGet({})
+  const [queryClient] = useState(() => new QueryClient())
   return (<>
-    <Layout
-    ><Component />
-    </Layout>
+    <QueryClientProvider client={queryClient}>
+      <Layout
+      ><Component />
+      </Layout>
+
+    </QueryClientProvider>
+
   </>)
 
 }

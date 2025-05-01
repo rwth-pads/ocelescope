@@ -31,11 +31,14 @@ from api.utils import (
     export_openapi_schema,
     verify_parameter_alias_consistency,
 )
-from fastapi import FastAPI, File, Header, Query, UploadFile
+from fastapi import FastAPI, File, Header, Query, UploadFile, Response
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from ocel.default_ocel import (
     DEFAULT_OCEL_KEYS,
+    DefaultOCEL,
+    filter_default_ocels,
     get_default_ocel,
     load_default_ocels,
 )
@@ -59,11 +62,11 @@ app = FastAPI(
     redoc_url=None,
     debug=True,
 )
+origins = ["http://localhost:3000"]  # Frontend origin
 app.add_middleware(
     CORSMiddleware,
-    # allow_origins=list(filter(None, [os.getenv("FRONTEND_URL")])),
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=origins,
+    allow_credentials=True,  # enable cookies
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -173,13 +176,12 @@ class OcpnResponse(BaseResponse):
     ocpn: viz_ocpn.OCPN
 
 
-@app.post("/ocpn", summary="OCPN discovery")
+@app.get("/ocpn", summary="OCPN discovery")
 def ocpn(
     session: ApiSession,
     ocel: ApiOcel,
-    req: OcpnRequestBody,
 ) -> OcpnResponse:
-    ocpn = ocel.ocpn(otypes=req.object_types)  # type: ignore
+    ocpn = ocel.ocpn()  # type: ignore
 
     # TODO minimize/rename the function, it does not do visualization any more
     ocpn = viz_ocpn.visualize(
@@ -269,8 +271,26 @@ def import_ocel(
     )
 
 
-@app.get("/import-default", summary="Import default OCEL")
+@app.get(
+    "/ocel/default", summary="Get default OCEL metadata", operation_id="getDefaultOcel"
+)
+def default_ocels(
+    only_latest_versions: bool = True,
+    only_preloaded: bool = False,
+) -> list[DefaultOCEL]:
+    filtered = filter_default_ocels(
+        exclude_hidden=True,
+        only_latest_versions=only_latest_versions,
+        only_preloaded=only_preloaded,
+    )
+    return filtered
+
+
+@app.post(
+    "/import-default", summary="Import default OCEL", operation_id="importDefaultOcel"
+)
 def import_default_ocel(
+    response: Response,
     key: str = Query(
         description="Default OCEL key",
         examples=DEFAULT_OCEL_KEYS,
@@ -280,7 +300,7 @@ def import_default_ocel(
         description="Dataset version (optional)",
         examples=["1.0"],
     ),
-) -> OcelResponse:
+) -> Response:
     default_ocel = get_default_ocel(key=key, version=version)
     if default_ocel is None:
         raise NotFound("The given default OCEL was not found")
@@ -325,17 +345,34 @@ def import_default_ocel(
         app_state=app_state,
     )
 
-    return OcelResponse(
-        **session.respond(
-            route="import-default",
-            msg=f'Event log "{default_ocel.name or key}" has been imported from the server.',
-            ocel=ocel_to_api(session.ocel, session=session),
-        )
+    response.set_cookie(
+        key=config.SESSION_ID_HEADER,
+        value=session.id,
+        httponly=True,
+        secure=False,
+        samesite="lax",
     )
+    response.status_code = 200
+
+    return response
 
 
 @app.get("/load", summary="Load OCEL")
 def load_ocel(
+    session: ApiSession,
+    ocel: ApiOcel,
+) -> OcelResponse:
+    return OcelResponse(
+        **session.respond(
+            route="load",
+            msg=f'Event log "{ocel.meta["fileName"] or session.id}" has been loaded from the server.',
+            ocel=ocel_to_api(ocel, session=session),
+        )
+    )
+
+
+@app.get("/validate", summary="Load OCEL")
+def validate_session(
     session: ApiSession,
     ocel: ApiOcel,
 ) -> OcelResponse:

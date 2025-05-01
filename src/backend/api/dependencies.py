@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Annotated
 
 from fastapi import Depends, Header
+from fastapi.params import Cookie
 
 from api.config import config
 from api.exceptions import BadRequest, Unauthorized
@@ -11,10 +12,10 @@ from api.session import Session
 from api.task_api import MainTask
 from ocel.ocel_wrapper import OCELWrapper
 
-session_header_param = Header(alias=config.SESSION_ID_HEADER)
+session_cookie_param = Cookie(alias=config.SESSION_ID_HEADER)
 
 
-def get_session(session_id: Annotated[str, session_header_param]):
+def get_session(session_id: Annotated[str, session_cookie_param]):
     session = Session.get(session_id)
     if session is None:
         repr = lambda s: f"'{s[:5]}...'"

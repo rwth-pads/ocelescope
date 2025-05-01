@@ -29,4 +29,5 @@ RUN mkdir -p tmp
 ENV PYTHONPATH "${PYTHONPATH}:/app/backend"
 
 # Run FastAPI app
-CMD ["uvicorn", "index:app", "--host", "0.0.0.0"]
+CMD ["uvicorn", "index:app", "--host", "localhost:8000"]
+

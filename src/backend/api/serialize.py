@@ -27,7 +27,6 @@ class OcelData(ModelWithOcel):
     median_num_events_per_object_type: dict[str, float]
     e2o_counts: dict[str, dict[str, int]]
     e2o_qualifier_counts: dict[str, dict[str, dict[str, int]]]
-    attributes: list[dict[str, Any]]  # TODO OCELAttribute to Model
 
 
 def ocel_to_api(
@@ -58,7 +57,6 @@ def ocel_to_api(
                     ["ocel:activity", "ocel:type", "ocel:qualifier"]
                 )["freq"]
             ),
-            attributes=[attr.to_api() for attr in ocel.attributes],
         ),
         ocel=ocel,
     )

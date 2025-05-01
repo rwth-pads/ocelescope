@@ -11,7 +11,7 @@ async def ocel_access_middleware(request: Request, call_next):
     """
 
     # Save session_id from header to ContextVar
-    session_id = request.headers.get(config.SESSION_ID_HEADER.lower())
+    session_id = request.cookies.get(config.SESSION_ID_HEADER.lower())
     session = Session.get(session_id) if session_id else None
     if session:
         ocel_token = ocel_ctx.set(session.ocel)
