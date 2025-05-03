@@ -11,21 +11,21 @@ import _ from 'lodash';
 import { FaCircleInfo, FaFileLines } from 'react-icons/fa6';
 
 import { defaultOcelIcons } from '@/src/ocel.types';
-// import dotString from "@/public/ocpn";
 
 import { ParagraphLinks, SkeletonIcon } from '@/components/misc';
-import { DefaultOCEL, OcelEvent, OcelObject } from '@/src/api/generated';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { useGetDefaultOcel, useImportDefaultOcel, useOcpnOcpnGet } from '@/api/fastapi/default/default';
+import { useGetDefaultOcel, useImportDefaultOcel, useImportOcel } from '@/api/fastapi/default/default';
+import FileUpload from '@/components/forms/FileUpload';
 
 
 const StartPage: React.FC = () => {
   const { data: defaultOcels } = useGetDefaultOcel({ only_latest_versions: true }, {})
-  const [isCookieSet, setIsCookieSet] = useState(false);
-  const { mutate } = useImportDefaultOcel({ mutation: { onSuccess: () } fetch: { credentials: "include" } })
+  const { mutate: importDefaultOcel } = useImportDefaultOcel({ fetch: { credentials: "include" } })
 
-  const { data: ocpn } = useOcpnOcpnGet({ query: { enabled: false } })
+
+  const { mutate: importOcel } = useImportOcel({ fetch: { credentials: "include" } })
+  const [uploadedOcel, setUploadedOcel] = useState<File>()
 
 
   return (<>
@@ -33,27 +33,25 @@ const StartPage: React.FC = () => {
     <div className="mb-5">
       <Form.Group controlId="formFile" className="mb-3">
         <Form.Label>Select an event log (<code>.sqlite</code> OCEL 2.0 format) from your local disk</Form.Label>
-        <Form.Control type="file" onChange={(event: ChangeEvent<HTMLInputElement>) => {
-
-        }} accept=".sqlite,.zip" />
+        <FileUpload accept='.sqlite' onUpload={(file) => setUploadedOcel(file)} />
       </Form.Group>
-      <Button >Import</Button>
+      <Button onClick={() => { if (uploadedOcel) importOcel({ data: { file: uploadedOcel }, params: { name: uploadedOcel.name } }) }}>Import</Button>
     </div>
 
     <h4>Use default OCELs</h4>
     <div className="mb-5">
       <SkeletonTheme>
         <ParagraphLinks>
-          {!defaultOcels && _.range(3).map(i => <p key={i} className="disabled">
+
+          {!defaultOcels ? _.range(3).map(i => <p key={i} className="disabled">
             <SkeletonIcon />
             <Skeleton count={1} width={200} />
-          </p>)}
-          {!!defaultOcels && defaultOcels.status === 200 && defaultOcels.data.map(({ key, name, version, url }, i) => {
+          </p>) : defaultOcels.map(({ key, name, version, url }, i) => {
             const Icon = _.get(defaultOcelIcons, key, FaFileLines)
             return (
               <div key={i}>
                 <Icon className="text-secondary" />
-                <a className="stretched-link d-flex align-items-center me-auto" onClick={(e) => { mutate({ params: { key } }) }}>
+                <a className="stretched-link d-flex align-items-center me-auto" onClick={(e) => { importDefaultOcel({ params: { key } }) }}>
                   {name}
                 </a>
                 {!!url && (
@@ -75,15 +73,6 @@ const StartPage: React.FC = () => {
           })}
         </ParagraphLinks>
       </SkeletonTheme>
-
-      <Form className="mt-2">
-        <Form.Group controlId="showLegacyOcels">
-          <Form.Check
-            label="Show legacy datasets"
-          />
-        </Form.Group>
-      </Form>
-
     </div>
 
   </>)

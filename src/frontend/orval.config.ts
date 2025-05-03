@@ -1,4 +1,5 @@
-export default {
+import { defineConfig } from 'orval';
+export default defineConfig({
   fastapi: {
     input: 'http://localhost:8000/openapi.json',
     output: {
@@ -6,8 +7,12 @@ export default {
       target: './api/fastapi',
       schemas: './api/fastapi-schemas',
       client: 'react-query', httpClient: 'fetch',
-      baseUrl: 'http://localhost:8000'
-
+      baseUrl: 'http://localhost:8000',
+      override: {
+        fetch: {
+          includeHttpResponseReturnType: false
+        }
+      },
     },
-  },
-};
+  }
+});

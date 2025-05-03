@@ -202,14 +202,15 @@ def ocpn(
 
 
 # endregion
-
-
 # ----- IMPORT / LOAD ------------------------------------------------------------------------------------------
 # region
 
 
-@app.post("/import", summary="Import OCEL 2.0 from .sqlite file")
+@app.post(
+    "/import", summary="Import OCEL 2.0 from .sqlite file", operation_id="importOcel"
+)
 def import_ocel(
+    response: Response,
     file: Annotated[
         UploadFile,
         File(description="An OCEL 2.0 event log (.sqlite format)"),
@@ -221,7 +222,7 @@ def import_ocel(
         ),
         # Need original file name because client-side formData creation in generated api wrapper does not retain it
     ],
-) -> OcelResponse:
+) -> Response:
     if file.filename is None or file.filename == "":
         raise BadRequest("No file uploaded")
 
@@ -262,13 +263,16 @@ def import_ocel(
         app_state=AppState.import_sqlite(tmp_path, ocel=ocel),
     )
 
-    return OcelResponse(
-        **session.respond(
-            route="import",
-            msg=f'Event log "{name}" has been uploaded and processed on the server.',
-            ocel=ocel_to_api(ocel, session=session),
-        )
+    response.set_cookie(
+        key=config.SESSION_ID_HEADER,
+        value=session.id,
+        httponly=True,
+        secure=False,
+        samesite="lax",
     )
+    response.status_code = 200
+
+    return response
 
 
 @app.get(
