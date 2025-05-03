@@ -92,8 +92,14 @@ def task_status(
 # endregion
 
 
-# ----- IMPORT / LOAD ------------------------------------------------------------------------------------------
+# ----- TEST THE SESSION ------------------------------------------------------------------------------------------
 # region
+@app.post("/testSession", summary="Test session", operation_id="testSession")
+def test_session(
+    session: ApiSession,
+):
+    """Test the session and return a response."""
+    print(session)
 
 
 # endregion

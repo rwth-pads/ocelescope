@@ -11,10 +11,18 @@ async def ocel_access_middleware(request: Request, call_next):
     """
 
     # Save session_id from header to ContextVar
-    session_id = request.cookies.get(config.SESSION_ID_HEADER.lower())
+    session_id = request.cookies.get(config.SESSION_ID_HEADER)
     session = Session.get(session_id) if session_id else None
     if session:
-        ocel_token = ocel_ctx.set(session.ocel)
+        ocel_ctx.set(session.ocel)
 
     response = await call_next(request)
+
+    # Delete the cookie if the session is not valid anymore
+    if session_id and not session:
+        response.delete_cookie(
+            key=config.SESSION_ID_HEADER,
+            path="/",
+        )
+
     return response
