@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 
+from api import session
 from api.logger import logger
 
 import datetime
@@ -96,109 +97,9 @@ def task_status(
 
 # endregion
 
-# Removed route /interval-transformation
 
-# ----- PROCESS DISCOVERY ------------------------------------------------------------------------------------------
+# ----- IMPORT / LOAD ------------------------------------------------------------------------------------------
 # region
-
-
-class ObjectTypeRequestBody(RequestBody):
-    object_type: ApiObjectType
-
-
-class WeightedDirectedGraphResponse(BaseResponse):
-    graph: dict[str, dict[str, int]]
-
-    @staticmethod
-    def graph_from_tuples(
-        edges: dict[tuple[str, str], int],
-    ) -> dict[str, dict[str, int]]:
-        res = {}
-        for (u, v), i in edges.items():
-            if u not in res:
-                res[u] = {}
-            res[u][v] = i
-        return res
-
-
-class DirectedGraphResponse(BaseResponse):
-    graph: dict[str, set[str]]
-
-    @staticmethod
-    def graph_from_tuples(edges: set[tuple[str, str]]) -> dict[str, set[str]]:
-        res = {}
-        for u, v in edges:
-            if u not in res:
-                res[u] = set()
-            res[u].add(v)
-        return res
-
-
-@app.post("/dfg", summary="Directly-follows graph discovery")
-def discover_dfg(
-    session: ApiSession,
-    ocel: ApiOcel,
-    req: ObjectTypeRequestBody,
-) -> WeightedDirectedGraphResponse:
-    dfg = ocel.directly_follows_graph(otype=req.object_type)
-
-    return WeightedDirectedGraphResponse(
-        **session.respond(
-            route="dfg",
-            msg=f"Directly-follows graph of '{req.object_type}' has been discovered.",
-            graph=WeightedDirectedGraphResponse.graph_from_tuples(dfg),
-        )
-    )
-
-
-@app.post("/efg", summary="Eventually-follows graph discovery")
-def discover_efg(
-    session: ApiSession,
-    ocel: ApiOcel,
-    req: ObjectTypeRequestBody,
-) -> DirectedGraphResponse:
-    efg = ocel.eventually_follows_graph(otype=req.object_type)
-
-    return DirectedGraphResponse(
-        **session.respond(
-            route="efg",
-            msg=f"Eventually-follows graph of '{req.object_type}' has been discovered.",
-            graph=DirectedGraphResponse.graph_from_tuples(efg),
-        )
-    )
-
-
-class OcpnRequestBody(RequestBody):
-    object_types: ApiObjectTypes
-
-
-class OcpnResponse(BaseResponse):
-    ocpn: viz_ocpn.OCPN
-
-
-@app.get("/ocpn", summary="OCPN discovery")
-def ocpn(
-    session: ApiSession,
-    ocel: ApiOcel,
-) -> OcpnResponse:
-    ocpn = ocel.ocpn()  # type: ignore
-
-    # TODO minimize/rename the function, it does not do visualization any more
-    ocpn = viz_ocpn.visualize(
-        ocpn,
-        parameters={
-            viz_ocpn.Parameters.UUIDS: False,
-            viz_ocpn.Parameters.RANKDIR: "LR",
-        },
-    )
-
-    return OcpnResponse(
-        **session.respond(
-            route="ocpn",
-            msg=f"Object-centric Petri Net has been discovered successfully.",
-            ocpn=ocpn,
-        )
-    )
 
 
 # endregion
