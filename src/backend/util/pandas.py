@@ -382,7 +382,8 @@ def concat_dfs(
     **kwargs,
 ) -> pd.DataFrame:
     """Concatenate multiple DataFrames (axis=0). pd.concat has problems with empty DataFrames.
-    Even if all dfs are empty, this function is able to concatenate them. To ensure reproducible results, pass a columns list."""
+    Even if all dfs are empty, this function is able to concatenate them. To ensure reproducible results, pass a columns list.
+    """
     _columns = columns
     if _columns is None:
         _columns = []

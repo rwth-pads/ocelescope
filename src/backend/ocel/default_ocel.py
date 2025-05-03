@@ -84,9 +84,7 @@ DEFAULT_OCELS = [
 del data
 
 DEFAULT_OCEL_KEYS = util.unique([d.key for d in DEFAULT_OCELS])
-logger.info(
-    f"{len(DEFAULT_OCELS)} OCELs available (keys: {util.set_str(DEFAULT_OCEL_KEYS)})"
-)
+logger.info(f"{len(DEFAULT_OCELS)} OCELs available (keys: {util.set_str(DEFAULT_OCEL_KEYS)})")
 
 
 def filter_default_ocels(

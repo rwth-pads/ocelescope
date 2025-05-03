@@ -1,30 +1,30 @@
 from __future__ import annotations
 
-
-from api import session
-from api.logger import logger
-
 import datetime
 import shutil
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Annotated, Literal
 
-from plugin_loader import register_plugins
+from fastapi import FastAPI, File, Header, Query, Response, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from pydantic import ValidationError
+
 import visualization.ocpn as viz_ocpn
+from api import session
 from api.config import OceanConfig, config
 from api.dependencies import ApiObjectType, ApiObjectTypes, ApiOcel, ApiSession, ApiTask
 from api.docs import init_custom_docs
 from api.exceptions import BadRequest, NotFound, Unauthorized
+from api.logger import logger
 from api.middleware import ocel_access_middleware
 from api.model.app_state import AppState
 from api.model.base import RequestBody
 from api.model.response import BaseResponse, OcelResponse, TempFileResponse
 from api.model.task import TaskStatusResponse
 from api.model.with_ocel import set_ocel_context
-from api.serialize import (
-    ocel_to_api,
-)
+from api.serialize import ocel_to_api
 from api.session import Session
 from api.utils import (
     custom_snake2camel,
@@ -32,10 +32,6 @@ from api.utils import (
     export_openapi_schema,
     verify_parameter_alias_consistency,
 )
-from fastapi import FastAPI, File, Header, Query, UploadFile, Response
-from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
-
 from ocel.default_ocel import (
     DEFAULT_OCEL_KEYS,
     DefaultOCEL,
@@ -44,7 +40,7 @@ from ocel.default_ocel import (
     load_default_ocels,
 )
 from ocel.ocel_wrapper import OCELWrapper
-from pydantic import ValidationError
+from plugin_loader import register_plugins
 from util.misc import export_example_settings_as_dotenv
 from version import __version__
 
@@ -90,9 +86,7 @@ def task_status(
     task: ApiTask,
 ) -> TaskStatusResponse:
     """Return the status of a long-running task."""
-    return TaskStatusResponse(
-        **session.respond(route="task-status", msg=None, task=task)
-    )
+    return TaskStatusResponse(**session.respond(route="task-status", msg=None, task=task))
 
 
 # endregion
@@ -107,9 +101,7 @@ def task_status(
 # region
 
 
-@app.post(
-    "/import", summary="Import OCEL 2.0 from .sqlite file", operation_id="importOcel"
-)
+@app.post("/import", summary="Import OCEL 2.0 from .sqlite file", operation_id="importOcel")
 def import_ocel(
     response: Response,
     file: Annotated[
@@ -118,9 +110,7 @@ def import_ocel(
     ],
     name: Annotated[
         str,
-        Query(
-            description="The name of the uploaded file", pattern=r"[\w\-\(\)]+\.[a-z]+"
-        ),
+        Query(description="The name of the uploaded file", pattern=r"[\w\-\(\)]+\.[a-z]+"),
         # Need original file name because client-side formData creation in generated api wrapper does not retain it
     ],
 ) -> Response:
@@ -176,9 +166,7 @@ def import_ocel(
     return response
 
 
-@app.get(
-    "/ocel/default", summary="Get default OCEL metadata", operation_id="getDefaultOcel"
-)
+@app.get("/ocel/default", summary="Get default OCEL metadata", operation_id="getDefaultOcel")
 def default_ocels(
     only_latest_versions: bool = True,
     only_preloaded: bool = False,
@@ -191,9 +179,7 @@ def default_ocels(
     return filtered
 
 
-@app.post(
-    "/import-default", summary="Import default OCEL", operation_id="importDefaultOcel"
-)
+@app.post("/import-default", summary="Import default OCEL", operation_id="importDefaultOcel")
 def import_default_ocel(
     response: Response,
     key: str = Query(
@@ -221,9 +207,7 @@ def import_default_ocel(
             AppState.instantiate(default_ocel.default_app_state, ocel=ocel)
         except ValidationError as err:
             # When attribute units are saved to the JSON file with a renamed name (after unit detection), these will cause a Validation error here.
-            is_attr_not_found = [
-                "attribute not found" in e["msg"] for e in err.errors()
-            ]
+            is_attr_not_found = ["attribute not found" in e["msg"] for e in err.errors()]
             if not all(is_attr_not_found):
                 raise err
 
@@ -314,9 +298,7 @@ def download_ocel(
     # Export to file
     name = ocel.meta["fileName"]
     tmp_file_prefix = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + name
-    file_response = TempFileResponse(
-        prefix=tmp_file_prefix, suffix=".sqlite", filename=name
-    )
+    file_response = TempFileResponse(prefix=tmp_file_prefix, suffix=".sqlite", filename=name)
     session.export_sqlite(file_response.tmp_path)
     return file_response
 

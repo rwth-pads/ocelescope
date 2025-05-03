@@ -10,7 +10,6 @@ import numpy as np
 import pandas as pd
 from pm4py.objects.ocel.obj import OCEL
 
-
 if TYPE_CHECKING:
     from ocel.ocel_wrapper import OCELWrapper
 
@@ -31,9 +30,7 @@ def add_object_order(
         # Try to automatically detect the object column(s)
         if {"ocel:oid", "ocel:type"}.issubset(df.columns):
             suffixes = ("",)
-        elif {"ocel:oid_1", "ocel:type_1", "ocel:oid_2", "ocel:type_2"}.issubset(
-            df.columns
-        ):
+        elif {"ocel:oid_1", "ocel:type_1", "ocel:oid_2", "ocel:type_2"}.issubset(df.columns):
             suffixes = ("_1", "_2")
         else:
             raise ValueError
@@ -121,21 +118,13 @@ def filter_pm4py_ocel(
     if oids:
         relations_filter = relations_filter & ocel2.relations["ocel:oid"].isin(oids)
     if activities:
-        relations_filter = relations_filter & ocel2.relations["ocel:activity"].isin(
-            activities
-        )
+        relations_filter = relations_filter & ocel2.relations["ocel:activity"].isin(activities)
     if qualifiers:
-        relations_filter = relations_filter & ocel2.relations["ocel:qualifier"].isin(
-            qualifiers
-        )
+        relations_filter = relations_filter & ocel2.relations["ocel:qualifier"].isin(qualifiers)
     if min_timestamp is not None:
-        relations_filter = relations_filter & (
-            ocel2.relations["ocel:timestamp"] >= min_timestamp
-        )
+        relations_filter = relations_filter & (ocel2.relations["ocel:timestamp"] >= min_timestamp)
     if max_timestamp is not None:
-        relations_filter = relations_filter & (
-            ocel2.relations["ocel:timestamp"] <= max_timestamp
-        )
+        relations_filter = relations_filter & (ocel2.relations["ocel:timestamp"] <= max_timestamp)
     ocel2.relations = ocel2.relations[relations_filter]
 
     # Retain events & objects that have E2O relations
@@ -161,24 +150,18 @@ def filter_pm4py_ocel(
         before = ocel2.object_changes[~min_timestamp_filter].sort_values(  # type: ignore
             "ocel:timestamp"
         )
-        latest_before = before.groupby(
-            ["ocel:oid", "ocel:field"], as_index=False
-        ).last()
+        latest_before = before.groupby(["ocel:oid", "ocel:field"], as_index=False).last()
         ocel2.object_changes = pd.concat([latest_before, filtered])  # type: ignore
 
     # O2O relations table
     o2o_oid = ocel2.o2o["ocel:oid"].isin(ocel2.objects["ocel:oid"])  # type: ignore
     o2o_oid_2 = ocel2.o2o["ocel:oid_2"].isin(ocel2.objects["ocel:oid"])  # type: ignore
-    ocel2.o2o = ocel2.o2o[o2o_oid & o2o_oid_2 & qualifier_filter(ocel2.o2o)][
-        ocel2.o2o.columns
-    ]
+    ocel2.o2o = ocel2.o2o[o2o_oid & o2o_oid_2 & qualifier_filter(ocel2.o2o)][ocel2.o2o.columns]
 
     # E2E relations table
     e2e_eid = ocel2.e2e["ocel:eid"].isin(ocel2.events["ocel:eid"])  # type: ignore
     e2e_eid_2 = ocel2.e2e["ocel:eid"].isin(ocel2.events["ocel:eid"])  # type: ignore
-    ocel2.e2e = ocel2.e2e[e2e_eid & e2e_eid_2 & qualifier_filter(ocel2.e2e)][
-        ocel2.e2e.columns
-    ]
+    ocel2.e2e = ocel2.e2e[e2e_eid & e2e_eid_2 & qualifier_filter(ocel2.e2e)][ocel2.e2e.columns]
 
     return ocel2
 

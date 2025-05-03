@@ -49,8 +49,7 @@ def ocel_to_api(
             activities=set(ocel.activities),
             activity_counts=ocel.activity_counts.to_dict(),
             e2o_counts={
-                act: ocel.type_relation_frequencies.xs(act).to_dict()
-                for act in ocel.activities
+                act: ocel.type_relation_frequencies.xs(act).to_dict() for act in ocel.activities
             },
             e2o_qualifier_counts=series_to_nested_dict(
                 ocel.qualifier_frequencies.set_index(

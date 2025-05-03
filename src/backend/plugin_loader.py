@@ -1,7 +1,9 @@
 import importlib
-import pkgutil
 import os
+import pkgutil
+
 from fastapi import Depends, FastAPI
+
 from api.session import Session
 
 # Use direct path-based loading for safety

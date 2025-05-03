@@ -1,9 +1,9 @@
 from typing import Annotated
+
 from fastapi import APIRouter
 from fastapi.params import Depends
 
 from api.model.cache import CachableObject
-
 
 router = APIRouter()
 
@@ -19,9 +19,7 @@ meta = {
     "tags": ["helloworld"],  # used by the loader
     "description": "Say hello 🌍",
     "permissions": ["read:hello"],  # optional
-    "config": {
-        "enabled": True  # optional config
-    },
+    "config": {"enabled": True},  # optional config
 }
 
 

@@ -53,9 +53,7 @@ class MainTask(Task, Generic[ResponseT]):
         except Exception as exc:
             with self._lock:
                 self._state = TaskState.FAILURE
-                self._msg = (
-                    str(exc) if config.EXPOSE_ERROR_DETAILS else "Internal Server Error"
-                )
+                self._msg = str(exc) if config.EXPOSE_ERROR_DETAILS else "Internal Server Error"
             logger.error(f'Task "{self.name}/#{self.id}" failed: {exc}')
             raise exc  # TODO dev only
 
@@ -140,9 +138,7 @@ class MainTask(Task, Generic[ResponseT]):
         self, msg: str | None = None, status: int = 200, **data
     ) -> dict[str, Any]:
         """Builds the API response for the next task-status call after the task has finished."""
-        return self.session.respond(
-            task=self, include_task=False, status=status, msg=msg, **data
-        )
+        return self.session.respond(task=self, include_task=False, status=status, msg=msg, **data)
 
     def serialize(self) -> TaskResponse[ResponseT]:
         """Serializes an ApiTask to send progress state via the API"""
@@ -172,9 +168,7 @@ class MainTask(Task, Generic[ResponseT]):
                 res["result"] = self._result
                 default_msg = "Finished"
             else:
-                raise ValueError(
-                    f"Unknown task state '{self._state}', failed to serialize."
-                )
+                raise ValueError(f"Unknown task state '{self._state}', failed to serialize.")
 
             if default_msg is not None and "msg" not in res:
                 res["msg"] = default_msg
@@ -193,9 +187,7 @@ def task(route: str):
         @functools.wraps(func)
         def wrapper(session: Session, *args, is_cached: bool = False, **kwargs):
             # Create and start the task
-            task = MainTask(
-                session=session, target=func, route=route, args=args, kwargs=kwargs
-            )
+            task = MainTask(session=session, target=func, route=route, args=args, kwargs=kwargs)
             task.start()
 
             if is_cached:
@@ -215,9 +207,7 @@ def task(route: str):
                     raise ValueError("Task finished without a result.")
                     # return session.respond(route=route, msg=msg, status=status, **result)
 
-            return TaskStatusResponse[ResponseT](
-                **session.respond(route=route, task=task)
-            )
+            return TaskStatusResponse[ResponseT](**session.respond(route=route, task=task))
 
         # TODO remove this, functools.wraps should take care of this
         # get the original signature

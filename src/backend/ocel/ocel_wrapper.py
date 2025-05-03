@@ -18,7 +18,6 @@ from cachetools import LRUCache
 from pm4py.objects.ocel.obj import OCEL
 
 from api.logger import logger
-
 from ocel.utils import add_object_order, filter_pm4py_ocel, filter_relations
 from util.cache import instance_lru_cache
 from util.misc import pluralize
@@ -133,9 +132,7 @@ class OCELWrapper:
             otypes = set(self.otypes)
         sorted_otypes = sorted([ot for ot in otypes if ot in self.otypes])
         if not sorted_otypes:
-            raise ValueError(
-                f"OCPN Discovery received invalid or empty object type set."
-            )
+            raise ValueError(f"OCPN Discovery received invalid or empty object type set.")
 
         # Discover OCPN
         # TODO might use own filter function
@@ -260,18 +257,14 @@ class OCELWrapper:
             relations2 = relations2.drop_duplicates()  # type: ignore
 
             # Merge
-            interactions = pd.merge(
-                relations1, relations2, on="ocel:eid", suffixes=("_1", "_2")
-            )
+            interactions = pd.merge(relations1, relations2, on="ocel:eid", suffixes=("_1", "_2"))
             ix = interactions["ocel:oid_1"] != interactions["ocel:oid_2"]
             if remove_otype_loops:
                 ix = ix & (interactions["ocel:type_1"] != interactions["ocel:type_2"])
             interactions.drop(index=interactions.index[~ix], inplace=True)  # type: ignore
 
             if groupby_objects and not include_frequencies:
-                interactions.drop_duplicates(
-                    subset=["ocel:oid_1", "ocel:oid_2"], inplace=True
-                )
+                interactions.drop_duplicates(subset=["ocel:oid_1", "ocel:oid_2"], inplace=True)
         else:
             interactions = None
 
@@ -286,9 +279,7 @@ class OCELWrapper:
 
             # Ignore self-loops, but warn if they exist:
             if (self.o2o["ocel:oid_1"] == self.o2o["ocel:oid_2"]).any():
-                num_self_loops = (
-                    self.o2o["ocel:oid_1"] == self.o2o["ocel:oid_2"]
-                ).sum()
+                num_self_loops = (self.o2o["ocel:oid_1"] == self.o2o["ocel:oid_2"]).sum()
                 logger.warning(
                     f"object_relations currently not supporting O2O self-loops. Dropping {num_self_loops} relations."
                 )
@@ -378,9 +369,9 @@ class OCELWrapper:
                     ]
                 )
                 oids2 = oid2_filter or set(
-                    self.objects[
-                        self.objects["ocel:type"].isin(otype2_filter)  # type: ignore
-                    ]["ocel:oid"]
+                    self.objects[self.objects["ocel:type"].isin(otype2_filter)][  # type: ignore
+                        "ocel:oid"
+                    ]
                 )
                 side_filter1_oid = np.where(
                     og["ocel:oid_1"].isin(oids2),  # type: ignore
@@ -521,17 +512,13 @@ class OCELWrapper:
     @instance_lru_cache()
     def o2o(self):
         """O2O relationships, with object types"""
-        return self.join_otypes(
-            self.ocel.o2o.rename(columns={"ocel:oid": "ocel:oid_1"})
-        )
+        return self.join_otypes(self.ocel.o2o.rename(columns={"ocel:oid": "ocel:oid_1"}))
 
     @property
     @instance_lru_cache()
     def o2o_type_frequencies(self):
         return (
-            self.o2o.groupby(["ocel:type_1", "ocel:qualifier", "ocel:type_2"])[
-                "ocel:oid_1"
-            ]
+            self.o2o.groupby(["ocel:type_1", "ocel:qualifier", "ocel:type_2"])["ocel:oid_1"]
             .count()
             .rename("freq")
             .reset_index()
@@ -543,9 +530,7 @@ class OCELWrapper:
     # region
     @property
     def eattr_names(self) -> list[str]:
-        return sorted(
-            [col for col in self.ocel.events.columns if not col.startswith("ocel:")]
-        )
+        return sorted([col for col in self.ocel.events.columns if not col.startswith("ocel:")])
 
     @property
     def oattr_names_static(self) -> list[str]:
@@ -562,9 +547,7 @@ class OCELWrapper:
         return sorted(
             [
                 col
-                for col in self.ocel.object_changes.columns[
-                    self.ocel.object_changes.count() > 0
-                ]
+                for col in self.ocel.object_changes.columns[self.ocel.object_changes.count() > 0]
                 if not col.startswith("ocel:") and col != "@@cumcount"
             ]
         )
@@ -619,9 +602,7 @@ class OCELWrapper:
         )
 
         labels = kmeans.fit_predict(num_events_log_median.values.reshape((-1, 1)))  # type: ignore
-        hu_label = (
-            0 if kmeans.cluster_centers_[0, 0] < kmeans.cluster_centers_[1, 0] else 1
-        )
+        hu_label = 0 if kmeans.cluster_centers_[0, 0] < kmeans.cluster_centers_[1, 0] else 1
         hu_otypes, resource_otypes = (
             num_events_log_median.reset_index()["ocel:type"][labels == i].tolist()
             for i in [hu_label, 1 - hu_label]
@@ -683,15 +664,11 @@ class OCELWrapper:
             relations = relations.reset_index()
         else:
             relations = relations.copy()
-            relations["ocel:qualifiers"] = relations["ocel:qualifier"].apply(
-                lambda q: {q}
-            )
+            relations["ocel:qualifiers"] = relations["ocel:qualifier"].apply(lambda q: {q})
             relations.drop(columns=["ocel:qualifier"], inplace=True)
         # Compute lifecycle indices
         relations["ocel:lifecycle_index"] = (
-            relations.sort_values(["ocel:oid", "ocel:timestamp"])
-            .groupby("ocel:oid")
-            .cumcount()
+            relations.sort_values(["ocel:oid", "ocel:timestamp"]).groupby("ocel:oid").cumcount()
         )
         return relations
 
@@ -712,9 +689,7 @@ class OCELWrapper:
         )
 
     @instance_lru_cache(make_hashable=True)
-    def sort_activities(
-        self, otypes: set[str] | None = None, all_activities: bool = False
-    ):
+    def sort_activities(self, otypes: set[str] | None = None, all_activities: bool = False):
         """
         Sorts the activities based on their positions within object lifecycles.
         Only considers the lifecycles of objects of the given types.
@@ -735,9 +710,7 @@ class OCELWrapper:
         activities = activity_lifecycle_indices["ocel:activity"].tolist()
         if all_activities:
             # Append activities not present for *otypes* to the end
-            activities += [
-                act for act in self.activity_counts.index if act not in activities
-            ]
+            activities += [act for act in self.activity_counts.index if act not in activities]
         return activities
 
     # endregion
@@ -764,9 +737,7 @@ class OCELWrapper:
         """Computes the number of objects per event, grouped by activity and object type, aggregated by mean, min, median, max."""
         # TODO nonzero does not work here. Due to the groupby calls, there are no zero entries, leading to nonzero being either 1 or NaN.
         type_relations: pd.DataFrame = (
-            self.relations.groupby(
-                ["ocel:eid", "ocel:activity", "ocel:type"], as_index=False
-            )
+            self.relations.groupby(["ocel:eid", "ocel:activity", "ocel:type"], as_index=False)
             .size()
             .rename(columns={"size": "num_objects"})  # type: ignore
             .groupby(["ocel:activity", "ocel:type"], as_index=False)["num_objects"]
@@ -796,16 +767,14 @@ class OCELWrapper:
         Counts separately for different qualifiers.
         """
         event_otypes = (
-            self.relations.groupby(
-                ["ocel:eid", "ocel:type", "ocel:qualifier"], as_index=False
-            )
+            self.relations.groupby(["ocel:eid", "ocel:type", "ocel:qualifier"], as_index=False)
             .agg({"ocel:oid": "size", "ocel:activity": "first"})
             .rename(columns={"ocel:oid": "num_objs"})
         )
         act_otype_counts = (
-            event_otypes.groupby(
-                ["ocel:activity", "ocel:type", "ocel:qualifier"], as_index=False
-            )["num_objs"]
+            event_otypes.groupby(["ocel:activity", "ocel:type", "ocel:qualifier"], as_index=False)[
+                "num_objs"
+            ]
             .agg(["min", "max", "mean", np.count_nonzero])
             .rename(columns={"count_nonzero": "nonzero_abs"})
         )
@@ -839,12 +808,8 @@ class OCELWrapper:
         rel_stats = pd.concat(
             [rel_stats_overall, rel_stats_qual],
             ignore_index=True,
-        ).sort_values(
-            ["ocel:activity", "ocel:type", "ocel:qualifier"], na_position="first"
-        )
-        rel_stats = rel_stats[
-            (rel_stats["max"] == 1) & (rel_stats["nonzero_rel"] >= min_rel_freq)
-        ]
+        ).sort_values(["ocel:activity", "ocel:type", "ocel:qualifier"], na_position="first")
+        rel_stats = rel_stats[(rel_stats["max"] == 1) & (rel_stats["nonzero_rel"] >= min_rel_freq)]
         return rel_stats
 
     def filter_relations(
@@ -964,9 +929,7 @@ class OCELWrapper:
 
     @property
     def cache_size(self):
-        return {
-            name: cache_info.currsize for name, cache_info in self._cache_info.items()
-        }
+        return {name: cache_info.currsize for name, cache_info in self._cache_info.items()}
 
     # endregion
 
@@ -1026,9 +989,7 @@ class OCELWrapper:
             if not filter:
                 return
             if key in meta["filters"]:
-                meta["filters"][key] = sorted(
-                    set(meta["filters"][key]).intersection(filter)
-                )
+                meta["filters"][key] = sorted(set(meta["filters"][key]).intersection(filter))
             else:
                 meta["filters"][key] = sorted(filter)
 
@@ -1122,9 +1083,7 @@ class OCELWrapper:
             if "filters" in ocel2.meta:
                 for k in ["otypes", "activities", "qualifiers"]:
                     if k in ocel2.meta["filters"]:
-                        ocel2.meta["filters"][k] = [
-                            repl(x) for x in ocel2.meta["filters"][k]
-                        ]
+                        ocel2.meta["filters"][k] = [repl(x) for x in ocel2.meta["filters"][k]]
             ocel2.meta["ocelStrPm4py"] = str(pm4py_ocel2)
             ocel2.meta["ocelStr"] = str(ocel2)
 
@@ -1136,9 +1095,7 @@ class OCELWrapper:
     # region
 
     @staticmethod
-    def read_ocel2_sqlite(
-        path: PathLike, version_info: bool = False, output: bool = True
-    ):
+    def read_ocel2_sqlite(path: PathLike, version_info: bool = False, output: bool = True):
         if not isinstance(path, Path):
             path = Path(path)
         if output:
@@ -1219,11 +1176,7 @@ class OCELWrapper:
             msg: str, warning_list: list[warnings.WarningMessage], locations: list[str]
         ):
             count = len(warning_list)
-            t = (
-                "warning"
-                if isinstance(warning_list[0], warnings.WarningMessage)
-                else "exception"
-            )
+            t = "warning" if isinstance(warning_list[0], warnings.WarningMessage) else "exception"
             return "\n  ".join(
                 [
                     f"The following {t} occured {pluralize(count, pl='times')}:",

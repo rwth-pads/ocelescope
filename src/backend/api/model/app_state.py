@@ -58,18 +58,14 @@ class AppState(ModelWithOcel):
 
     def export_sqlite(self, path: PathLike):
         data = [
-            (k, json.dumps(v))
-            for k, v in self.model_dump(mode="json").items()
-            if v is not None
+            (k, json.dumps(v)) for k, v in self.model_dump(mode="json").items() if v is not None
         ]
         con = sqlite3.connect(path)
         con.execute(f"DROP TABLE IF EXISTS {APP_STATE_TABLE}")
         con.execute(
             f"CREATE TABLE {APP_STATE_TABLE} (key TEXT NOT NULL PRIMARY KEY, value TEXT NOT NULL)"
         )
-        con.executemany(
-            f"INSERT INTO {APP_STATE_TABLE} (key, value) VALUES (?, ?)", data
-        )
+        con.executemany(f"INSERT INTO {APP_STATE_TABLE} (key, value) VALUES (?, ?)", data)
         con.commit()
         con.close()
         return True

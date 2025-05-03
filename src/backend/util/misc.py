@@ -163,11 +163,7 @@ def example_settings_to_dotenv(
         # Only leave fields uncommented which need a user defined value
         needs_user_defined_value = is_required and not has_default
         line_prefix = "" if needs_user_defined_value else "# "
-        value = (
-            str(model_field.default)
-            if has_default and model_field.default is not None
-            else ""
-        )
+        value = str(model_field.default) if has_default and model_field.default is not None else ""
 
         output.append(f"{line_prefix}{env_var_name.upper()}={value}")
         output.append("")

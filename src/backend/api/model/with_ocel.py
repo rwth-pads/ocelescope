@@ -3,9 +3,10 @@ from __future__ import annotations
 from contextvars import ContextVar
 from typing import TYPE_CHECKING, Any
 
+from pydantic import ValidationInfo, model_validator
+
 from api.logger import logger
 from api.model.base import ApiBaseModel
-from pydantic import ValidationInfo, model_validator
 
 if TYPE_CHECKING:
     from ocel.ocel_wrapper import OCELWrapper

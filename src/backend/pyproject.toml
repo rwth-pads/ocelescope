@@ -25,6 +25,7 @@ dependentspy = {git = "https://github.com/raihensen/dependentspy", branch = "mai
 iso4 = "^0.0.2"
 seaborn = "^0.13.0"
 matplotlib = "^3.8.0"
+pre-commit = "^4.2.0"
 
 [build-system]
 requires = ["poetry-core"]
