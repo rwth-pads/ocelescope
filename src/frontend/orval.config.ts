@@ -1,18 +1,19 @@
-import { defineConfig } from 'orval';
+import { defineConfig } from "orval";
 export default defineConfig({
   fastapi: {
-    input: 'http://localhost:8000/openapi.json',
+    input: "http://localhost:8000/openapi.json",
     output: {
-      mode: 'tags-split',
-      target: './api/fastapi',
-      schemas: './api/fastapi-schemas',
-      client: 'react-query', httpClient: 'fetch',
-      baseUrl: 'http://localhost:8000',
+      mode: "tags-split",
+      target: "./api/fastapi",
+      schemas: "./api/fastapi-schemas",
+      client: "react-query",
+      httpClient: "fetch",
+      baseUrl: "http://localhost:8000",
       override: {
         fetch: {
-          includeHttpResponseReturnType: false
-        }
+          includeHttpResponseReturnType: false,
+        },
       },
     },
-  }
+  },
 });

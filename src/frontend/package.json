@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "format": "biome format . --write",
     "openapi-ts": "openapi-ts"
   },
   "dependencies": {
@@ -36,6 +37,7 @@
     "zustand": "^4.5.2"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@hey-api/openapi-ts": "^0.42.1",
     "@types/chroma-js": "^2.4.4",
     "@types/d3": "^7.4.3",
