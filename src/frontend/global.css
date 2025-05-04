@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --rwth-red: #d22027;
   --rwth-orange: #f89c0e;
