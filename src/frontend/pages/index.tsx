@@ -21,23 +21,27 @@ import {
   useImportOcel,
 } from "@/api/fastapi/default/default";
 import FileUpload from "@/components/forms/FileUpload";
+import { useRouter } from "next/router";
+import { Container } from "react-bootstrap";
 
 const StartPage: React.FC = () => {
+  const { push } = useRouter();
+
   const { data: defaultOcels } = useGetDefaultOcel(
     { only_latest_versions: true },
     {},
   );
   const { mutate: importDefaultOcel } = useImportDefaultOcel({
-    fetch: { credentials: "include" },
+    mutation: { onSuccess: () => push("/plugin") },
+  });
+  const { mutate: importOcel } = useImportOcel({
+    mutation: { onSuccess: () => push("/plugin") },
   });
 
-  const { mutate: importOcel } = useImportOcel({
-    fetch: { credentials: "include" },
-  });
   const [uploadedOcel, setUploadedOcel] = useState<File>();
 
   return (
-    <>
+    <Container className="pt-3">
       <h4>OCEL 2.0 Import</h4>
       <div className="mb-5">
         <Form.Group controlId="formFile" className="mb-3">
@@ -58,6 +62,7 @@ const StartPage: React.FC = () => {
                 params: { name: uploadedOcel.name },
               });
           }}
+          disabled={!uploadedOcel}
         >
           Import
         </Button>
@@ -113,7 +118,7 @@ const StartPage: React.FC = () => {
           </ParagraphLinks>
         </SkeletonTheme>
       </div>
-    </>
+    </Container>
   );
 };
 
