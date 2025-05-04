@@ -1,0 +1,17 @@
+[
+  {
+    "name": "ocelot",
+    "label": "Ocelot",
+    "category": "overview",
+    "routes": [
+      {
+        "component": "eventTypes",
+        "label": "Event Types"
+      },
+      {
+        "component": "objectTypes",
+        "label": "Object Types"
+      }
+    ]
+  }
+]
