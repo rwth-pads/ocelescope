@@ -1,5 +1,16 @@
 [
   {
+    "name": "example",
+    "label": "Example Plugin",
+    "category": "overview",
+    "routes": [
+      {
+        "component": "example",
+        "label": "Example Page"
+      }
+    ]
+  },
+  {
     "name": "ocelot",
     "label": "Ocelot",
     "category": "overview",

@@ -6,7 +6,6 @@ import { FC } from "react";
 import { Container, Nav, Stack } from "react-bootstrap";
 import { plugins } from "@/plugins";
 import { Plugin } from "@/plugins/types";
-import PluginSidebar from "@/components/layout/PluginSidebar";
 import { useRouter } from "next/router";
 
 export type PluginPageProps = {
