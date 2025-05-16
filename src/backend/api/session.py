@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Type, TypeVar
 
 import pandas as pd
 
@@ -13,6 +13,9 @@ from util.types import PathLike
 if TYPE_CHECKING:
     from api.model.app_state import AppState
     from api.task_api import MainTask
+
+
+T = TypeVar("T")
 
 
 class Session:
@@ -29,6 +32,7 @@ class Session:
         self.app_state = app_state
 
         self._tasks = {}
+        self._plugin_states = {}
 
         self.response_cache: dict[str, Any] = {}
         # Set first state to UUID, to be updated on each response
@@ -39,6 +43,11 @@ class Session:
 
     def get_task(self, task_id: str):
         return self._tasks.get(task_id, None)
+
+    def get_plugin_state(self, key: str, cls: Type[T]) -> T:
+        if key not in self._tasks:
+            self._tasks[key] = cls()
+        return self._tasks[key]
 
     def respond(
         self,

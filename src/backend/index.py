@@ -266,18 +266,13 @@ def load_ocel(
     )
 
 
-@app.get("/validate", summary="Load OCEL")
+@app.get("/validate", summary="Load OCEL", operation_id="validateSession")
 def validate_session(
-    session: ApiSession,
-    ocel: ApiOcel,
-) -> OcelResponse:
-    return OcelResponse(
-        **session.respond(
-            route="load",
-            msg=f'Event log "{ocel.meta["fileName"] or session.id}" has been loaded from the server.',
-            ocel=ocel_to_api(ocel, session=session),
-        )
-    )
+    _session: ApiSession,
+    response: Response,
+) -> Response:
+    response.status_code = 200
+    return response
 
 
 # endregion
