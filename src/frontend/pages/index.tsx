@@ -27,10 +27,9 @@ import { Container } from "react-bootstrap";
 const StartPage: React.FC = () => {
   const { push } = useRouter();
 
-  const { data: defaultOcels } = useGetDefaultOcel(
-    { only_latest_versions: true },
-    {},
-  );
+  const { data: defaultOcels } = useGetDefaultOcel({
+    only_latest_versions: true,
+  });
   const { mutate: importDefaultOcel } = useImportDefaultOcel({
     mutation: { onSuccess: () => push("/plugin") },
   });

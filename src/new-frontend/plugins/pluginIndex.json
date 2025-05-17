@@ -1,0 +1,16 @@
+[
+  {
+    "name": "ocelot",
+    "label": "Ocelot",
+    "routes": [
+      {
+        "component": "events",
+        "label": "Events"
+      },
+      {
+        "component": "objects",
+        "label": "Object"
+      }
+    ]
+  }
+]

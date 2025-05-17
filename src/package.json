@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "@mantine/charts": "^8.0.1",
+    "@mantine/core": "^8.0.1",
+    "@mantine/dates": "^8.0.1",
+    "@mantine/dropzone": "^8.0.1",
+    "@mantine/hooks": "^8.0.1",
+    "@mantine/notifications": "^8.0.1",
+    "dayjs": "^1.11.13",
+    "recharts": "^2.15.3"
+  },
+  "devDependencies": {
+    "postcss": "^8.5.3",
+    "postcss-preset-mantine": "^1.17.0",
+    "postcss-simple-vars": "^7.0.1"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "name": "new-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "generate:plugin": "tsx scripts/buildPlugins.tsx"
+  },
+  "dependencies": {
+    "@mantine/charts": "^8.0.1",
+    "@mantine/core": "^8.0.1",
+    "@mantine/dates": "^8.0.1",
+    "@mantine/dropzone": "^8.0.1",
+    "@mantine/hooks": "^8.0.1",
+    "@mantine/notifications": "^8.0.1",
+    "@tanstack/react-query": "^5.76.1",
+    "@tanstack/react-query-devtools": "^5.76.1",
+    "dayjs": "^1.11.13",
+    "lucide-react": "^0.511.0",
+    "next": "15.3.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "recharts": "^2.15.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "orval": "^7.9.0",
+    "postcss": "^8.5.3",
+    "postcss-preset-mantine": "^1.17.0",
+    "postcss-simple-vars": "^7.0.1",
+    "tsx": "^4.19.4",
+    "typescript": "^5"
+  }
+}
