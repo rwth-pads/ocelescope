@@ -1,10 +1,10 @@
-import { useRef } from "react";
+import { ComponentProps, useRef } from "react";
 import { Button, Group, Text, useMantineTheme } from "@mantine/core";
 import { Dropzone, MIME_TYPES } from "@mantine/dropzone";
-import classes from "./Dropzone.module.css";
+import classes from "@/components/Dropzone/Dropzone.module.css";
 import { DownloadIcon, Upload, X } from "lucide-react";
 
-export function DropzoneButton() {
+export const DropzoneButton: React.FC<{ onDrop: ComponentProps<typeof Dropzone>["onDrop"] }> = ({ onDrop }) => {
   const theme = useMantineTheme();
   const openRef = useRef<() => void>(null);
 
@@ -12,7 +12,7 @@ export function DropzoneButton() {
     <div className={classes.wrapper}>
       <Dropzone
         openRef={openRef}
-        onDrop={(f) => {}}
+        onDrop={onDrop}
         className={classes.dropzone}
         radius="md"
         accept={[

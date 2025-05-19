@@ -12,9 +12,10 @@ import classes from "@/styles/Import.module.css";
 import {
   useGetDefaultOcel,
   useImportDefaultOcel,
+  useImportOcel,
 } from "@/api/fastapi/default/default";
 import { Container as ContainerIcon } from "lucide-react";
-import { DropzoneButton } from "@/components/Dropzone";
+import { DropzoneButton } from "@/components/Dropzone/Dropzone";
 import { useRouter } from "next/router";
 const AuthenticationTitle = () => {
   const { push } = useRouter();
@@ -28,13 +29,15 @@ const AuthenticationTitle = () => {
     },
   });
 
+  const { mutate } = useImportOcel({ mutation: { onSuccess: () => push("/plugin"), } })
+
   return (
     <Container size={700} my={40}>
       <Title ta="center" className={classes.title}>
         Import your OCEL
       </Title>
       <Paper withBorder shadow="sm" p={22} mt={30} radius="md">
-        <DropzoneButton />
+        <DropzoneButton onDrop={(file) => mutate({ data: { file: file[0] }, params: { name: file[0].name } })} />
         <Stack gap={0} mt="lg">
           <Divider />
           {defaultOcels?.map((ocel) => (
