@@ -3,33 +3,45 @@ import EntityTable from "@/components/EntityTable/EntityTable";
 import SingleLineTabs from "@/components/SingleLineTabs/SingleLineTabs";
 import { RouteDefinition } from "@/plugins/types";
 import {
-  Button,
-  Flex,
-  Grid,
-  ScrollArea,
-  Tabs,
-  UnstyledButton,
-} from "@mantine/core";
-import { useState } from "react";
+  keepPreviousData,
+} from '@tanstack/react-query'
+
+import { useEffect, useState } from "react";
 
 const PluginTestPage = () => {
   const { data: events, isSuccess } = useEventInfo();
   const [currentTab, setCurrentTab] = useState("");
+  const [page, setPage] = useState(1)
   const { data: eventsEntities } = usePaginatedEvents(
-    { activity: currentTab ?? events![0], page_size: 20 },
-    { query: { enabled: isSuccess } },
+    { activity: currentTab, page_size: 20, page },
+    { query: { enabled: isSuccess, placeholderData: keepPreviousData, staleTime: 5000 } },
   );
+
+  useEffect(() => {
+    if (!currentTab && events?.[0]) {
+      setCurrentTab(events[0]);
+    }
+  }, [currentTab, events]);
 
   if (!events) return null;
 
   return (
     <>
-      <SingleLineTabs
-        tabs={events}
-        setCurrentTab={setCurrentTab}
-        currentTab={currentTab ?? events[0]}
-      />
-      {eventsEntities && <EntityTable paginatedEntities={eventsEntities} />}
+      {events && (
+        <>
+          <SingleLineTabs
+            tabs={events}
+            setCurrentTab={(newTab) => { setCurrentTab(newTab); setPage(1) }}
+            currentTab={currentTab ?? events[0]}
+          />
+        </>
+      )}
+      {eventsEntities && (
+        <>
+          <EntityTable paginatedEntities={eventsEntities} onPageChange={setPage} />
+
+        </>
+      )}
     </>
   );
 };
