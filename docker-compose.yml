@@ -1,11 +1,47 @@
-name: ocean
-version: '0.9.12'
+version: '3.8'
+
 services:
- backend:
+  frontend:
     build:
-      dockerfile: src/backend/Dockerfile
-      context: ./
+      context: ./src/new-frontend
+      dockerfile: dev.Dockerfile
+    working_dir: /app
+    volumes:
+      - ./src/new-frontend:/app/src
+      - frontend-node-modules:/app/node_modules
+      - frontend-build:/app/.next
     ports:
-      - 8000:8000
+      - "3000:3000"
     environment:
-      - DATA_DIR=data
+      - HOSTNAME=0.0.0.0
+      - NEXT_TELEMETRY_DISABLED=1
+    depends_on:
+      - backend
+    command: >
+      sh -c "
+      cd src &&
+      if [ -f yarn.lock ]; then yarn dev;
+      elif [ -f package-lock.json ]; then npm run dev;
+      elif [ -f pnpm-lock.yaml ]; then pnpm dev;
+      else npm run dev;
+      fi
+      "
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./src/backend/dev.Dockerfile
+    working_dir: /app
+    volumes:
+      - ./src/backend:/app
+      - ./src/backend/data:/app/data:ro
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app
+    command: uvicorn index:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  frontend-node-modules:
+  frontend-build:
+  backend-data:

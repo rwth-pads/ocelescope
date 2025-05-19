@@ -13,12 +13,6 @@ class OceanConfig(BaseSettings):
         description="The frontend URL, relevant for CORS settings",
     )
 
-    OPENAPI_SCHEMA_PATH: FilePath = Field(
-        default="openapi.json",
-        description="The OpenAPI schema file gets saved at this path.",
-        validate_default=True,
-    )
-
     SESSION_ID_HEADER: str = Field(
         default="Ocean-Session-Id",
         description="The HTTP header name containing the session ID.",

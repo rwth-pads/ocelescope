@@ -5,13 +5,14 @@ WORKDIR /app
 RUN pip install poetry
 
 COPY src/backend/pyproject.toml src/backend/poetry.lock* /app/
+
 RUN poetry config virtualenvs.create false
-RUN poetry install --without dev
+RUN poetry install --no-root --with dev
 
-COPY src/backend .
-COPY ./data ./data
-RUN mkdir -p tmp
+# Create folders to prevent volume overwrite issues
+RUN mkdir -p /app/data /app/tmp
 
-ENV PYTHONPATH="${PYTHONPATH}:/app"
+ENV PYTHONPATH=/app
 
-CMD ["uvicorn", "index:app", "--host", "0.0.0.0", "--reload"]
+CMD ["uvicorn", "index:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
