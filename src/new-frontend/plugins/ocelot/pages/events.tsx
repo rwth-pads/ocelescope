@@ -1,4 +1,5 @@
 import { useEventInfo, usePaginatedEvents } from "@/api/fastapi/ocelot/ocelot";
+import EntityTable from "@/components/EntityTable/EntityTable";
 import SingleLineTabs from "@/components/SingleLineTabs/SingleLineTabs";
 import { RouteDefinition } from "@/plugins/types";
 import {
@@ -14,8 +15,8 @@ import { useState } from "react";
 const PluginTestPage = () => {
   const { data: events, isSuccess } = useEventInfo();
   const [currentTab, setCurrentTab] = useState("");
-  const {} = usePaginatedEvents(
-    { activity: currentTab ?? events![0] },
+  const { data: eventsEntities } = usePaginatedEvents(
+    { activity: currentTab ?? events![0], page_size: 20 },
     { query: { enabled: isSuccess } },
   );
 
@@ -28,6 +29,7 @@ const PluginTestPage = () => {
         setCurrentTab={setCurrentTab}
         currentTab={currentTab ?? events[0]}
       />
+      {eventsEntities && <EntityTable paginatedEntities={eventsEntities} />}
     </>
   );
 };

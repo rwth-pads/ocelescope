@@ -27,6 +27,7 @@ const SingleLineTabs: React.FC<{
           onClick={() => {
             setCurrentTab(tabs[Math.max(0, currentTabIndex - 1)]);
           }}
+          disabled={currentTabIndex === 0}
         >
           <ChevronLeftIcon />
         </Button>
@@ -45,6 +46,8 @@ const SingleLineTabs: React.FC<{
                 flexWrap: "unset",
                 minWidth: "max-content", // Ensures it grows with content
               }}
+              grow
+              justify="space-between"
             >
               {tabs.map((tab) => (
                 <Tabs.Tab
@@ -63,6 +66,7 @@ const SingleLineTabs: React.FC<{
           onClick={() => {
             setCurrentTab(tabs[Math.min(tabs.length - 1, currentTabIndex + 1)]);
           }}
+          disabled={currentTabIndex === tabs.length - 1}
         >
           <ChevronRightIcon />
         </Button>
