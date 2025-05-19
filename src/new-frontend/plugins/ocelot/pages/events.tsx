@@ -8,12 +8,14 @@ import {
 
 import { useEffect, useState } from "react";
 
-const PluginTestPage = () => {
+const EventPage = () => {
   const { data: events, isSuccess } = useEventInfo();
   const [currentTab, setCurrentTab] = useState("");
   const [page, setPage] = useState(1)
+  const [sort, setSort] = useState<{ sortBy: string, ascending: boolean }>()
+
   const { data: eventsEntities } = usePaginatedEvents(
-    { activity: currentTab, page_size: 20, page },
+    { activity: currentTab, page_size: 20, page, ...(sort && { sort_by: sort.sortBy, ascending: sort.ascending }) },
     { query: { enabled: isSuccess, placeholderData: keepPreviousData, staleTime: 5000 } },
   );
 
@@ -38,7 +40,7 @@ const PluginTestPage = () => {
       )}
       {eventsEntities && (
         <>
-          <EntityTable paginatedEntities={eventsEntities} onPageChange={setPage} />
+          <EntityTable paginatedEntities={eventsEntities} onPageChange={setPage} onSort={setSort} sorted={sort} />
 
         </>
       )}
@@ -46,6 +48,6 @@ const PluginTestPage = () => {
   );
 };
 
-export default PluginTestPage;
+export default EventPage;
 
 export const config: RouteDefinition = { name: "Events" };

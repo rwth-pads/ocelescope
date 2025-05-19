@@ -1,41 +1,73 @@
 import { PaginatedResponse } from "@/api/fastapi-schemas";
 import {
+  Center,
   Flex,
   Grid,
+  Group,
   Input,
   Pagination,
   ScrollArea,
   SegmentedControl,
   Table,
+  Text,
+  UnstyledButton,
 } from "@mantine/core";
 import { useState } from "react";
 import classes from "./EntityTable.module.css";
 import cx, { clsx } from "clsx";
-import { SearchIcon } from "lucide-react";
-import { useRouter } from "next/router";
-import { useUpdateQueryParam } from "@/hooks/updateQueryParam";
+import { ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon, SearchIcon } from "lucide-react";
+
+
+interface ThProps {
+  children: React.ReactNode;
+  reversed: boolean;
+  sorted: boolean;
+  onSort: () => void;
+}
+
+function Th({ children, reversed, sorted, onSort }: ThProps) {
+  const Icon = sorted ? (reversed ? ArrowUpIcon : ArrowDownIcon) : ArrowUpDownIcon;
+  return (
+    <Table.Th className={classes.th}>
+      <UnstyledButton onClick={onSort} className={classes.control}>
+        <Group justify="space-between">
+          <Text fw={500} fz="sm">
+            {children}
+          </Text>
+          <Center className={classes.icon}>
+            <Icon size={16} />
+          </Center>
+        </Group>
+      </UnstyledButton>
+    </Table.Th>
+  );
+}
 
 type EntityTableProps = {
   paginatedEntities: PaginatedResponse;
   onPageChange: (nextPage: number) => void
+  // TODO implement query params
+  sorted?: { sortBy: string, ascending: boolean }
+  onSort: (newSort: { sortBy: string, ascending: boolean }) => void
 };
 
-const EntityTable: React.FC<EntityTableProps> = ({ paginatedEntities, onPageChange }) => {
+const EntityTable: React.FC<EntityTableProps> = ({ paginatedEntities, onPageChange, sorted, onSort }) => {
   const generelHeaders = [
-    "#",
-    ...(paginatedEntities.items[0].timestamp ? ["Timestamp"] : []),
+    "id",
+    ...(paginatedEntities.items[0].timestamp ? ["timestamp"] : []),
   ];
 
-  const { replace, asPath } = useRouter();
   const attributeNames = Object.keys(paginatedEntities.items[0].attributes);
   const relationsNames = Object.keys(paginatedEntities.items[0].relations);
-  const updateQueryParam = useUpdateQueryParam()
 
   const [currentSection, setCurrentSection] = useState(
     attributeNames.length > 0 ? "attributes" : "relations",
   );
   const [scrolled, setScrolled] = useState(false);
 
+  const sortByName = (name: string) => {
+    onSort({ sortBy: name, ascending: sorted?.sortBy === name ? !sorted.ascending : false })
+  }
   return (
     <Grid align="center" justify="center" mt={"md"} gutter={"md"}>
       <Grid.Col span={12} style={{ display: "flex" }}>
@@ -61,14 +93,20 @@ const EntityTable: React.FC<EntityTableProps> = ({ paginatedEntities, onPageChan
               className={cx(classes.header, { [classes.scrolled]: scrolled })}
             >
               <Table.Tr>
-                {[
-                  ...generelHeaders,
-                  ...(currentSection === "attributes"
-                    ? attributeNames
-                    : relationsNames),
-                ].map((name) => (
-                  <Table.Th>{name}</Table.Th>
-                ))}
+                {generelHeaders
+                  .map((name) => (
+                    <Th sorted={sorted?.sortBy === name} onSort={() => sortByName(name)} reversed={!sorted?.ascending}>{name}</Th>
+                  ))}
+                {currentSection === "attributes" &&
+                  attributeNames
+                    .map((name) => (
+                      <Th sorted={sorted?.sortBy === name} onSort={() => sortByName(name)} reversed={!sorted?.ascending}>{name}</Th>
+                    ))}
+                {currentSection === "relations" &&
+                  relationsNames
+                    .map((name) => (
+                      <Table.Th>{name}</Table.Th>
+                    ))}
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>

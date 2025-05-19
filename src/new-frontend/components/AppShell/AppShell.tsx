@@ -7,12 +7,13 @@ import {
   Collapse,
   Box,
   ScrollArea,
+  Button,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useRouter } from "next/router";
 import classes from "@/components/AppShell/AppShell.module.css";
 import { useState } from "react";
-import { ChevronRightIcon } from "lucide-react";
+import { ChevronRightIcon, DownloadIcon, FunnelIcon, LogOutIcon } from "lucide-react";
 import { plugins } from "@/plugins";
 import Link from "next/link";
 
@@ -80,7 +81,7 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       disabled={pathname === "/"}
     >
       <MAppShell.Header>
-        <Group h="100%" px="md">
+        <Group h="100%" px="md" justify="space-between">
           <Burger
             opened={mobileOpened}
             onClick={toggleMobile}
@@ -92,7 +93,20 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             onClick={toggleDesktop}
             visibleFrom="sm"
             size="sm"
+
           />
+
+          <Group gap={0} >
+            <Button component={Link} px={5} href={"/filter"} variant="subtle">
+              <FunnelIcon width={20} />
+            </Button>
+            <Button component={Link} px={5} href={"/"} variant="subtle">
+              <DownloadIcon width={20} />
+            </Button>
+            <Button component={Link} px={5} href={"/"} variant="subtle">
+              <LogOutIcon width={20} />
+            </Button>
+          </Group>
         </Group>
       </MAppShell.Header>
       <MAppShell.Navbar p="md" className={classes.navbar}>
