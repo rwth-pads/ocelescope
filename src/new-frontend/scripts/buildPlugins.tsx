@@ -1,5 +1,4 @@
-// scripts/buildPluginIndex.ts
-import { Plugin, PluginDefinition, PluginRoute } from "@/plugins/types";
+import { Plugin, PluginDefinition } from "@/plugins/types";
 import fs from "fs";
 import path from "path";
 import { pathToFileURL } from "url";
@@ -14,7 +13,6 @@ async function main() {
 
   for (const plugin of plugins) {
     const pluginRoot = path.join(pluginsDir, plugin);
-    const pluginPages = path.join(pluginRoot, "pages");
     const pluginIndexFile = path.join(pluginRoot, "index.ts");
 
     if (!fs.existsSync(pluginIndexFile)) continue;
@@ -28,25 +26,10 @@ async function main() {
         throw new Error("Missing pluginName in plugin definition");
       }
 
-      const pages = await Promise.all(
-        fs.readdirSync(pluginPages).map(async (page) => {
-          const pageUrl = pathToFileURL(path.join(pluginPages, page)).href;
-          const pageModule = await import(pageUrl);
-
-          if (typeof pageModule.config.label === "string") {
-            return undefined;
-          }
-          return {
-            component: path.parse(page).name,
-            label: pageModule.config.name as string,
-          } satisfies PluginRoute;
-        }),
-      );
-
       index.push({
         name: plugin,
         label: pluginDef.pluginName,
-        routes: pages.filter((page) => page !== undefined) as PluginRoute[],
+        routes: pluginDef.routes,
       });
     } catch (err) {
       console.error(`❌ Error loading plugin: ${plugin}`, err);
@@ -57,4 +40,4 @@ async function main() {
   console.log(`✅ Plugin index written to ${outputFile}`);
 }
 
-main(); // 👈 invoke the async wrapper
+main();

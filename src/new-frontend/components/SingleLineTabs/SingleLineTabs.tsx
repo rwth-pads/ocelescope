@@ -3,13 +3,18 @@ import { useScrollIntoView } from "@mantine/hooks";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useEffect, useMemo } from "react";
 
+type Tab = {
+  label: string;
+  value: string;
+};
+
 const SingleLineTabs: React.FC<{
-  tabs: string[];
+  tabs: Tab[];
   currentTab: string;
   setCurrentTab: (newTab: string) => void;
 }> = ({ setCurrentTab, currentTab, tabs }) => {
   const currentTabIndex = useMemo(
-    () => tabs.findIndex((tab) => tab === currentTab),
+    () => tabs.findIndex((tab) => tab.value === currentTab),
     [currentTab, tabs],
   );
 
@@ -25,7 +30,7 @@ const SingleLineTabs: React.FC<{
         <Button
           variant="subtle"
           onClick={() => {
-            setCurrentTab(tabs[Math.max(0, currentTabIndex - 1)]);
+            setCurrentTab(tabs[Math.max(0, currentTabIndex - 1)].value);
           }}
           disabled={currentTabIndex === 0}
         >
@@ -51,11 +56,11 @@ const SingleLineTabs: React.FC<{
             >
               {tabs.map((tab) => (
                 <Tabs.Tab
-                  key={tab}
-                  value={tab}
-                  ref={currentTab === tab ? targetRef : undefined}
+                  key={tab.value}
+                  value={tab.value}
+                  ref={currentTab === tab.value ? targetRef : undefined}
                 >
-                  {tab}
+                  {tab.label}
                 </Tabs.Tab>
               ))}
             </Tabs.List>
@@ -64,7 +69,9 @@ const SingleLineTabs: React.FC<{
         <Button
           variant="subtle"
           onClick={() => {
-            setCurrentTab(tabs[Math.min(tabs.length - 1, currentTabIndex + 1)]);
+            setCurrentTab(
+              tabs[Math.min(tabs.length - 1, currentTabIndex + 1)].value,
+            );
           }}
           disabled={currentTabIndex === tabs.length - 1}
         >

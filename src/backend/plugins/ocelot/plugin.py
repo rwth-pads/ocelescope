@@ -47,6 +47,11 @@ class State(CachableObject):
         page_size: int,
         sort_by: Optional[Tuple[str, Literal["asc", "desc"]]] = None,
     ):
+        if sort_by is not None and sort_by[0] == "id":
+            sort_by = (ocel.ocel.event_id_column, sort_by[1])
+        elif sort_by is not None and sort_by[0] == "timestamp":
+            sort_by = (ocel.ocel.event_timestamp, sort_by[1])
+
         sorted_df = self.get_sorted_events(ocel=ocel, activity=activity, sort_by=sort_by)
         return get_paginated_dataframe(
             df=sorted_df,
@@ -73,6 +78,9 @@ class State(CachableObject):
         object_type: str,
         sort_by: Optional[Tuple[str, Literal["asc", "desc"]]] = None,
     ) -> DataFrame:
+        if sort_by is not None and sort_by[0] == "id":
+            sort_by = (ocel.ocel.object_id_column, sort_by[1])
+
         return get_sorted_table(
             dataframe=ocel.ocel.objects,
             type_field=ocel.ocel.object_type_column,

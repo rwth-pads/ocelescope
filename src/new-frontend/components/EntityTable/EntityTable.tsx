@@ -14,9 +14,13 @@ import {
 } from "@mantine/core";
 import { useState } from "react";
 import classes from "./EntityTable.module.css";
-import cx, { clsx } from "clsx";
-import { ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon, SearchIcon } from "lucide-react";
-
+import cx from "clsx";
+import {
+  ArrowDownIcon,
+  ArrowUpDownIcon,
+  ArrowUpIcon,
+  SearchIcon,
+} from "lucide-react";
 
 interface ThProps {
   children: React.ReactNode;
@@ -26,7 +30,11 @@ interface ThProps {
 }
 
 function Th({ children, reversed, sorted, onSort }: ThProps) {
-  const Icon = sorted ? (reversed ? ArrowUpIcon : ArrowDownIcon) : ArrowUpDownIcon;
+  const Icon = sorted
+    ? reversed
+      ? ArrowUpIcon
+      : ArrowDownIcon
+    : ArrowUpDownIcon;
   return (
     <Table.Th className={classes.th}>
       <UnstyledButton onClick={onSort} className={classes.control}>
@@ -45,13 +53,18 @@ function Th({ children, reversed, sorted, onSort }: ThProps) {
 
 type EntityTableProps = {
   paginatedEntities: PaginatedResponse;
-  onPageChange: (nextPage: number) => void
+  onPageChange: (nextPage: number) => void;
   // TODO implement query params
-  sorted?: { sortBy: string, ascending: boolean }
-  onSort: (newSort: { sortBy: string, ascending: boolean }) => void
+  sorted?: { sortBy: string; ascending: boolean };
+  onSort: (newSort: { sortBy: string; ascending: boolean }) => void;
 };
 
-const EntityTable: React.FC<EntityTableProps> = ({ paginatedEntities, onPageChange, sorted, onSort }) => {
+const EntityTable: React.FC<EntityTableProps> = ({
+  paginatedEntities,
+  onPageChange,
+  sorted,
+  onSort,
+}) => {
   const generelHeaders = [
     "id",
     ...(paginatedEntities.items[0].timestamp ? ["timestamp"] : []),
@@ -66,8 +79,11 @@ const EntityTable: React.FC<EntityTableProps> = ({ paginatedEntities, onPageChan
   const [scrolled, setScrolled] = useState(false);
 
   const sortByName = (name: string) => {
-    onSort({ sortBy: name, ascending: sorted?.sortBy === name ? !sorted.ascending : false })
-  }
+    onSort({
+      sortBy: name,
+      ascending: sorted?.sortBy === name ? !sorted.ascending : false,
+    });
+  };
   return (
     <Grid align="center" justify="center" mt={"md"} gutter={"md"}>
       <Grid.Col span={12} style={{ display: "flex" }}>
@@ -93,34 +109,41 @@ const EntityTable: React.FC<EntityTableProps> = ({ paginatedEntities, onPageChan
               className={cx(classes.header, { [classes.scrolled]: scrolled })}
             >
               <Table.Tr>
-                {generelHeaders
-                  .map((name) => (
-                    <Th sorted={sorted?.sortBy === name} onSort={() => sortByName(name)} reversed={!sorted?.ascending}>{name}</Th>
-                  ))}
+                {generelHeaders.map((name) => (
+                  <Th
+                    sorted={sorted?.sortBy === name}
+                    onSort={() => sortByName(name)}
+                    reversed={!sorted?.ascending}
+                  >
+                    {name}
+                  </Th>
+                ))}
                 {currentSection === "attributes" &&
-                  attributeNames
-                    .map((name) => (
-                      <Th sorted={sorted?.sortBy === name} onSort={() => sortByName(name)} reversed={!sorted?.ascending}>{name}</Th>
-                    ))}
+                  attributeNames.map((name) => (
+                    <Th
+                      sorted={sorted?.sortBy === name}
+                      onSort={() => sortByName(name)}
+                      reversed={!sorted?.ascending}
+                    >
+                      {name}
+                    </Th>
+                  ))}
                 {currentSection === "relations" &&
-                  relationsNames
-                    .map((name) => (
-                      <Table.Th>{name}</Table.Th>
-                    ))}
+                  relationsNames.map((name) => <Table.Th>{name}</Table.Th>)}
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
               {paginatedEntities.items.map((entity, index) => (
                 <Table.Tr key={entity.id}>
-                  <Table.Td>{index + 1}</Table.Td>
+                  <Table.Td>{entity.id}</Table.Td>
                   {entity.timestamp && <Table.Td>{entity.timestamp}</Table.Td>}
                   {currentSection === "attributes"
                     ? Object.values(entity.attributes).map((value) => (
-                      <Table.Td>{value as string}</Table.Td>
-                    ))
+                        <Table.Td>{value as string}</Table.Td>
+                      ))
                     : Object.values(entity.relations).map((value) => (
-                      <Table.Td>{value.join(", ")}</Table.Td>
-                    ))}
+                        <Table.Td>{value.join(", ")}</Table.Td>
+                      ))}
                 </Table.Tr>
               ))}
             </Table.Tbody>

@@ -41,6 +41,7 @@ from ocel.default_ocel import (
 )
 from ocel.ocel_wrapper import OCELWrapper
 from plugin_loader import register_plugins
+from routes.info import infoRouter
 from util.misc import export_example_settings_as_dotenv
 from version import __version__
 
@@ -73,6 +74,7 @@ app.middleware("http")(ocel_access_middleware)
 app.exception_handler(Exception)(error_handler_server)
 
 register_plugins(app)
+app.include_router(infoRouter)
 init_custom_docs(app)
 
 
@@ -86,9 +88,7 @@ def task_status(
     task: ApiTask,
 ) -> TaskStatusResponse:
     """Return the status of a long-running task."""
-    return TaskStatusResponse(
-        **session.respond(route="task-status", msg=None, task=task)
-    )
+    return TaskStatusResponse(**session.respond(route="task-status", msg=None, task=task))
 
 
 # endregion
@@ -109,9 +109,7 @@ def test_session(
 # region
 
 
-@app.post(
-    "/import", summary="Import OCEL 2.0 from .sqlite file", operation_id="importOcel"
-)
+@app.post("/import", summary="Import OCEL 2.0 from .sqlite file", operation_id="importOcel")
 def import_ocel(
     response: Response,
     file: Annotated[
@@ -120,9 +118,7 @@ def import_ocel(
     ],
     name: Annotated[
         str,
-        Query(
-            description="The name of the uploaded file", pattern=r"[\w\-\(\)]+\.[a-z]+"
-        ),
+        Query(description="The name of the uploaded file", pattern=r"[\w\-\(\)]+\.[a-z]+"),
         # Need original file name because client-side formData creation in generated api wrapper does not retain it
     ],
 ) -> Response:
@@ -178,9 +174,7 @@ def import_ocel(
     return response
 
 
-@app.get(
-    "/ocel/default", summary="Get default OCEL metadata", operation_id="getDefaultOcel"
-)
+@app.get("/ocel/default", summary="Get default OCEL metadata", operation_id="getDefaultOcel")
 def default_ocels(
     only_latest_versions: bool = True,
     only_preloaded: bool = False,
@@ -193,9 +187,7 @@ def default_ocels(
     return filtered
 
 
-@app.post(
-    "/import-default", summary="Import default OCEL", operation_id="importDefaultOcel"
-)
+@app.post("/import-default", summary="Import default OCEL", operation_id="importDefaultOcel")
 def import_default_ocel(
     response: Response,
     key: str = Query(
@@ -223,9 +215,7 @@ def import_default_ocel(
             AppState.instantiate(default_ocel.default_app_state, ocel=ocel)
         except ValidationError as err:
             # When attribute units are saved to the JSON file with a renamed name (after unit detection), these will cause a Validation error here.
-            is_attr_not_found = [
-                "attribute not found" in e["msg"] for e in err.errors()
-            ]
+            is_attr_not_found = ["attribute not found" in e["msg"] for e in err.errors()]
             if not all(is_attr_not_found):
                 raise err
 
@@ -297,23 +287,10 @@ def validate_session(
 def download_ocel(
     session: ApiSession,
     ocel: ApiOcel,
-    token: Annotated[str, Header()],
-    emissions: Literal["events", "objects", False] = Query(
-        default=False,
-        description="Controls on what level emission values are included in the resulting OCEL file as a new attribute. To preserve overall emissions, it is not possible to include both event and object emissions.",
-    ),
 ) -> TempFileResponse:
-    # Authenticate via api state
-    # TODO might use this for all API routes - or research different token-based auth method
-    if token != session.state:
-        raise Unauthorized
-
-    # Export to file
     name = ocel.meta["fileName"]
     tmp_file_prefix = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + name
-    file_response = TempFileResponse(
-        prefix=tmp_file_prefix, suffix=".sqlite", filename=name
-    )
+    file_response = TempFileResponse(prefix=tmp_file_prefix, suffix=".sqlite", filename=name)
     session.export_sqlite(file_response.tmp_path)
     return file_response
 

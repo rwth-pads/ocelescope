@@ -10,6 +10,10 @@
       {
         "component": "objects",
         "label": "Objects"
+      },
+      {
+        "component": "objectRelations",
+        "label": "Object Relations"
       }
     ]
   }

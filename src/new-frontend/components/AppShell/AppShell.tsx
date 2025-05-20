@@ -13,7 +13,12 @@ import { useDisclosure } from "@mantine/hooks";
 import { useRouter } from "next/router";
 import classes from "@/components/AppShell/AppShell.module.css";
 import { useState } from "react";
-import { ChevronRightIcon, DownloadIcon, FunnelIcon, LogOutIcon } from "lucide-react";
+import {
+  ChevronRightIcon,
+  DownloadIcon,
+  FunnelIcon,
+  LogOutIcon,
+} from "lucide-react";
 import { plugins } from "@/plugins";
 import Link from "next/link";
 
@@ -93,14 +98,18 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             onClick={toggleDesktop}
             visibleFrom="sm"
             size="sm"
-
           />
 
-          <Group gap={0} >
+          <Group gap={0}>
             <Button component={Link} px={5} href={"/filter"} variant="subtle">
               <FunnelIcon width={20} />
             </Button>
-            <Button component={Link} px={5} href={"/"} variant="subtle">
+            <Button
+              component={"a"}
+              px={5}
+              href={"http://localhost:8000/download"}
+              variant="subtle"
+            >
               <DownloadIcon width={20} />
             </Button>
             <Button component={Link} px={5} href={"/"} variant="subtle">

@@ -11,6 +11,7 @@ export type Plugin = {
 
 export type PluginDefinition = {
   pluginName: string;
+  routes: PluginRoute[];
 };
 
 export type RouteDefinition = {

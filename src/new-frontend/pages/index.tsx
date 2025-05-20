@@ -17,19 +17,30 @@ import {
 import { Container as ContainerIcon } from "lucide-react";
 import { DropzoneButton } from "@/components/Dropzone/Dropzone";
 import { useRouter } from "next/router";
+import { useQueryClient } from "@tanstack/react-query";
 const AuthenticationTitle = () => {
+  const queryClient = useQueryClient();
+
   const { push } = useRouter();
+
+  const onImport = async () => {
+    queryClient.invalidateQueries();
+    await push("/plugin");
+  };
+
   const { data: defaultOcels } = useGetDefaultOcel({
     only_latest_versions: true,
   });
 
   const { mutate: importDefaultOcel } = useImportDefaultOcel({
     mutation: {
-      onSuccess: () => push("/plugin"),
+      onSuccess: onImport,
     },
   });
 
-  const { mutate } = useImportOcel({ mutation: { onSuccess: () => push("/plugin"), } })
+  const { mutate } = useImportOcel({
+    mutation: { onSuccess: onImport },
+  });
 
   return (
     <Container size={700} my={40}>
@@ -37,7 +48,11 @@ const AuthenticationTitle = () => {
         Import your OCEL
       </Title>
       <Paper withBorder shadow="sm" p={22} mt={30} radius="md">
-        <DropzoneButton onDrop={(file) => mutate({ data: { file: file[0] }, params: { name: file[0].name } })} />
+        <DropzoneButton
+          onDrop={(file) =>
+            mutate({ data: { file: file[0] }, params: { name: file[0].name } })
+          }
+        />
         <Stack gap={0} mt="lg">
           <Divider />
           {defaultOcels?.map((ocel) => (
