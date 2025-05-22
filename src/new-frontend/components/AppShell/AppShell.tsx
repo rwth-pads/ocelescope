@@ -19,8 +19,12 @@ import {
   FunnelIcon,
   LogOutIcon,
 } from "lucide-react";
-import { plugins } from "@/plugins";
 import Link from "next/link";
+import {
+  getPluginUrl,
+  pluginComponentMap,
+  PluginName,
+} from "@/plugins/pluginMap";
 
 interface LinksGroupProps {
   label: string;
@@ -121,14 +125,14 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <MAppShell.Navbar p="md" className={classes.navbar}>
         <ScrollArea className={classes.links}>
           <div className={classes.linksInner}>
-            {plugins.map(({ label, name, routes }) => (
+            {Object.entries(pluginComponentMap).map(([pluginName, plugin]) => (
               <LinksGroup
-                label={label}
-                links={routes.map((route) => ({
-                  label: route.label,
-                  link: `/plugin/${name}/${route.component}`,
+                label={plugin.label}
+                links={plugin.routes.map(({ path, name }) => ({
+                  label: name,
+                  link: getPluginUrl(pluginName as PluginName, path),
                 }))}
-                key={name}
+                key={pluginName}
               />
             ))}
           </div>

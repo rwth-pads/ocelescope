@@ -1,4 +1,7 @@
-export const customFetch = async (url: string, options: RequestInit) => {
+export const customFetch = async <T>(
+  url: string,
+  options: RequestInit,
+): Promise<T> => {
   const response = await fetch(url, { ...options, credentials: "include" });
 
   const contentType = response.headers.get("content-type") || "";
@@ -20,5 +23,5 @@ export const customFetch = async (url: string, options: RequestInit) => {
     throw new Error(data?.message || `HTTP error ${response.status}`);
   }
 
-  return data;
+  return data as T;
 };

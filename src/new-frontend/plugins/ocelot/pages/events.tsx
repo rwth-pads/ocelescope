@@ -27,7 +27,7 @@ const EventPage = () => {
     },
     {
       query: {
-        enabled: isSuccess,
+        enabled: isSuccess && currentTab !== "",
         placeholderData: keepPreviousData,
         staleTime: 5000,
       },

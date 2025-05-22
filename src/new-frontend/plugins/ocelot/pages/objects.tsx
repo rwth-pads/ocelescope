@@ -1,10 +1,5 @@
 import { useObjectCount } from "@/api/fastapi/info/info";
-import {
-  useEventInfo,
-  useObjectInfo,
-  usePaginatedEvents,
-  usePaginatedObjects,
-} from "@/api/fastapi/ocelot/ocelot";
+import { usePaginatedObjects } from "@/api/fastapi/ocelot/ocelot";
 import EntityTable from "@/components/EntityTable/EntityTable";
 import SingleLineTabs from "@/components/SingleLineTabs/SingleLineTabs";
 import { RouteDefinition } from "@/plugins/types";

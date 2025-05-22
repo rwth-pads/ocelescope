@@ -1,13 +1,5 @@
-import {
-  Button,
-  Container,
-  Divider,
-  Paper,
-  ScrollArea,
-  Stack,
-  Text,
-  Title,
-} from "@mantine/core";
+import { Button, Container, Divider, Paper, Stack, Title } from "@mantine/core";
+
 import classes from "@/styles/Import.module.css";
 import {
   useGetDefaultOcel,
@@ -18,6 +10,8 @@ import { Container as ContainerIcon } from "lucide-react";
 import { DropzoneButton } from "@/components/Dropzone/Dropzone";
 import { useRouter } from "next/router";
 import { useQueryClient } from "@tanstack/react-query";
+import { getPluginUrl } from "@/plugins/pluginMap";
+
 const AuthenticationTitle = () => {
   const queryClient = useQueryClient();
 
@@ -25,7 +19,7 @@ const AuthenticationTitle = () => {
 
   const onImport = async () => {
     queryClient.invalidateQueries();
-    await push("/plugin");
+    await push(getPluginUrl("ocelot", "objects"));
   };
 
   const { data: defaultOcels } = useGetDefaultOcel({

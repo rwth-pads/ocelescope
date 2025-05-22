@@ -1,5 +1,5 @@
 import { PluginDefinition } from "@/plugins/types";
 
 export default {
-  pluginName: "Ocelot",
+  pluginName: "Berti Discovery",
 } satisfies PluginDefinition;

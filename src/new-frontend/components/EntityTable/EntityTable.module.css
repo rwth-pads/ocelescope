@@ -10,8 +10,11 @@
     left: 0;
     right: 0;
     bottom: 0;
-    border-bottom: 1px solid light-dark(var(--mantine-color-gray-2),
-        var(--mantine-color-dark-3));
+    border-bottom: 1px solid
+      light-dark(
+        var(--mantine-color-gray-2),
+        var(--mantine-color-dark-3)
+      );
   }
 }
 
@@ -25,10 +28,14 @@
 
 .control {
   width: 100%;
-  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+  padding: var(--mantine-spacing-xs)
+    var(--mantine-spacing-md);
 
   @mixin hover {
-    background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6));
+    background-color: light-dark(
+      var(--mantine-color-gray-0),
+      var(--mantine-color-dark-6)
+    );
   }
 }
 

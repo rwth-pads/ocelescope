@@ -4,7 +4,9 @@ import { Dropzone, MIME_TYPES } from "@mantine/dropzone";
 import classes from "@/components/Dropzone/Dropzone.module.css";
 import { DownloadIcon, Upload, X } from "lucide-react";
 
-export const DropzoneButton: React.FC<{ onDrop: ComponentProps<typeof Dropzone>["onDrop"] }> = ({ onDrop }) => {
+export const DropzoneButton: React.FC<{
+  onDrop: ComponentProps<typeof Dropzone>["onDrop"];
+}> = ({ onDrop }) => {
   const theme = useMantineTheme();
   const openRef = useRef<() => void>(null);
 
@@ -57,4 +59,4 @@ export const DropzoneButton: React.FC<{ onDrop: ComponentProps<typeof Dropzone>[
       </Button>
     </div>
   );
-}
+};

@@ -12,7 +12,6 @@ type PluginPageProps = {
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
-
   const paths = Object.entries(pluginComponentMap).flatMap(
     ([pluginName, plugin]) =>
       plugin.routes.map(({ path }) => ({
@@ -75,11 +74,6 @@ const PluginPage: NextPage<PluginPageProps> = ({
 
   return (
     <>
-
-
-
-
-
       <Component />
     </>
   );
