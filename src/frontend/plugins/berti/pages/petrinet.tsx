@@ -1,21 +1,29 @@
-
-import React, { useState } from 'react';
-import { ElementDefinition } from 'cytoscape';
-import { OCNetModel } from '@/api/fastapi-schemas';
-import { usePetriNet } from '@/api/fastapi/berti/berti';
-import CytoscapeGraph from '@/components/Cytoscape/Cytoscape';
-import { MultiSelect, Skeleton, Stack } from '@mantine/core';
-import { useEventCounts, useObjectCount } from '@/api/fastapi/info/info';
-import { RouteDefinition } from '@/plugins/types';
+import React, { useState } from "react";
+import { ElementDefinition } from "cytoscape";
+import { OCNetModel } from "@/api/fastapi-schemas";
+import { usePetriNet } from "@/api/fastapi/berti/berti";
+import CytoscapeGraph from "@/components/Cytoscape/Cytoscape";
+import { MultiSelect, Skeleton, Stack } from "@mantine/core";
+import { useEventCounts, useObjectCount } from "@/api/fastapi/info/info";
+import { RouteDefinition } from "@/plugins/types";
 
 // Utility to generate a safe class name
 const slugify = (str: string) =>
-  str.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-_]/g, '');
+  str
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-_]/g, "");
 
 function generateColorMap(objectTypes: string[]): Record<string, string> {
   const palette = [
-    '#3498db', '#e67e22', '#2ecc71', '#9b59b6',
-    '#f39c12', '#1abc9c', '#e74c3c', '#7f8c8d',
+    "#3498db",
+    "#e67e22",
+    "#2ecc71",
+    "#9b59b6",
+    "#f39c12",
+    "#1abc9c",
+    "#e74c3c",
+    "#7f8c8d",
   ];
 
   const colorMap: Record<string, string> = {};
@@ -30,73 +38,78 @@ function generateColorMap(objectTypes: string[]): Record<string, string> {
 const generateStylesheet = (colorMap: Record<string, string>) => {
   const base = [
     {
-      selector: 'node.place',
+      selector: "node.place",
       style: {
-        shape: 'ellipse',
+        shape: "ellipse",
         width: 40,
         height: 40,
-        label: 'data(label)',
-        'text-valign': 'center',
-        'text-halign': 'center',
-        'font-size': 10,
-        'background-color': '#bdc3c7',
+        label: "data(label)",
+        "text-valign": "center",
+        "text-halign": "center",
+        "font-size": 10,
+        "background-color": "#bdc3c7",
       },
     },
     {
-      selector: 'node.transition',
+      selector: "node.transition",
       style: {
-        shape: 'rectangle',
+        shape: "rectangle",
         width: 10,
         height: 40,
-        label: 'data(label)',
-        'font-size': 8,
-        'text-valign': 'center',
-        'text-halign': 'center',
+        label: "data(label)",
+        "font-size": 8,
+        "text-valign": "center",
+        "text-halign": "center",
       },
     },
     {
-      selector: 'node.shared',
+      selector: "node.shared",
       style: {
-        'background-color': '#666',
-        'color': '#fff',
-        'width': 120,
-        'height': 50,
-        'font-size': 10,
-        'text-wrap': 'wrap',
+        "background-color": "#666",
+        color: "#fff",
+        width: 120,
+        height: 50,
+        "font-size": 10,
+        "text-wrap": "wrap",
       },
     },
     {
-      selector: 'edge',
+      selector: "edge",
       style: {
         width: 1.5,
-        'line-color': '#aaa',
-        'target-arrow-shape': 'triangle',
-        'target-arrow-color': '#aaa',
-        'curve-style': 'bezier',
+        "line-color": "#aaa",
+        "target-arrow-shape": "triangle",
+        "target-arrow-color": "#aaa",
+        "curve-style": "bezier",
       },
     },
   ];
 
-  const dynamicStyles = Object.entries(colorMap).flatMap(([className, color]) => [
-    {
-      selector: `node.${className}`,
-      style: {
-        'background-color': color,
+  const dynamicStyles = Object.entries(colorMap).flatMap(
+    ([className, color]) => [
+      {
+        selector: `node.${className}`,
+        style: {
+          "background-color": color,
+        },
       },
-    },
-    {
-      selector: `edge.${className}`,
-      style: {
-        'line-color': color,
-        'target-arrow-color': color,
+      {
+        selector: `edge.${className}`,
+        style: {
+          "line-color": color,
+          "target-arrow-color": color,
+        },
       },
-    },
-  ]);
+    ],
+  );
 
   return [...base, ...dynamicStyles];
-}
+};
 
-const ocnetToElements = (model: OCNetModel, colorMap: Record<string, string>): ElementDefinition[] => {
+const ocnetToElements = (
+  model: OCNetModel,
+  colorMap: Record<string, string>,
+): ElementDefinition[] => {
   const elements: ElementDefinition[] = [];
   const sharedTransitions = new Map<string, string>(); // label -> ID
   const usedSharedLabels = new Set<string>();
@@ -118,16 +131,16 @@ const ocnetToElements = (model: OCNetModel, colorMap: Record<string, string>): E
     // Transitions
     for (const t of net.transitions) {
       const isShared = !!t.label;
-      const sharedId = t.label ? `shared__${slugify(t.label)}` : '';
+      const sharedId = t.label ? `shared__${slugify(t.label)}` : "";
       const id = isShared ? sharedId : `${objectType}__${t.id}`;
-      const label = t.label ?? '';
+      const label = t.label ?? "";
 
       if (isShared && !usedSharedLabels.has(t.label!)) {
         usedSharedLabels.add(t.label!);
         sharedTransitions.set(t.label!, sharedId);
         elements.push({
           data: { id: sharedId, label },
-          classes: 'transition shared',
+          classes: "transition shared",
         });
       }
 
@@ -150,16 +163,17 @@ const ocnetToElements = (model: OCNetModel, colorMap: Record<string, string>): E
         : getTransitionId(arc.target, net, objectType, sharedTransitions);
 
       const arcClass =
-        sourceId.startsWith(`${objectType}__`) || targetId.startsWith(`${objectType}__`)
+        sourceId.startsWith(`${objectType}__`) ||
+        targetId.startsWith(`${objectType}__`)
           ? colorClass
-          : 'shared';
+          : "shared";
 
       elements.push({
         data: {
           id: `${sourceId}__${targetId}`,
           source: sourceId,
           target: targetId,
-          label: arc.label || '',
+          label: arc.label || "",
         },
         classes: arcClass,
       });
@@ -167,28 +181,22 @@ const ocnetToElements = (model: OCNetModel, colorMap: Record<string, string>): E
   }
 
   return elements;
-}
+};
 
 const getTransitionId = (
   id: string,
-  net: OCNetModel['objects'][string],
+  net: OCNetModel["objects"][string],
   objectType: string,
-  sharedMap: Map<string, string>
+  sharedMap: Map<string, string>,
 ): string => {
   const found = net.transitions.find((t) => t.id === id);
   return found?.label
-    ? sharedMap.get(found.label) ?? `shared__${slugify(found.label)}`
+    ? (sharedMap.get(found.label) ?? `shared__${slugify(found.label)}`)
     : `${objectType}__${id}`;
-}
+};
 
 const PetriNet = () => {
-
-  const [includedObjects, setIncludedObjects] = useState<string[]>([])
-
-  const { data: objectCounts = [] } = useObjectCount()
-
-  const { data, isLoading } = usePetriNet({ objectTypes: includedObjects.length > 0 ? includedObjects : undefined });
-
+  const { data } = usePetriNet();
 
   const objectTypes = data ? Object.keys(data.objects) : [];
   const colorMap = generateColorMap(objectTypes);
@@ -197,17 +205,26 @@ const PetriNet = () => {
 
   return (
     <Stack>
-      {
-        data ? <CytoscapeGraph
+      {data ? (
+        <CytoscapeGraph
           elements={elements}
           stylesheet={stylesheet}
+          layout={{
+            name: "dagre",
+            rankDir: "LR",
+            nodeSep: 50,
+            rankSep: 30,
+            edgeSep: 100,
+            spacingFactor: 1.5,
+            ranker: "longest-path",
+          }}
         />
-          : <Skeleton width={"100%"} height={500} />
-      }
-      <MultiSelect label={"Include only Object types"} data={Object.keys(objectCounts)} value={includedObjects} onChange={setIncludedObjects} />
+      ) : (
+        <Skeleton width={"100%"} height={500} />
+      )}
     </Stack>
   );
 };
 
 export default PetriNet;
-export const config: RouteDefinition = { name: "PetriNet" };
+export const config: RouteDefinition = { name: "Petri Net" };

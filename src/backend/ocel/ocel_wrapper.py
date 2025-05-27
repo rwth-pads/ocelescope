@@ -6,6 +6,7 @@ import sys
 import warnings
 from copy import deepcopy
 from datetime import datetime
+from logging import Filter
 from pathlib import Path
 from threading import Lock
 from typing import Any, Iterable, Literal
@@ -18,7 +19,8 @@ from cachetools import LRUCache
 from pm4py.objects.ocel.obj import OCEL
 
 from api.logger import logger
-from ocel.utils import add_object_order, filter_pm4py_ocel, filter_relations
+from lib.filters import BaseFilterConfig, FilterConfig, apply_filters
+from ocel.utils import add_object_order, filter_relations
 from util.cache import instance_lru_cache
 from util.misc import pluralize
 from util.pandas import mirror_dataframe, mmmm
@@ -29,18 +31,19 @@ from util.types import PathLike
 
 class OCELWrapper:
     def __init__(self, ocel: OCEL):
-        self.ocel = ocel
+        self._raw_ocel = ocel
         # Metadata, to be set manually after creating the instance
-        self.filtered_from: OCELWrapper | None = None
         self.meta: dict[str, Any] = {}
         self._cache_info = {}
-        self._attr_info_initialized = False
 
         # pm4py aliases
         self.events = ocel.events
         self.objects = ocel.objects
         self.object_changes = ocel.object_changes
         self.relations = ocel.relations
+
+        # applied filters
+        self._filters: list[FilterConfig] = []
 
         self._init_cache()
 
@@ -51,6 +54,11 @@ class OCELWrapper:
 
     # ----- BASIC PROPERTIES / STATS ------------------------------------------------------------------------------------------
     # region
+
+    @property
+    @instance_lru_cache()
+    def ocel(self) -> OCEL:
+        return apply_filters(self._raw_ocel, self._filters)
 
     @property
     @instance_lru_cache()
@@ -111,6 +119,17 @@ class OCELWrapper:
 
     # endregion
 
+    # ----- Filtering ------------------------------------------------------------------------------------------
+    # region
+
+    def set_filters(self, filters: list[FilterConfig]):
+        self._filters = filters
+        self._init_cache()
+
+    def get_filters(self) -> list[FilterConfig]:
+        return self._filters
+
+    # endregion
     # ----- PROCESS DISCOVERY ------------------------------------------------------------------------------------------
     # region
 
@@ -924,7 +943,6 @@ class OCELWrapper:
         pm4py_ocel = deepcopy(self.ocel, memo)
         ocel = OCELWrapper(pm4py_ocel)
         ocel.meta = deepcopy(self.meta, memo)
-        ocel.filtered_from = self.filtered_from
         return ocel
 
     @property
@@ -935,90 +953,6 @@ class OCELWrapper:
 
     # ----- CONSTRUCTOR-LIKE ----------------------------------------------------------------------------------
     # region
-
-    def filter_ocel(
-        self,
-        otype: str | None = None,
-        otypes: list[str] | None = None,
-        oids: list[str] | None = None,
-        activity: str | None = None,
-        activities: list[str] | None = None,
-        qualifier: str | None = None,
-        qualifiers: list[str] | None = None,
-        min_timestamp: datetime | None = None,
-        max_timestamp: datetime | None = None,
-    ):
-        """
-        Filters an OCEL by object types, object IDs,  activities, qualifies, and/or timestamps.
-        Returns a minimal OCEL, deleting objects not related to any retained events and vice versa.
-        In dynamic attributes, when passing min_timestamp, additionally retains the last value set before min_timestamp.
-        Adds filter information to OCEL metadata.
-        """
-
-        if otype and not otypes:
-            otypes = [otype]
-        if activity and not activities:
-            activities = [activity]
-        if qualifier and not qualifiers:
-            qualifiers = [qualifier]
-
-        # Filter pm4py OCEL
-        pm4py_ocel2 = filter_pm4py_ocel(
-            self.ocel,
-            otypes=otypes,
-            oids=oids,
-            activities=activities,
-            qualifiers=qualifiers,
-            min_timestamp=min_timestamp,
-            max_timestamp=max_timestamp,
-        )
-
-        # Init OCELWrapper and update metadata
-        ocel2 = OCELWrapper(pm4py_ocel2)
-        ocel2.filtered_from = self
-        meta = deepcopy(self.meta)
-        ocel2.meta = meta
-        if "uploadDate" not in meta:
-            meta["uploadDate"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        # Add filter information to metadata
-        if "filters" not in meta:
-            meta["filters"] = {}
-
-        def update_meta(key, filter):
-            if not filter:
-                return
-            if key in meta["filters"]:
-                meta["filters"][key] = sorted(set(meta["filters"][key]).intersection(filter))
-            else:
-                meta["filters"][key] = sorted(filter)
-
-        update_meta("otypes", otypes)
-        update_meta("oids", oids)
-        update_meta("activities", activities)
-        update_meta("qualifiers", qualifiers)
-
-        if min_timestamp is not None or max_timestamp is not None:
-            if "timestamp" not in meta["filters"]:
-                meta["filters"]["timestamp"] = {}
-            if min_timestamp is not None:
-                meta["filters"]["timestamp"]["min"] = max(
-                    meta["filters"]["timestamp"].get("min", min_timestamp),
-                    min_timestamp,
-                )
-            if max_timestamp is not None:
-                meta["filters"]["timestamp"]["max"] = min(
-                    meta["filters"]["timestamp"].get("max", max_timestamp),
-                    max_timestamp,
-                )
-
-        if "importReport" not in meta:
-            meta["importReport"] = {}
-        report = meta["importReport"]
-        report["ocelStrPm4py"] = str(pm4py_ocel2)
-        report["ocelStr"] = str(ocel2)
-
-        return ocel2
 
     def event_projections(self, events: list[set[str]]) -> list[OCELWrapper]:
         """
@@ -1043,51 +977,6 @@ class OCELWrapper:
             sublog = pm4py.filter_ocel_objects(self.ocel, C)
             split.append(OCELWrapper(sublog))
         return split
-
-    def translate(self, dictionary: dict[str, str]):
-        """
-        Translate the event log based on substring replacements defined by a dict.
-        Translations are applied to activities, object types and qualifiers.
-        """
-
-        def repl(s: str):
-            for a, b in dictionary.items():
-                s = s.replace(a, b)
-            return s
-
-        pm4py_ocel2 = deepcopy(self.ocel)
-
-        # Translate DataFrame columns
-        text_columns = [
-            (pm4py_ocel2.objects, ["ocel:type"]),
-            (pm4py_ocel2.events, ["ocel:activity"]),
-            (pm4py_ocel2.relations, ["ocel:type", "ocel:activity", "ocel:qualifier"]),
-            (pm4py_ocel2.object_changes, ["ocel:type"]),
-            (pm4py_ocel2.o2o, ["ocel:qualifier"]),
-            (pm4py_ocel2.e2e, ["ocel:qualifier"]),
-        ]
-        for df, cols in text_columns:
-            for col in cols:
-                df[col] = df[col].apply(repl)
-
-        # TODO translate attribute names?
-
-        ocel2 = OCELWrapper(pm4py_ocel2)
-
-        if self.filtered_from:
-            # Propagate translation to the OCEL this was filtered from
-            self.filtered_from = self.filtered_from.translate(dictionary)
-        if self.meta:
-            # Translate metadata
-            ocel2.meta = deepcopy(self.meta)
-            if "filters" in ocel2.meta:
-                for k in ["otypes", "activities", "qualifiers"]:
-                    if k in ocel2.meta["filters"]:
-                        ocel2.meta["filters"][k] = [repl(x) for x in ocel2.meta["filters"][k]]
-            ocel2.meta["ocelStrPm4py"] = str(pm4py_ocel2)
-            ocel2.meta["ocelStr"] = str(ocel2)
-
-        return ocel2
 
     # endregion
 

@@ -12,6 +12,7 @@ import {
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import "@mantine/dropzone/styles.css";
 import AppShell from "@/components/AppShell/AppShell";
+import "@mantine/dates/styles.css";
 
 export default function App({ Component, pageProps }: any) {
   const [QueryClienty] = useState(() => new QueryClient());

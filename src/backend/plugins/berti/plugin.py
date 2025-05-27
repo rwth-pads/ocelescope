@@ -1,8 +1,8 @@
 from typing import Annotated, List, Optional
 
+import pm4py
 from fastapi import APIRouter
 from fastapi.params import Depends, Query
-import pm4py
 
 from api.dependencies import ApiOcel, ApiSession
 from api.model.cache import CachableObject
@@ -39,12 +39,6 @@ def get_objects_info(
     ocel: ApiOcel,
     objectTypes: Annotated[Optional[list[str]], Query()] = None,
 ) -> OCNetModel:
-    filtered_ocel = ocel.ocel
-    if objectTypes is not None:
-        filtered_ocel = pm4py.filter_ocel_object_types(
-            filtered_ocel, objectTypes[0].split(","), True
-        )
-
-    petri_net = pm4py.discover_oc_petri_net(filtered_ocel)
-
+    print(ocel.ocel.get_summary())
+    petri_net = pm4py.discover_oc_petri_net(ocel.ocel)
     return parse_pm4py_ocpn(petri_net["petri_nets"])

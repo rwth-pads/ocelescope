@@ -26,7 +26,7 @@ const ObjectPage = () => {
     },
     {
       query: {
-        enabled: isSuccess,
+        enabled: currentTab !== "",
         placeholderData: keepPreviousData,
         staleTime: 5000,
       },
@@ -75,4 +75,4 @@ const ObjectPage = () => {
 
 export default ObjectPage;
 
-export const config: RouteDefinition = { name: "Events" };
+export const config: RouteDefinition = { name: "Objects" };

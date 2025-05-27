@@ -1,6 +1,7 @@
 from fastapi.routing import APIRouter
 
 from api.dependencies import ApiOcel
+from api.model.events import EventTimeInfo
 from lib.atttributes import (
     AttributeSummary,
     summarize_event_attributes,
@@ -9,8 +10,8 @@ from lib.atttributes import (
 from lib.relations import (
     O2ORelation,
     RelationCountSummary,
+    get_e2o_summary,
     get_o2o_relations,
-    get_ocel_object_relations,
 )
 
 infoRouter = APIRouter(prefix="/info", tags=["info"])
@@ -50,6 +51,20 @@ def get_event_counts(
 
 
 @infoRouter.get(
+    "/events/time",
+    response_model=EventTimeInfo,
+    operation_id="timeInfo",
+)
+def get_time_info(
+    ocel: ApiOcel,
+) -> EventTimeInfo:
+    return EventTimeInfo(
+        start_time=ocel.events[ocel.ocel.event_timestamp].min().isoformat(timespec="microseconds"),
+        end_time=ocel.events[ocel.ocel.event_timestamp].max().isoformat(timespec="microseconds"),
+    )
+
+
+@infoRouter.get(
     "/objects/counts",
     response_model=dict[str, int],
     operation_id="objectCount",
@@ -68,7 +83,18 @@ def get_object_counts(
 def get_e2o(
     ocel: ApiOcel,
 ) -> list[RelationCountSummary]:
-    return get_ocel_object_relations(ocel.ocel)
+    return get_e2o_summary(ocel.ocel)
+
+
+@infoRouter.get(
+    "/relations/e2o",
+    response_model=list[RelationCountSummary],
+    operation_id="o2e",
+)
+def get_o2e(
+    ocel: ApiOcel,
+) -> list[RelationCountSummary]:
+    return get_e2o_summary(ocel.ocel, direction="object")
 
 
 @infoRouter.get(

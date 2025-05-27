@@ -1,4 +1,4 @@
-from typing import cast
+from typing import Literal, Optional, cast
 
 import pandas as pd
 from pm4py.objects.ocel.obj import OCEL
@@ -13,24 +13,33 @@ class RelationCountSummary(BaseModel):
     object_type: str
     min_count: int
     max_count: int
+    sum: int
 
 
-def get_ocel_object_relations(ocel: OCEL) -> list[RelationCountSummary]:
+def get_e2o_summary(ocel: OCEL, direction: Optional[Literal["event", "object"]] = "event"):
     qualifier_col = ocel.qualifier
     activity_col = ocel.event_activity
     object_type_col = ocel.object_type_column
     event_id_col = ocel.event_id_column
+    object_id_col = ocel.object_id_column
 
     grouped_relations = (
-        ocel.relations.groupby([event_id_col, qualifier_col, activity_col, object_type_col])
+        ocel.relations.groupby(
+            [
+                event_id_col if direction == "event" else object_id_col,
+                qualifier_col,
+                activity_col,
+                object_type_col,
+            ]
+        )
         .size()
         .reset_index()
         .rename(columns={0: "count"})
     )
 
-    summary: pd.DataFrame = (
+    summary = (
         grouped_relations.groupby([qualifier_col, activity_col, object_type_col])["count"]
-        .agg(["min", "max"])
+        .agg(["min", "max", "sum"])
         .reset_index()
         .rename(columns={"min": "min_count", "max": "max_count"})
     )
@@ -42,6 +51,7 @@ def get_ocel_object_relations(ocel: OCEL) -> list[RelationCountSummary]:
             object_type=cast(str, row[object_type_col]),
             min_count=cast(int, row["min_count"]),
             max_count=cast(int, row["max_count"]),
+            sum=cast(int, row["sum"]),
         )
         for _, row in summary.iterrows()
     ]

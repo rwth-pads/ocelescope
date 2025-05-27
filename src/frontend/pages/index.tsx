@@ -18,7 +18,7 @@ const AuthenticationTitle = () => {
   const { push } = useRouter();
 
   const onImport = async () => {
-    queryClient.invalidateQueries();
+    queryClient.clear();
     await push(getPluginUrl("ocelot", "objects"));
   };
 
