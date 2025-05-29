@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationInfo, model_validator
 
-from api.logger import logger
 from api.model.base import ApiBaseModel
 
 if TYPE_CHECKING:
@@ -22,35 +21,6 @@ def set_ocel_context(ocel: OCELWrapper):
 
 class NoOcelError(LookupError):
     pass
-
-
-def model_ocel_validator(
-    warn: bool = True,
-    error: bool = False,
-):
-    """Decorator wrapping pydantic's @model_validator.
-    Use this in ModelWithOcel models for validating against the session's OCEL instance, for example to check if an object type exists.
-    The underlying function is passed the OCEL instance and the validation info object.
-    When no OCEL is available (e.g. during *import* request validation), ocel=None is passed, optionally raising a warning or error.
-    """
-
-    def decorator(func):
-        def wrapped(self: ModelWithOcel, info: ValidationInfo):
-            try:
-                ocel = self.ocel
-            except NoOcelError:
-                ocel = None
-                msg = f"{self.__class__.__name__}: Validation failed (no OCEL access)"
-                if error:
-                    raise NoOcelError(msg)
-                elif warn:
-                    print(msg)
-                    logger.warning(msg)
-            return func(self, ocel, info)
-
-        return model_validator(mode="after")(wrapped)
-
-    return decorator
 
 
 class ModelWithOcel(ApiBaseModel):

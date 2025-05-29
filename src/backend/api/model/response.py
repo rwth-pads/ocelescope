@@ -2,9 +2,7 @@ from tempfile import NamedTemporaryFile
 
 from fastapi.responses import FileResponse
 
-from api.model.app_state import AppState
 from api.model.base import ApiBaseModel
-from api.serialize import OcelData
 
 
 class BaseResponse(ApiBaseModel):
@@ -13,11 +11,6 @@ class BaseResponse(ApiBaseModel):
     state: str
     status: int = 200
     msg: str | None = None
-    app_state: AppState | None = None
-
-
-class OcelResponse(BaseResponse):
-    ocel: OcelData
 
 
 class TempFileResponse(FileResponse):

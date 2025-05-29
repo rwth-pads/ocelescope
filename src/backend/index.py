@@ -6,12 +6,12 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Annotated, Literal
 
+import visualization.ocpn as viz_ocpn
 from fastapi import FastAPI, File, Header, Query, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
-import visualization.ocpn as viz_ocpn
 from api import session
 from api.config import OceanConfig, config
 from api.dependencies import ApiObjectType, ApiObjectTypes, ApiOcel, ApiSession, ApiTask
@@ -19,12 +19,10 @@ from api.docs import init_custom_docs
 from api.exceptions import BadRequest, NotFound, Unauthorized
 from api.logger import logger
 from api.middleware import ocel_access_middleware
-from api.model.app_state import AppState
 from api.model.base import RequestBody
-from api.model.response import BaseResponse, OcelResponse, TempFileResponse
+from api.model.response import TempFileResponse
 from api.model.task import TaskStatusResponse
 from api.model.with_ocel import set_ocel_context
-from api.serialize import ocel_to_api
 from api.session import Session
 from api.utils import (
     custom_snake2camel,
@@ -95,21 +93,6 @@ def task_status(
 # endregion
 
 
-# ----- TEST THE SESSION ------------------------------------------------------------------------------------------
-# region
-@app.post("/testSession", summary="Test session", operation_id="testSession")
-def test_session(
-    session: ApiSession,
-):
-    """Test the session and return a response."""
-    print(session)
-
-
-# endregion
-# ----- IMPORT / LOAD ------------------------------------------------------------------------------------------
-# region
-
-
 @app.post("/import", summary="Import OCEL 2.0 from .sqlite file", operation_id="importOcel")
 def import_ocel(
     response: Response,
@@ -160,7 +143,6 @@ def import_ocel(
     # Init session
     session = Session(
         ocel=ocel,
-        app_state=AppState.import_sqlite(tmp_path, ocel=ocel),
     )
 
     response.set_cookie(
@@ -209,38 +191,8 @@ def import_default_ocel(
     ocel = default_ocel.get_ocel_copy(use_abbreviations=False)
     set_ocel_context(ocel)
 
-    # Load default app state (JSON)
-    app_state = None
-    if default_ocel.default_app_state:
-        try:
-            AppState.instantiate(default_ocel.default_app_state, ocel=ocel)
-        except ValidationError as err:
-            # When attribute units are saved to the JSON file with a renamed name (after unit detection), these will cause a Validation error here.
-            is_attr_not_found = ["attribute not found" in e["msg"] for e in err.errors()]
-            if not all(is_attr_not_found):
-                raise err
-
-            logger.warning(
-                f"Attribute(s) from default app state not found, skipping attribute units ..."
-            )
-            default_ocel.default_app_state.pop("attributeUnits")
-            app_state = AppState.instantiate(default_ocel.default_app_state, ocel=ocel)
-
-    # Load app state (sqlite)
-    if default_ocel.app_state and not default_ocel.app_state.empty:
-        if app_state and not app_state.empty:
-            logger.warning(
-                "Default OCEL has both default app state (JSON) and app state (sqlite) specified. Using values from sqlite."
-            )
-        app_state = default_ocel.app_state
-
-    if app_state is None:
-        app_state = AppState.instantiate({}, ocel=ocel)
-
-    # Init session
     session = Session(
         ocel=ocel,
-        app_state=app_state,
     )
 
     response.set_cookie(
@@ -252,29 +204,6 @@ def import_default_ocel(
     )
     response.status_code = 200
 
-    return response
-
-
-@app.get("/load", summary="Load OCEL")
-def load_ocel(
-    session: ApiSession,
-    ocel: ApiOcel,
-) -> OcelResponse:
-    return OcelResponse(
-        **session.respond(
-            route="load",
-            msg=f'Event log "{ocel.meta["fileName"] or session.id}" has been loaded from the server.',
-            ocel=ocel_to_api(ocel, session=session),
-        )
-    )
-
-
-@app.get("/validate", summary="Load OCEL", operation_id="validateSession")
-def validate_session(
-    _session: ApiSession,
-    response: Response,
-) -> Response:
-    response.status_code = 200
     return response
 
 

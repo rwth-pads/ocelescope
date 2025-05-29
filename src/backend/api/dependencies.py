@@ -44,29 +44,3 @@ def get_ocel(session: ApiSession):
 
 
 ApiOcel = Annotated[OCELWrapper, Depends(get_ocel)]
-
-
-def validate_activity(ocel: ApiOcel, activity: str):
-    print(f"validate activity {activity}")
-    if activity not in ocel.activities:
-        raise BadRequest("Unknown activity.")
-    return activity
-
-
-def validate_object_type(ocel: ApiOcel, object_type: str):
-    if object_type not in ocel.otypes:
-        raise BadRequest("Unknown object type.")
-    return object_type
-
-
-def validate_object_types(ocel: ApiOcel, object_types: set[str]):
-    if not len(object_types):
-        raise BadRequest("Empty object type set.")
-    if not all(ot in ocel.otypes for ot in object_types):
-        raise BadRequest("Unknown object type(s).")
-    return object_types
-
-
-ApiActivity = Annotated[str, Depends(validate_activity)]
-ApiObjectType = Annotated[str, Depends(validate_object_type)]
-ApiObjectTypes = Annotated[set[str], Depends(validate_object_types)]

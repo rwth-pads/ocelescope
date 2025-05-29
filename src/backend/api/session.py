@@ -11,7 +11,6 @@ from ocel.ocel_wrapper import OCELWrapper
 from util.types import PathLike
 
 if TYPE_CHECKING:
-    from api.model.app_state import AppState
     from api.task_api import MainTask
 
 
@@ -24,12 +23,10 @@ class Session:
     def __init__(
         self,
         ocel: OCELWrapper,
-        app_state: AppState,
         id: str | None = None,
     ):
         self.id = id or str(uuid.uuid4())
         self.ocel = ocel
-        self.app_state = app_state
 
         self._tasks = {}
         self._plugin_states = {}
@@ -82,7 +79,6 @@ class Session:
         )
 
         # if route in ["update", "load", "import", "import-default", "interval-transformation"]:
-        response["app_state"] = self.app_state
         if task is not None and include_task:
             response["task"] = task.serialize()
 
@@ -119,11 +115,6 @@ class Session:
         # Write OCEL
         logger.info(f"Exporting OCEL to '{export_path}' ...")
         self.ocel.write_ocel2_sqlite(export_path)
-
-        # Write app_state
-        if self.app_state:
-            logger.info(f"Writing app_state ...")
-            self.app_state.export_sqlite(export_path)
 
     def __str__(self):
         d = {
