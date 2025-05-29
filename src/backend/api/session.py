@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import json
 import uuid
-from typing import TYPE_CHECKING, Any, Type, TypeVar
+from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
 
 import pandas as pd
 
+from api.exceptions import NotFound
 from api.logger import logger
 from ocel.ocel_wrapper import OCELWrapper
 from util.types import PathLike
@@ -22,14 +23,15 @@ class Session:
 
     def __init__(
         self,
-        ocel: OCELWrapper,
         id: str | None = None,
     ):
         self.id = id or str(uuid.uuid4())
-        self.ocel = ocel
 
         self._tasks = {}
         self._plugin_states = {}
+
+        self.ocels: dict[str, OCELWrapper] = {}
+        self.current_ocel_id = None
 
         self.response_cache: dict[str, Any] = {}
         # Set first state to UUID, to be updated on each response
@@ -100,8 +102,6 @@ class Session:
 
     @staticmethod
     def get(session_id: str) -> Session | None:
-        if session_id is None:
-            return None
         return Session.sessions.get(session_id, None)
 
     @staticmethod
@@ -111,10 +111,34 @@ class Session:
     def update_state(self):
         self.state = str(uuid.uuid4())
 
+    def add_ocel(self, ocel: OCELWrapper) -> str:
+        id = str(uuid.uuid4())
+        is_ocels_empty = not self.ocels
+        self.ocels[id] = ocel
+
+        if is_ocels_empty:
+            self.current_ocel_id = id
+
+        return id
+
+    def get_ocel(self, ocel_id: Optional[str] = None) -> OCELWrapper:
+        id = ocel_id if ocel_id is not None else self.current_ocel_id
+
+        if id not in self.ocels:
+            raise NotFound(f"OCEL with id {ocel_id} not found")
+
+        return self.ocels[id]
+
+    def set_current_ocel(self, ocel_id: str):
+        if ocel_id not in self.ocels:
+            raise NotFound(f"OCEL with id {ocel_id} not found")
+
+        self.current_ocel_id = ocel_id
+
     def export_sqlite(self, export_path: PathLike):
         # Write OCEL
         logger.info(f"Exporting OCEL to '{export_path}' ...")
-        self.ocel.write_ocel2_sqlite(export_path)
+        self.get_ocel().write_ocel2_sqlite(export_path)
 
     def __str__(self):
         d = {
@@ -136,7 +160,7 @@ class Session:
                     if self._tasks
                     else "---"
                 ),
-                "ocel": str(self.ocel) if self.ocel else None,
+                "ocel": str(self.get_ocel()) if self.get_ocel() else None,
             }.items()
             if v is not None
         }

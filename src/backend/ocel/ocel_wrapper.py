@@ -1122,9 +1122,9 @@ class OCELWrapper:
             "path": str(path),
             "fileName": original_file_name or str(path.name),
             "importReport": report,
+            "uploadDate": upload_date.isoformat() if upload_date else datetime.now().isoformat(),
         }
-        if upload_date:
-            ocel.meta["uploadDate"] = upload_date.strftime("%Y-%m-%d %H:%M:%S")
+
         if output:
             logger.info(pm4py_ocel)
 

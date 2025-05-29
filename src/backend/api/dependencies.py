@@ -1,28 +1,34 @@
 from __future__ import annotations
 
-from typing import Annotated
+from typing import Annotated, Optional
 
-from fastapi import Depends, Header
+from fastapi import Depends, Response
 from fastapi.params import Cookie
 
 from api.config import config
-from api.exceptions import BadRequest, Unauthorized
-from api.logger import logger
+from api.exceptions import BadRequest
 from api.session import Session
 from api.task_api import MainTask
 from ocel.ocel_wrapper import OCELWrapper
 
-session_cookie_param = Cookie(alias=config.SESSION_ID_HEADER)
 
+def get_session(
+    response: Response,
+    session_id: Annotated[Optional[str], Cookie(alias=config.SESSION_ID_HEADER)] = None,
+):
+    if session_id is None:
+        session = Session()
 
-def get_session(session_id: Annotated[str, session_cookie_param]):
-    session = Session.get(session_id)
-    if session is None:
-        repr = lambda s: f"'{s[:5]}...'"
-        logger.info(
-            f"Request with session_id {repr(session_id)} failed. Available sessions: [{', '.join([repr(s.id) for s in Session.sessions.values()])}]"
+        response.set_cookie(
+            key=config.SESSION_ID_HEADER,
+            value=session.id,
+            httponly=True,
+            secure=False,
+            samesite="lax",
         )
-        raise Unauthorized("The session has expired.")
+    else:
+        session = Session.sessions.get(session_id)
+
     return session
 
 
@@ -40,7 +46,7 @@ ApiTask = Annotated[MainTask, Depends(get_task)]
 
 
 def get_ocel(session: ApiSession):
-    return session.ocel
+    return session.get_ocel()
 
 
 ApiOcel = Annotated[OCELWrapper, Depends(get_ocel)]

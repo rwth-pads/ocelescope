@@ -14,7 +14,7 @@ async def ocel_access_middleware(request: Request, call_next):
     session_id = request.cookies.get(config.SESSION_ID_HEADER)
     session = Session.get(session_id) if session_id else None
     if session:
-        ocel_ctx.set(session.ocel)
+        ocel_ctx.set(session.get_ocel())
 
     response = await call_next(request)
 

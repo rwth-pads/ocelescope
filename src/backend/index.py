@@ -4,22 +4,16 @@ import datetime
 import shutil
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Annotated, Literal
+from typing import Annotated
 
-import visualization.ocpn as viz_ocpn
-from fastapi import FastAPI, File, Header, Query, Response, UploadFile
+from fastapi import FastAPI, File, Query, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from pydantic import ValidationError
 
-from api import session
 from api.config import OceanConfig, config
-from api.dependencies import ApiObjectType, ApiObjectTypes, ApiOcel, ApiSession, ApiTask
+from api.dependencies import ApiOcel, ApiSession, ApiTask
 from api.docs import init_custom_docs
-from api.exceptions import BadRequest, NotFound, Unauthorized
-from api.logger import logger
+from api.exceptions import BadRequest, NotFound
 from api.middleware import ocel_access_middleware
-from api.model.base import RequestBody
 from api.model.response import TempFileResponse
 from api.model.task import TaskStatusResponse
 from api.model.with_ocel import set_ocel_context
@@ -95,6 +89,7 @@ def task_status(
 
 @app.post("/import", summary="Import OCEL 2.0 from .sqlite file", operation_id="importOcel")
 def import_ocel(
+    session: ApiSession,
     response: Response,
     file: Annotated[
         UploadFile,
@@ -108,9 +103,6 @@ def import_ocel(
 ) -> Response:
     if file.filename is None or file.filename == "":
         raise BadRequest("No file uploaded")
-
-    # Check file
-    # ...
 
     # Save file
     upload_date = datetime.datetime.now()
@@ -140,18 +132,8 @@ def import_ocel(
     )
     set_ocel_context(ocel)
 
-    # Init session
-    session = Session(
-        ocel=ocel,
-    )
+    session.add_ocel(ocel)
 
-    response.set_cookie(
-        key=config.SESSION_ID_HEADER,
-        value=session.id,
-        httponly=True,
-        secure=False,
-        samesite="lax",
-    )
     response.status_code = 200
 
     return response
@@ -173,6 +155,7 @@ def default_ocels(
 @app.post("/import-default", summary="Import default OCEL", operation_id="importDefaultOcel")
 def import_default_ocel(
     response: Response,
+    session: ApiSession,
     key: str = Query(
         description="Default OCEL key",
         examples=DEFAULT_OCEL_KEYS,
@@ -191,17 +174,7 @@ def import_default_ocel(
     ocel = default_ocel.get_ocel_copy(use_abbreviations=False)
     set_ocel_context(ocel)
 
-    session = Session(
-        ocel=ocel,
-    )
-
-    response.set_cookie(
-        key=config.SESSION_ID_HEADER,
-        value=session.id,
-        httponly=True,
-        secure=False,
-        samesite="lax",
-    )
+    session.add_ocel(ocel)
     response.status_code = 200
 
     return response

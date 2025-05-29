@@ -9,7 +9,6 @@ from pydantic import Field, FilePath
 import util.misc as util
 from api.config import config
 from api.logger import logger
-from api.model.app_state import AppState
 from api.model.base import ApiBaseModel
 from api.session import Session
 from ocel.ocel_wrapper import OCELWrapper
@@ -29,7 +28,6 @@ class DefaultOCEL(ApiBaseModel):
     abbr_map: dict[str, str] | None = Field(default=None, exclude=True)
     preload: bool = Field(default=False)
     hide: bool = Field(default=False)
-    app_state: AppState | None = Field(default=None, exclude=True)
 
     @property
     def path(self) -> FilePath:
@@ -65,9 +63,6 @@ class DefaultOCEL(ApiBaseModel):
             version_info=True,
         )
         object.__setattr__(self, "__ocel", ocel)
-
-        # Load app state from sqlite
-        self.app_state = AppState.import_sqlite(self.path, ocel=ocel)
 
 
 # Create objects
@@ -158,8 +153,9 @@ def load_default_ocels() -> list[Session]:
 
         # Init dummy session with consistent key (for API playground)
         ocel = getattr(ocel_data, "__ocel")
-        app_state = AppState.instantiate(ocel_data.default_app_state or {}, ocel=ocel)
-        session = Session(id=key, ocel=ocel, app_state=app_state)
+        session = Session(id=key)
+        session.add_ocel(ocel)
+        session.set_current_ocel(session.add_ocel(ocel))
         sessions.append(session)
 
     return sessions
