@@ -87,7 +87,7 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         collapsed: { mobile: !mobileOpened, desktop: !desktopOpened },
       }}
       padding="md"
-      disabled={pathname === "/"}
+      disabled={pathname === "/import"}
     >
       <MAppShell.Header>
         <Group h="100%" px="md" justify="space-between">
@@ -116,7 +116,7 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             >
               <DownloadIcon width={20} />
             </Button>
-            <Button component={Link} px={5} href={"/"} variant="subtle">
+            <Button component={Link} px={5} href={"/import"} variant="subtle">
               <LogOutIcon width={20} />
             </Button>
           </Group>

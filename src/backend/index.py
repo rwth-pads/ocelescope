@@ -34,6 +34,7 @@ from ocel.ocel_wrapper import OCELWrapper
 from plugin_loader import register_plugins
 from routes.filter import filterRouter
 from routes.info import infoRouter
+from routes.session import sessionRouter
 from util.misc import export_example_settings_as_dotenv
 from version import __version__
 
@@ -68,6 +69,7 @@ app.exception_handler(Exception)(error_handler_server)
 register_plugins(app)
 app.include_router(infoRouter)
 app.include_router(filterRouter)
+app.include_router(sessionRouter)
 init_custom_docs(app)
 
 
