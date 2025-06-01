@@ -57,7 +57,7 @@ class DefaultOCEL(ApiBaseModel):
         if hasattr(self, "__ocel"):
             return
         logger.info('Reading OCEL 2.0 "%s" ...', self.name)
-        ocel = OCELWrapper.read_ocel2_sqlite_with_report(
+        ocel = OCELWrapper.read_ocel(
             str(self.path),
             output=False,
             version_info=True,

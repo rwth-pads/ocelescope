@@ -17,11 +17,7 @@ export const DropzoneButton: React.FC<{
         onDrop={onDrop}
         className={classes.dropzone}
         radius="md"
-        accept={[
-          "application/xml ",
-          "application/json",
-          "application/vnd.sqlite3",
-        ]}
+        accept={["text/xml", "application/json", "application/vnd.sqlite3"]}
       >
         <div style={{ pointerEvents: "none" }}>
           <Group justify="center">
@@ -38,7 +34,7 @@ export const DropzoneButton: React.FC<{
 
           <Text ta="center" fw={700} fz="lg" mt="xl">
             <Dropzone.Accept>Drop files here</Dropzone.Accept>
-            <Dropzone.Reject>Pdf file less than 30mb</Dropzone.Reject>
+            <Dropzone.Reject>Not supported file format</Dropzone.Reject>
             <Dropzone.Idle>Upload OCEL</Dropzone.Idle>
           </Text>
 

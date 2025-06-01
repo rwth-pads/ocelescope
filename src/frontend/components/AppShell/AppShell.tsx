@@ -17,6 +17,7 @@ import {
   ChevronRightIcon,
   DownloadIcon,
   FunnelIcon,
+  HomeIcon,
   LogOutIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -91,20 +92,24 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     >
       <MAppShell.Header>
         <Group h="100%" px="md" justify="space-between">
-          <Burger
-            opened={mobileOpened}
-            onClick={toggleMobile}
-            hiddenFrom="sm"
-            size="sm"
-          />
-          <Burger
-            opened={desktopOpened}
-            onClick={toggleDesktop}
-            visibleFrom="sm"
-            size="sm"
-          />
-
+          <Group align="center">
+            <Burger
+              opened={mobileOpened}
+              onClick={toggleMobile}
+              hiddenFrom="sm"
+              size="sm"
+            />
+            <Burger
+              opened={desktopOpened}
+              onClick={toggleDesktop}
+              visibleFrom="sm"
+              size="sm"
+            />
+          </Group>
           <Group gap={0}>
+            <Button component={Link} px={5} href={"/"} variant="subtle">
+              <HomeIcon width={20} />
+            </Button>
             <Button component={Link} px={5} href={"/filter"} variant="subtle">
               <FunnelIcon width={20} />
             </Button>

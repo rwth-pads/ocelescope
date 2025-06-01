@@ -1,6 +1,7 @@
 from fastapi import Request
 
 from api.config import config
+from api.dependencies import get_ocel
 from api.model.with_ocel import ocel_ctx
 from api.session import Session
 
@@ -13,8 +14,10 @@ async def ocel_access_middleware(request: Request, call_next):
     # Save session_id from header to ContextVar
     session_id = request.cookies.get(config.SESSION_ID_HEADER)
     session = Session.get(session_id) if session_id else None
+
     if session:
-        ocel_ctx.set(session.get_ocel())
+        if (ocel := session.get_ocel()) is not None:
+            ocel_ctx.set(ocel)
 
     response = await call_next(request)
 

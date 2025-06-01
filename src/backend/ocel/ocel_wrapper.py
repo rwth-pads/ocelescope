@@ -6,10 +6,9 @@ import sys
 import warnings
 from copy import deepcopy
 from datetime import datetime
-from logging import Filter
 from pathlib import Path
 from threading import Lock
-from typing import Any, Iterable, Literal
+from typing import Any, Iterable, Literal, Optional
 
 import networkx as nx
 import numpy as np
@@ -18,8 +17,9 @@ import pm4py
 from cachetools import LRUCache
 from pm4py.objects.ocel.obj import OCEL
 
+from api.extensions import OcelExtension, get_registered_extensions
 from api.logger import logger
-from lib.filters import BaseFilterConfig, FilterConfig, apply_filters
+from lib.filters import FilterConfig, apply_filters
 from ocel.utils import add_object_order, filter_relations
 from util.cache import instance_lru_cache
 from util.misc import pluralize
@@ -36,14 +36,11 @@ class OCELWrapper:
         self.meta: dict[str, Any] = {}
         self._cache_info = {}
 
-        # pm4py aliases
-        self.events = ocel.events
-        self.objects = ocel.objects
-        self.object_changes = ocel.object_changes
-        self.relations = ocel.relations
-
         # applied filters
         self._filters: list[FilterConfig] = []
+
+        # extensions
+        self._extensions: dict[str, OcelExtension] = {}
 
         self._init_cache()
 
@@ -52,6 +49,26 @@ class OCELWrapper:
         self.cache = LRUCache(maxsize=128)
         self.cache_lock = Lock()
 
+    # ----- Pm4py Aliases ------------------------------------------------------------------------------------------
+    # region
+
+    @property
+    def events(self):
+        return self.ocel.events
+
+    @property
+    def objects(self):
+        return self.ocel.objects
+
+    @property
+    def object_changes(self):
+        return self.ocel.object_changes
+
+    @property
+    def relations(self):
+        return self.ocel.relations
+
+    # endregion
     # ----- BASIC PROPERTIES / STATS ------------------------------------------------------------------------------------------
     # region
 
@@ -980,29 +997,37 @@ class OCELWrapper:
 
     # endregion
 
+    # ----- EXTENTIONS ------------------------------------------------------------------------------------------
+    # region
+    def load_extension(self):
+        path = self.meta.get("path")
+
+        if not path:
+            logger.warning("Extension loading skipped: No path info in OCELWrapper.")
+            return
+
+        path = Path(path)
+
+        for ext_cls in get_registered_extensions():
+            try:
+                if path.suffix in ext_cls.supported_extensions and ext_cls.has_extension(path):
+                    print("test")
+                    self._extensions[ext_cls.name] = ext_cls.import_extension(path)
+            except Exception as e:
+                logger.warning(f"Extension load failed for '{ext_cls.name}': {e}")
+
+    def get_extension(self, name: str) -> Optional[OcelExtension]:
+        return self._extensions.get(name)
+
+    def get_extensions_list(self) -> list[OcelExtension]:
+        """Returns a list of all loaded extensions."""
+        return list(self._extensions.values())
+
+    # endregion
     # ----- IMPORT WRAPPER FUNCTIONS ------------------------------------------------------------------------------------------
     # region
-
     @staticmethod
-    def read_ocel2_sqlite(path: PathLike, version_info: bool = False, output: bool = True):
-        if not isinstance(path, Path):
-            path = Path(path)
-        if output:
-            init_output = [f"Importing OCEL 2.0 at {path}"]
-            if version_info:
-                init_output += [
-                    f"python {sys.version}",
-                    f"pm4py {pm4py.__version__}",
-                ]
-            logger.info("\n".join(init_output))
-
-        ocel = pm4py.read.read_ocel2_sqlite(str(path))
-        if output:
-            logger.info("Import finished: " + str(ocel))
-        return OCELWrapper(ocel)
-
-    @staticmethod
-    def read_ocel2_sqlite_with_report(
+    def read_ocel(
         path: PathLike,
         original_file_name: str | None = None,
         version_info: bool = False,
@@ -1026,92 +1051,16 @@ class OCELWrapper:
         if output:
             logger.info("\n".join(init_output))
 
-        with warnings.catch_warnings(record=True) as captured_warnings:
-            try:
-                pm4py_ocel = pm4py.read.read_ocel2_sqlite(str(path))
-            except Exception as err:
-                if err.args == ("File does not exist",):
-                    raise FileNotFoundError(f'File "{path}" does not exist')
-                else:
-                    raise err
-
-        # Print the captured warning text
-        other_warnings = []
-        unsatisfied_constraints = []
-        for w in captured_warnings:
-            prefix = "There are unsatisfied OCEL 2.0 constraints in the given relational database: "
-            if str(w.message).startswith(prefix):
-                unsatisfied_constraints = [
-                    c[1:-1] for c in str(w.message)[len(prefix) + 1 : -1].split(", ")
-                ]
-            else:
-                other_warnings.append(w)
-        if unsatisfied_constraints:
-            report["unsatisfiedOcelConstraints"] = unsatisfied_constraints
-            if output:
-                logger.info(
-                    f"{len(unsatisfied_constraints)} Unsatisfied OCEL 2.0 constraints:\n  "
-                    + "\n  ".join(unsatisfied_constraints)
-                    + "\n"
-                )
-
-        def warning_location_string(w: warnings.WarningMessage) -> str:
-            path = w.filename
-            i = path.find("pm4py")
-            path1 = path[i:] if i != -1 else path
-            return f"{path1}:{w.lineno}"
-
-        def warning_info(
-            msg: str, warning_list: list[warnings.WarningMessage], locations: list[str]
-        ):
-            count = len(warning_list)
-            t = "warning" if isinstance(warning_list[0], warnings.WarningMessage) else "exception"
-            return "\n  ".join(
-                [
-                    f"The following {t} occured {pluralize(count, pl='times')}:",
-                    re.sub(r"\n+", "\n  ", msg).strip(),
-                    (
-                        pluralize(len(locations), pl="Locations", mode="word")
-                        + ": "
-                        + loc_sep
-                        + loc_sep.join(locations)
-                    ),
-                ]
-            )
-
-        report["warnings"] = []
-        if other_warnings:
-            grouped_warnings = (
-                pd.DataFrame(
-                    [
-                        {
-                            "msg": str(w.message).strip(),
-                            "warning": w,
-                            "location": warning_location_string(w),
-                        }
-                        for w in other_warnings
-                    ]
-                )
-                .groupby("msg")
-                .agg({"warning": list, "location": set})
-            )
-
-            for msg, row in grouped_warnings.to_dict(orient="index").items():
-                msg = str(msg)
-                warning_list = row["warning"]
-                locations = list(row["location"])
-
-                report["warnings"].append(
-                    {
-                        "type": warning_list[0].__class__.__name__,
-                        "msg": msg,
-                        "count": len(warning_list),
-                        "locations": locations,
-                    }
-                )
-                if output:
-                    loc_sep = "\n    " if len(locations) > 1 else ""
-                    logger.warning(warning_info(msg, warning_list, locations))
+        with warnings.catch_warnings(record=True):
+            match path.suffix:
+                case ".sqlite":
+                    pm4py_ocel = pm4py.read.read_ocel2_sqlite(str(path))
+                case ".xmlocel":
+                    pm4py_ocel = pm4py.read.read_ocel2_xml(str(path))
+                case ".jsonocel":
+                    pm4py_ocel = pm4py.read.read_ocel2_xml(str(path))
+                case _:
+                    raise ValueError(f"Unsupported extension: {path.suffix}")
 
         ocel = OCELWrapper(pm4py_ocel)
 
@@ -1124,6 +1073,8 @@ class OCELWrapper:
             "importReport": report,
             "uploadDate": upload_date.isoformat() if upload_date else datetime.now().isoformat(),
         }
+
+        ocel.load_extension()
 
         if output:
             logger.info(pm4py_ocel)

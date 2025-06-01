@@ -39,6 +39,5 @@ def get_objects_info(
     ocel: ApiOcel,
     objectTypes: Annotated[Optional[list[str]], Query()] = None,
 ) -> OCNetModel:
-    print(ocel.ocel.get_summary())
     petri_net = pm4py.discover_oc_petri_net(ocel.ocel)
     return parse_pm4py_ocpn(petri_net["petri_nets"])

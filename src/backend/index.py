@@ -35,6 +35,7 @@ from plugin_loader import register_plugins
 from routes.filter import filterRouter
 from routes.info import infoRouter
 from routes.session import sessionRouter
+from util.constants import SUPPORTED_FILE_TYPES
 from util.misc import export_example_settings_as_dotenv
 from version import __version__
 
@@ -111,11 +112,24 @@ def import_ocel(
     file_name_path = Path(name)
     tmp_file_prefix = upload_date.strftime("%Y%m%d-%H%M%S") + "-" + file_name_path.stem
 
+    match file_name_path.suffix.lower():
+        case ".xml":
+            suffix = ".xmlocel"
+        case ".json":
+            suffix = ".jsonocel"
+        case _:
+            suffix = file_name_path.suffix.lower()
+
+    if suffix not in SUPPORTED_FILE_TYPES:
+        raise BadRequest(
+            f"Unsupported file type: {file_name_path.suffix}. Supported types are: {', '.join(SUPPORTED_FILE_TYPES)}"
+        )
+
     try:
         with NamedTemporaryFile(
             delete=False,
             prefix=tmp_file_prefix,
-            suffix=file_name_path.suffix,
+            suffix=suffix,
         ) as tmp:
             shutil.copyfileobj(file.file, tmp)
             tmp_path = Path(tmp.name)
@@ -125,13 +139,14 @@ def import_ocel(
         file.file.close()
 
     # pm4py-based import
-    ocel = OCELWrapper.read_ocel2_sqlite_with_report(
+    ocel = OCELWrapper.read_ocel(
         str(tmp_path),
         original_file_name=name,
         version_info=True,
-        output=False,
+        output=True,
         upload_date=upload_date,
     )
+
     set_ocel_context(ocel)
 
     session.add_ocel(ocel)

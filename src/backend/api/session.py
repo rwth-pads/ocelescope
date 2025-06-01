@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import json
 import uuid
+from importlib import invalidate_caches
 from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
 
 import pandas as pd
 
 from api.exceptions import NotFound
 from api.logger import logger
+from api.model.cache import CachableObject
 from ocel.ocel_wrapper import OCELWrapper
 from util.types import PathLike
 
@@ -28,7 +30,7 @@ class Session:
         self.id = id or str(uuid.uuid4())
 
         self._tasks = {}
-        self._plugin_states = {}
+        self._plugin_states: dict[str, CachableObject] = {}
 
         self.ocels: dict[str, OCELWrapper] = {}
         self.current_ocel_id = None
@@ -134,6 +136,12 @@ class Session:
             raise NotFound(f"OCEL with id {ocel_id} not found")
 
         self.current_ocel_id = ocel_id
+
+        self.invalidate_plugin_states()
+
+    def invalidate_plugin_states(self):
+        for plugin_state in self._plugin_states.values():
+            plugin_state.clear_cache()
 
     def export_sqlite(self, export_path: PathLike):
         # Write OCEL
