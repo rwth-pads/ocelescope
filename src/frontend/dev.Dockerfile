@@ -1,28 +1,29 @@
+# syntax=docker.io/docker/dockerfile:1
+
 FROM node:18-alpine
 
+# System dependencies (useful for some packages)
+RUN apk add --no-cache libc6-compat
+
+# Set working directory
 WORKDIR /app
 
-# Create folders for mounts
-RUN mkdir -p /app/src /app/node_modules /app/.next
-
-# Copy lock files to install deps
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+# Install dependencies based on existing lockfiles
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
 
 RUN \
-  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-  elif [ -f package-lock.json ]; then npm ci; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i; \
-  else echo "Warning: Lockfile not found. It is recommended to commit lockfiles to version control." && yarn install; \
+  if [ -f yarn.lock ]; then yarn install; \
+  elif [ -f package-lock.json ]; then npm install; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm install; \
+  else echo "No lockfile found." && exit 1; \
   fi
 
-ENV HOSTNAME=0.0.0.0
-ENV NEXT_TELEMETRY_DISABLED=1
+# Copy source code
+COPY . .
 
-CMD \
-  cd src && \
-  if [ -f yarn.lock ]; then yarn dev; \
-  elif [ -f package-lock.json ]; then npm run dev; \
-  elif [ -f pnpm-lock.yaml ]; then pnpm dev; \
-  else npm run dev; \
-  fi
+# Expose Next.js dev server port
+EXPOSE 3000
+
+# Run the development server
+CMD [ "npm", "run", "dev" ]
 
