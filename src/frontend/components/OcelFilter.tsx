@@ -113,13 +113,11 @@ const filterDefinitions: { [K in FilterTypes]: FilterDefinition<K> } = {
     defaultConfig: {
       object_type: "",
       event_type: "",
-      target: "event",
       min: 0,
-      max: undefined,
     },
     renderInput: FilterController<ConfigByType<"e2o_count">>(
       ({ value, onChange }) => (
-        <E2OCountFilter value={value} onChange={(v) => console.log(v)} />
+        <E2OCountFilter value={value} onChange={(v) => onChange(v)} />
       ),
     ),
   },

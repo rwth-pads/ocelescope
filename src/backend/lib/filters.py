@@ -48,7 +48,6 @@ class E2OCountFilterConfig(BaseFilterConfig):
     type: Literal["e2o_count"]
     object_type: str
     event_type: str
-    target: Literal["object", "event"] = "event"
     min: int
     max: Optional[int] = None
 
@@ -96,13 +95,17 @@ class FilterResult:
 
 F = TypeVar("F", bound=BaseFilterConfig)
 
-FILTER_REGISTRY: Dict[Type[BaseFilterConfig], Callable[[OCEL, BaseFilterConfig], FilterResult]] = {}
+FILTER_REGISTRY: Dict[
+    Type[BaseFilterConfig], Callable[[OCEL, BaseFilterConfig], FilterResult]
+] = {}
 
 
 def register_filter(config_cls: Type[F]):
     def decorator(func: Callable[[OCEL, F], FilterResult]):
         # Cast needed for Pyright compatibility
-        FILTER_REGISTRY[config_cls] = cast(Callable[[OCEL, BaseFilterConfig], FilterResult], func)
+        FILTER_REGISTRY[config_cls] = cast(
+            Callable[[OCEL, BaseFilterConfig], FilterResult], func
+        )
         return func
 
     return decorator
@@ -155,16 +158,13 @@ def filter_by_time_range(
 
 
 @register_filter(E2OCountFilterConfig)
-def filter_by_e2o_counts(
-    ocel: OCEL,
-    config: E2OCountFilterConfig,
-):
-    target_id = ocel.event_id_column if config.target == "event" else ocel.object_id_column
+def filter_by_e2o_counts(ocel: OCEL, config: E2OCountFilterConfig, target="event"):
+    target_id = ocel.event_id_column if target == "event" else ocel.object_id_column
     target_type_column = (
-        ocel.event_activity if config.target == "event" else ocel.object_type_column
+        ocel.event_activity if target == "event" else ocel.object_type_column
     )
 
-    target_df = ocel.events if config.target == "event" else ocel.objects
+    target_df = ocel.events if target == "event" else ocel.objects
 
     mask = (ocel.relations[ocel.event_activity] == config.event_type) & (
         ocel.relations[ocel.object_type_column] == config.object_type
@@ -172,7 +172,9 @@ def filter_by_e2o_counts(
 
     filtered_relations = ocel.relations[mask]
 
-    entity_counts = filtered_relations.groupby(target_id).size().reset_index(name="entity_count")
+    entity_counts = (
+        filtered_relations.groupby(target_id).size().reset_index(name="entity_count")
+    )
 
     if config.max is not None:
         entity_counts = entity_counts[
@@ -183,7 +185,7 @@ def filter_by_e2o_counts(
         entity_counts = entity_counts[entity_counts["entity_count"] >= config.min]
 
     is_not_target_type = target_df[target_type_column] != (
-        config.event_type if config.target == "event" else config.object_type
+        config.event_type if target == "event" else config.object_type
     )
     is_in_filtered_ids = target_df[target_id].isin(entity_counts[target_id])
 
@@ -192,7 +194,7 @@ def filter_by_e2o_counts(
 
     final_mask = is_not_target_type | is_in_filtered_ids
 
-    if config.target == "event":
+    if target == "event":
         return FilterResult(events=final_mask)
 
     return FilterResult(objects=final_mask)
@@ -224,10 +226,14 @@ def apply_filters(ocel: OCEL, filters: list[FilterConfig]) -> OCEL:
     masks = compute_combined_masks(ocel, filters)
 
     filtered_event_ids = (
-        ocel.events[ocel.event_id_column][masks.events] if masks.events is not None else None
+        ocel.events[ocel.event_id_column][masks.events]
+        if masks.events is not None
+        else None
     )
     filtered_object_ids = (
-        ocel.objects[ocel.object_id_column][masks.objects] if masks.objects is not None else None
+        ocel.objects[ocel.object_id_column][masks.objects]
+        if masks.objects is not None
+        else None
     )
     if masks.events is not None:
         ocel = pm4py.filter_ocel_events(ocel, filtered_event_ids, positive=True)
