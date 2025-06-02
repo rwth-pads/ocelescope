@@ -1,164 +1,140 @@
 import React from "react";
-import {
-  useForm,
-  useFieldArray,
-  Controller,
-  useController,
-  Control,
-} from "react-hook-form";
-import { Button, Group, Select, Stack } from "@mantine/core";
+import { useForm, useFieldArray, Controller, Control } from "react-hook-form";
+import { Button, Group, Select, Stack, Badge } from "@mantine/core";
 
 import EventTypeFilterInput from "./OcelInputs/ActivityTypeFilter";
 import ObjectTypeFilter from "./OcelInputs/ObjectTypeFilter";
 import TimeRangeFilter from "./OcelInputs/TimeFrameFilter";
+import { FilterPipeLinePipelineItem } from "@/api/fastapi-schemas";
+import E2OCountFilter from "./OcelInputs/E20CountFilter";
 
-import {
-  FilterPipeLine,
-  EventTypeFilterConfig,
-  ObjectTypeFilterConfig,
-  TimeFrameFilterConfig,
-  E2OCountFilterConfig,
-} from "@/api/fastapi-schemas";
-import E2OCountFilter from "./OcelInputs/E2OCountFilter";
+// --------------------------------------------
+// Type Definitions
+// --------------------------------------------
+type FilterTypes = NonNullable<FilterPipeLinePipelineItem["type"]>;
 
-type FilterFormProps = {
-  onSubmit: (data: FilterPipeLine["pipeline"]) => void;
-  initialFilter?: FilterPipeLine["pipeline"];
+export type ConfigByType<T extends FilterTypes> = Omit<
+  Extract<FilterPipeLinePipelineItem, { type: T }>,
+  "type" | "mode"
+>;
+
+type FilterFormItem<T extends FilterTypes = FilterTypes> = {
+  type: T;
+  mode: "include" | "exclude";
+  config: ConfigByType<T>;
 };
-
-type FilterTypes = NonNullable<FilterPipeLine["pipeline"][number]["type"]>;
 
 type FilterFormValues = {
-  filters: (
-    | EventTypeFilterConfig
-    | ObjectTypeFilterConfig
-    | TimeFrameFilterConfig
-    | E2OCountFilterConfig
-  )[];
+  filters: FilterFormItem[];
 };
 
-const TimeFrameFilterInput: React.FC<{ control: any; index: number }> = ({
-  control,
-  index,
-}) => {
-  const {
-    field: { value: startTime, onChange: onStartTimeChange },
-  } = useController({
-    control,
-    name: `filters.${index}.start_time`,
-  });
+type FilterDefinition<K extends FilterTypes> = {
+  defaultConfig: ConfigByType<K>;
+  label: string;
+  renderInput: (props: {
+    control: Control<FilterFormValues>;
+    index: number;
+  }) => React.ReactNode;
+};
 
-  const {
-    field: { value: endTime, onChange: onEndTimeChange },
-  } = useController({
-    control,
-    name: `filters.${index}.end_time`,
-  });
+type ControlledInputProps<T> = {
+  value: T;
+  onChange: (value: T) => void;
+};
 
-  return (
-    <TimeRangeFilter
-      value={{
-        startTime: startTime ?? undefined,
-        endTime: endTime ?? undefined,
-      }}
-      onChange={({ startTime, endTime }) => {
-        onStartTimeChange(startTime);
-        onEndTimeChange(endTime);
-      }}
+const FilterController =
+  <T,>(InputComponent: React.ComponentType<ControlledInputProps<T>>) =>
+  ({
+    control,
+    index,
+  }: {
+    control: Control<FilterFormValues>;
+    index: number;
+  }) => (
+    <Controller
+      control={control}
+      name={`filters.${index}.config` as const}
+      render={({ field }) => (
+        <InputComponent value={field.value as T} onChange={field.onChange} />
+      )}
     />
   );
-};
 
-const filterInputFactory: Record<
-  FilterTypes,
-  {
-    label: string;
-    defaultValue: FilterPipeLine["pipeline"][number];
-    input: (
-      control: Control<FilterFormValues>,
-      index: number,
-      filter: FilterFormValues["filters"][number],
-    ) => React.ReactNode;
-  }
-> = {
+const filterDefinitions: { [K in FilterTypes]: FilterDefinition<K> } = {
   event_type: {
-    label: "Event Types",
-    defaultValue: {
-      type: "event_type",
-      event_types: [],
-    },
-    input: (control, index) => (
-      <Controller
-        control={control}
-        name={`filters.${index}.event_types`}
-        render={({ field }) => (
-          <EventTypeFilterInput value={field.value} onChange={field.onChange} />
-        )}
-      />
+    label: "Event Type",
+    defaultConfig: { event_types: [] },
+    renderInput: FilterController<ConfigByType<"event_type">>(
+      ({ value: { event_types }, onChange }) => {
+        return (
+          <EventTypeFilterInput
+            value={event_types}
+            onChange={(newEvents) => onChange({ event_types: newEvents })}
+          />
+        );
+      },
     ),
   },
   object_type: {
-    defaultValue: {
-      type: "object_type",
-      object_types: [],
-      mode: "include",
-    },
-    label: "Object Types",
-    input: (control, index) => (
-      <Controller
-        control={control}
-        name={`filters.${index}.object_types`}
-        render={({ field }) => <ObjectTypeFilter {...field} />}
-      />
+    label: "Object Type",
+    defaultConfig: { object_types: [] },
+    renderInput: FilterController<ConfigByType<"object_type">>(
+      ({ value, onChange }) => {
+        return (
+          <ObjectTypeFilter
+            value={value.object_types}
+            onChange={(val) => onChange({ ...value, object_types: val })}
+          />
+        );
+      },
     ),
   },
   time_frame: {
-    defaultValue: {
-      type: "time_frame",
-      start_time: undefined,
-      end_time: undefined,
-    },
     label: "Time Frame",
-    input: (control, index) => (
-      <TimeFrameFilterInput control={control} index={index} />
+    defaultConfig: { start_time: undefined, end_time: undefined },
+    renderInput: FilterController<ConfigByType<"time_frame">>(
+      ({ value, onChange }) => {
+        return (
+          <TimeRangeFilter
+            value={{
+              startTime: value.start_time ?? undefined,
+              endTime: value.end_time ?? undefined,
+            }}
+            onChange={({ startTime, endTime }) =>
+              onChange({ start_time: startTime, end_time: endTime })
+            }
+          />
+        );
+      },
     ),
   },
   e2o_count: {
-    defaultValue: {
-      type: "e2o_count",
+    label: "E2O Count",
+    defaultConfig: {
       object_type: "",
       event_type: "",
       target: "event",
       min: 0,
       max: undefined,
     },
-    label: "E2O Count",
-    input: (control, index) => (
-      <Controller
-        control={control}
-        name={`filters.${index}` as const}
-        render={({ field }) => (
-          <E2OCountFilter
-            value={field.value as E2OCountFilterConfig}
-            onChange={(value) => {
-              console.log(field.value);
-              field.onChange({ ...field.value });
-            }}
-          />
-        )}
-      />
+    renderInput: FilterController<ConfigByType<"e2o_count">>(
+      ({ value, onChange }) => (
+        <E2OCountFilter value={value} onChange={(v) => console.log(v)} />
+      ),
     ),
   },
 };
 
-export const FilterForm: React.FC<FilterFormProps> = ({
-  onSubmit,
-  initialFilter = [],
-}) => {
+// --------------------------------------------
+// Main FilterForm Component
+// --------------------------------------------
+
+export const FilterForm: React.FC<{
+  onSubmit: (data: FilterFormItem[]) => void;
+  initialFilter?: FilterFormItem[];
+}> = ({ onSubmit, initialFilter = [] }) => {
   const { control, handleSubmit, watch } = useForm<FilterFormValues>({
-    defaultValues: {
-      filters: initialFilter,
-    },
+    defaultValues: { filters: initialFilter },
   });
 
   const { fields, append, update, remove } = useFieldArray({
@@ -171,10 +147,8 @@ export const FilterForm: React.FC<FilterFormProps> = ({
   return (
     <form onSubmit={handleSubmit((data) => onSubmit(data.filters))}>
       {fields.map((field, index) => {
-        const filter = watchedFilters[index];
-        const type = filter?.type;
-
-        if (!type) return null;
+        const type = watchedFilters[index].type;
+        const def = filterDefinitions[type];
 
         return (
           <Stack
@@ -190,19 +164,21 @@ export const FilterForm: React.FC<FilterFormProps> = ({
                 render={({ field }) => (
                   <Select
                     label="Filter Type"
-                    data={Object.entries(filterInputFactory).map(
-                      ([value, { label }]) => ({ label, value }),
-                    )}
                     value={field.value}
-                    onChange={(newType) => {
-                      const base =
-                        filterInputFactory[newType as FilterTypes].defaultValue;
-
+                    onChange={(val) => {
+                      const def = filterDefinitions[val as FilterTypes];
                       update(index, {
-                        ...base,
-                        mode: watchedFilters[index].mode ?? "include", // preserve mode if exists
+                        type: val as FilterTypes,
+                        mode: "include",
+                        config: def.defaultConfig,
                       });
                     }}
+                    data={Object.entries(filterDefinitions).map(
+                      ([value, { label }]) => ({
+                        value,
+                        label,
+                      }),
+                    )}
                   />
                 )}
               />
@@ -212,17 +188,18 @@ export const FilterForm: React.FC<FilterFormProps> = ({
                 render={({ field }) => (
                   <Select
                     label="Mode"
+                    value={field.value}
+                    onChange={(val) => field.onChange(val)}
                     data={[
                       { value: "include", label: "Include" },
                       { value: "exclude", label: "Exclude" },
                     ]}
-                    {...field}
                   />
                 )}
               />
             </Group>
 
-            {filterInputFactory[type].input(control, index, filter)}
+            {def.renderInput({ control, index })}
 
             <Group>
               <Button
@@ -239,16 +216,18 @@ export const FilterForm: React.FC<FilterFormProps> = ({
 
       <Group mt="md">
         <Button
-          onClick={() =>
+          onClick={() => {
+            const def = filterDefinitions.event_type;
             append({
               type: "event_type",
-              event_types: [],
               mode: "include",
-            })
-          }
+              config: def.defaultConfig,
+            });
+          }}
         >
           + Add Filter
         </Button>
+
         <Button type="submit" color="blue">
           Apply Filters
         </Button>

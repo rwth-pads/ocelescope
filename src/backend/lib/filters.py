@@ -29,23 +29,23 @@ class BaseFilterConfig(BaseModel):
 
 
 class EventTypeFilterConfig(BaseFilterConfig):
-    type: Literal["event_type"] = "event_type"
+    type: Literal["event_type"]
     event_types: list[str]
 
 
 class ObjectTypeFilterConfig(BaseFilterConfig):
-    type: Literal["object_type"] = "object_type"
+    type: Literal["object_type"]
     object_types: list[str]
 
 
 class TimeFrameFilterConfig(BaseFilterConfig):
-    type: Literal["time_frame"] = "time_frame"
+    type: Literal["time_frame"]
     start_time: Optional[str] = None
     end_time: Optional[str] = None
 
 
 class E2OCountFilterConfig(BaseFilterConfig):
-    type: Literal["e2o_count"] = "e2o_count"
+    type: Literal["e2o_count"]
     object_type: str
     event_type: str
     target: Literal["object", "event"] = "event"
