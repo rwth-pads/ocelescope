@@ -18,7 +18,9 @@ class CachableObject:
         """Clear cached results for a specific method."""
         with self.cache_lock:
             keys_to_remove = [
-                k for k in self.cache.keys() if isinstance(k, tuple) and k[0] == method_name
+                k
+                for k in self.cache.keys()
+                if isinstance(k, tuple) and k[0] == method_name
             ]
             for k in keys_to_remove:
                 del self.cache[k]

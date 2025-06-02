@@ -1,6 +1,5 @@
 from typing import Literal, Optional, cast
 
-import pandas as pd
 from pm4py.objects.ocel.obj import OCEL
 from pydantic.main import BaseModel
 
@@ -16,7 +15,9 @@ class RelationCountSummary(BaseModel):
     sum: int
 
 
-def get_e2o_summary(ocel: OCEL, direction: Optional[Literal["event", "object"]] = "event"):
+def get_e2o_summary(
+    ocel: OCEL, direction: Optional[Literal["event", "object"]] = "event"
+):
     qualifier_col = ocel.qualifier
     activity_col = ocel.event_activity
     object_type_col = ocel.object_type_column
@@ -38,7 +39,9 @@ def get_e2o_summary(ocel: OCEL, direction: Optional[Literal["event", "object"]] 
     )
 
     summary = (
-        grouped_relations.groupby([qualifier_col, activity_col, object_type_col])["count"]
+        grouped_relations.groupby([qualifier_col, activity_col, object_type_col])[
+            "count"
+        ]
         .agg(["min", "max", "sum"])
         .reset_index()
         .rename(columns={"min": "min_count", "max": "max_count"})

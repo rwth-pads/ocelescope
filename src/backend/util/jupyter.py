@@ -11,4 +11,4 @@ def set_clipboard(content: str, log: bool = True):
     js_code = f"navigator.clipboard.writeText({json.dumps(content)});"
     display(Javascript(js_code))
     if log:
-        logger.info(f"Clipboard content set successfully.")
+        logger.info("Clipboard content set successfully.")

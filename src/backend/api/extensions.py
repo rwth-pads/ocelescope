@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Dict, List, Literal, Optional, Type, TypeVar
+from typing import Dict, List, Optional, Type, TypeVar
 
-from util.constants import SUPPORTED_FILE_TYPES
 
 T = TypeVar("T", bound="OcelExtension")
 
@@ -53,7 +52,9 @@ def register_extension(cls: Type[OcelExtension]) -> Type[OcelExtension]:
     # Enforce metadata presence
     for attr in ("name", "description", "version"):
         if not hasattr(cls, attr):
-            raise ValueError(f"Extension {cls.__name__} must define static '{attr}' attribute.")
+            raise ValueError(
+                f"Extension {cls.__name__} must define static '{attr}' attribute."
+            )
     extension_registry[cls.name] = cls
     return cls
 

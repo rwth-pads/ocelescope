@@ -34,7 +34,9 @@ def unique_non_null(s):
     return s.dropna().unique()
 
 
-def int_median_str(r50: float, check: bool = True, mode: Literal["number", "string"] = "string"):
+def int_median_str(
+    r50: float, check: bool = True, mode: Literal["number", "string"] = "string"
+):
     """Formats a median of integers as string, either returning <n> or <n>.5"""
     i50 = int(np.round(r50))
     if not np.isclose(i50, r50):
@@ -58,13 +60,13 @@ def make_compact(
         rmin, r50, rmax = x._min, x._median, x._max
     else:
         rmin, r50, rmax = x["min"], x["50%"], x["max"]
-    if dtype == int:
+    if dtype is int:
         imin, imax = int(rmin), int(rmax)
         # median is either integer or ?.5
         i50 = int_median_str(r50, check=False, mode="number")
-        assert np.allclose(
-            [imin, i50, imax], [rmin, r50, rmax]
-        ), "make_compact received non-integer values when passing dtype=int."
+        assert np.allclose([imin, i50, imax], [rmin, r50, rmax]), (
+            "make_compact received non-integer values when passing dtype=int."
+        )
         fmin, f50, fmax = str(imin), str(i50), str(imax)
     else:
         fmin, f50, fmax = f"{rmin:{format}}", f"{r50:{format}}", f"{rmax:{format}}"
@@ -363,7 +365,7 @@ def mirror_dataframe(
         if col1.endswith(suffix1):
             col = remove_suffix1(col1)
             col2 = col + suffix2
-            if not col2 in df.columns:
+            if col2 not in df.columns:
                 raise ValueError(f"mirror_dataframe: Column {col2} not found.")
             renamer[col1] = col2
             renamer[col2] = col1
@@ -371,7 +373,7 @@ def mirror_dataframe(
         if col2.endswith(suffix2):
             col = remove_suffix2(col2)
             col1 = col + suffix1
-            if not col1 in df.columns:
+            if col1 not in df.columns:
                 raise ValueError(f"mirror_dataframe: Column {col1} not found.")
     return df.rename(columns=renamer)[column_order]
 

@@ -25,13 +25,17 @@ def getOcels(session: ApiSession) -> GetOcelResponse:
                 created_at=value.meta["uploadDate"],
                 id=key,
                 name=value.meta["fileName"],
-                extensions=[extension.name for extension in value.get_extensions_list()],
+                extensions=[
+                    extension.name for extension in value.get_extensions_list()
+                ],
             )
             for key, value in session.ocels.items()
         ],
     )
 
 
-@sessionRouter.post("/ocel", summary="Get Uploaded OCELs", operation_id="setCurrentOcel")
+@sessionRouter.post(
+    "/ocel", summary="Get Uploaded OCELs", operation_id="setCurrentOcel"
+)
 def set_current_ocel(session: ApiSession, ocel_id: str):
     session.set_current_ocel(ocel_id)

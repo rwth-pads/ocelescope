@@ -44,11 +44,15 @@ def custom_snake2camel(s: str):
     """Converts the input from snake to camel case, with parts like 'e2o' being either completely capitalized or not at all."""
     parts = s.split("_")
     x2y_regex = re.compile(r"^[a-z]2[a-z]$")
-    camel_parts = [p.capitalize() if not x2y_regex.match(p) else p.upper() for p in parts[1:]]
+    camel_parts = [
+        p.capitalize() if not x2y_regex.match(p) else p.upper() for p in parts[1:]
+    ]
     return parts[0] + "".join(camel_parts)
 
 
-def verify_parameter_alias_consistency(app: FastAPI, alias_generator: Callable[[str], str]):
+def verify_parameter_alias_consistency(
+    app: FastAPI, alias_generator: Callable[[str], str]
+):
     """Checks if there are parameters of API routes that do not have an alias consistent with a given alias generator."""
     fts = (
         fastapi_params.Query,

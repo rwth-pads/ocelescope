@@ -28,7 +28,9 @@ def get_swagger_ui_html(
         else ""
     )
     js_init_oauth = (
-        f"ui.initOAuth({json.dumps(jsonable_encoder(init_oauth))})" if init_oauth else ""
+        f"ui.initOAuth({json.dumps(jsonable_encoder(init_oauth))})"
+        if init_oauth
+        else ""
     )
 
     html = f"""

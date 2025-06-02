@@ -1,4 +1,4 @@
-from pydantic import DirectoryPath, Field, FilePath, SecretStr
+from pydantic import DirectoryPath, Field, SecretStr
 from pydantic_settings import BaseSettings
 
 """

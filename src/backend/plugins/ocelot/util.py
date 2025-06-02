@@ -50,14 +50,18 @@ def get_paginated_dataframe(
     ).reset_index()
 
     # Bundle relation columns into one 'relations' dict
-    relations["relations"] = relations.drop(columns=[from_field]).to_dict(orient="records")
+    relations["relations"] = relations.drop(columns=[from_field]).to_dict(
+        orient="records"
+    )
     relations = relations[[from_field, "relations"]]
 
     # Drop non-informative columns
     paginated_df = paginated_df.dropna(axis=1, how="all")
 
     # Build attribute dict excluding non-attribute fields
-    columns_to_drop = [col for col in non_attribute_fields if col in paginated_df.columns]
+    columns_to_drop = [
+        col for col in non_attribute_fields if col in paginated_df.columns
+    ]
     attribute_data = paginated_df.drop(columns=columns_to_drop)
 
     if attribute_data.shape[1] == 0:

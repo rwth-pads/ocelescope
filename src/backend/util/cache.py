@@ -20,7 +20,9 @@ EXCEPTION_ON_NON_HASHABLE = True
 EXCEPTION_ON_TASK_ARG = True
 
 
-def key_decorator_make_hashable(make_hashable: bool, func: Callable, ignore_first: bool = True):
+def key_decorator_make_hashable(
+    make_hashable: bool, func: Callable, ignore_first: bool = True
+):
     """Allows for hashing built-in collections (set, list, dict) as cache key arguments, depending on `make_hashable`."""
 
     def decorator(key):
@@ -40,9 +42,15 @@ def key_decorator_make_hashable(make_hashable: bool, func: Callable, ignore_firs
                 ):
                     # key creation will shortly fail. Give a hint what function decorator to adjust.
                     unhashable_types = sorted(
-                        set(type(arg).__name__ for arg in args if not isinstance(arg, Hashable))
+                        set(
+                            type(arg).__name__
+                            for arg in args
+                            if not isinstance(arg, Hashable)
+                        )
                         | set(
-                            type(v).__name__ for v in kwargs.values() if not isinstance(v, Hashable)
+                            type(v).__name__
+                            for v in kwargs.values()
+                            if not isinstance(v, Hashable)
                         )
                     )
                     if any(isinstance(arg, (set, list, dict)) for arg in args) or any(
@@ -55,9 +63,12 @@ def key_decorator_make_hashable(make_hashable: bool, func: Callable, ignore_firs
                         raise CacheError(msg)
                     else:
                         warnings.warn(msg)
-                args = (arg if isinstance(arg, Hashable) else uuid.uuid4() for arg in args)
+                args = (
+                    arg if isinstance(arg, Hashable) else uuid.uuid4() for arg in args
+                )
                 kwargs = {
-                    k: v if isinstance(v, Hashable) else uuid.uuid4() for k, v in kwargs.items()
+                    k: v if isinstance(v, Hashable) else uuid.uuid4()
+                    for k, v in kwargs.items()
                 }
             return key(self, *args, **kwargs)  # type: ignore
 
@@ -98,7 +109,8 @@ def key_decorator_ignore_task(ignore_task: bool, func: Callable):
             # - kwarg named "task" but not of type Task or None?
             msg = None
             if any(
-                k == "task" and not isinstance(v, Task) and v is not None for k, v in kwargs.items()
+                k == "task" and not isinstance(v, Task) and v is not None
+                for k, v in kwargs.items()
             ):
                 msg = f"{func.__name__}: Encountered a keyword argument named 'task' with type other than Task or None. This is probably a mistake and can lead to mistakes while caching."
             if any(isinstance(arg, Task) for arg in args):
@@ -159,7 +171,6 @@ def instance_lru_cache(
         key = methodkey
 
     def decorator(func):
-
         key1 = key_decorator_make_hashable(
             make_hashable=make_hashable, func=func, ignore_first=True
         )(key)
@@ -214,9 +225,7 @@ def instance_lru_cache(
         # (func_cached.cache and existing convenience methods refer to the whole object cache)
         func_cached.cache_has = cache_has
         func_cached.cache_forget = cache_forget
-        func_cached.cache_clear = (
-            cache_clear  # Overriding the original method, only clearing cache for this method
-        )
+        func_cached.cache_clear = cache_clear  # Overriding the original method, only clearing cache for this method
         return func_cached
 
     return decorator

@@ -1,7 +1,6 @@
 from fastapi import Request
 
 from api.config import config
-from api.dependencies import get_ocel
 from api.model.with_ocel import ocel_ctx
 from api.session import Session
 

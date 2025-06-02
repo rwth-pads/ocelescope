@@ -1,11 +1,9 @@
 import importlib
 import os
 import pkgutil
-from typing import Annotated, Type, TypeVar, cast
 
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 
-from api.dependencies import ApiSession
 
 # Use direct path-based loading for safety
 plugins_path = [os.path.join(os.path.dirname(__file__), "plugins")]

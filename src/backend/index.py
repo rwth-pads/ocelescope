@@ -9,7 +9,7 @@ from typing import Annotated
 from fastapi import FastAPI, File, Query, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.config import OceanConfig, config
+from api.config import OceanConfig
 from api.dependencies import ApiOcel, ApiSession, ApiTask
 from api.docs import init_custom_docs
 from api.exceptions import BadRequest, NotFound
@@ -17,7 +17,6 @@ from api.middleware import ocel_access_middleware
 from api.model.response import TempFileResponse
 from api.model.task import TaskStatusResponse
 from api.model.with_ocel import set_ocel_context
-from api.session import Session
 from api.utils import (
     custom_snake2camel,
     error_handler_server,
@@ -84,13 +83,17 @@ def task_status(
     task: ApiTask,
 ) -> TaskStatusResponse:
     """Return the status of a long-running task."""
-    return TaskStatusResponse(**session.respond(route="task-status", msg=None, task=task))
+    return TaskStatusResponse(
+        **session.respond(route="task-status", msg=None, task=task)
+    )
 
 
 # endregion
 
 
-@app.post("/import", summary="Import OCEL 2.0 from .sqlite file", operation_id="importOcel")
+@app.post(
+    "/import", summary="Import OCEL 2.0 from .sqlite file", operation_id="importOcel"
+)
 def import_ocel(
     session: ApiSession,
     response: Response,
@@ -100,7 +103,9 @@ def import_ocel(
     ],
     name: Annotated[
         str,
-        Query(description="The name of the uploaded file", pattern=r"[\w\-\(\)]+\.[a-z]+"),
+        Query(
+            description="The name of the uploaded file", pattern=r"[\w\-\(\)]+\.[a-z]+"
+        ),
         # Need original file name because client-side formData creation in generated api wrapper does not retain it
     ],
 ) -> Response:
@@ -156,7 +161,9 @@ def import_ocel(
     return response
 
 
-@app.get("/ocel/default", summary="Get default OCEL metadata", operation_id="getDefaultOcel")
+@app.get(
+    "/ocel/default", summary="Get default OCEL metadata", operation_id="getDefaultOcel"
+)
 def default_ocels(
     only_latest_versions: bool = True,
     only_preloaded: bool = False,
@@ -169,7 +176,9 @@ def default_ocels(
     return filtered
 
 
-@app.post("/import-default", summary="Import default OCEL", operation_id="importDefaultOcel")
+@app.post(
+    "/import-default", summary="Import default OCEL", operation_id="importDefaultOcel"
+)
 def import_default_ocel(
     response: Response,
     session: ApiSession,
@@ -210,7 +219,9 @@ def download_ocel(
 ) -> TempFileResponse:
     name = ocel.meta["fileName"]
     tmp_file_prefix = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + name
-    file_response = TempFileResponse(prefix=tmp_file_prefix, suffix=".sqlite", filename=name)
+    file_response = TempFileResponse(
+        prefix=tmp_file_prefix, suffix=".sqlite", filename=name
+    )
     session.export_sqlite(file_response.tmp_path)
     return file_response
 

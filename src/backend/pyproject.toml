@@ -44,3 +44,5 @@ build-backend = "hatchling.build"
 [tool.pyright]
 exclude = ["drafts", "data"]
 
+[tool.ruff]
+ignore = ["E731"]

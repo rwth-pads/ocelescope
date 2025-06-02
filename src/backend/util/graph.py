@@ -57,7 +57,11 @@ def shortest_paths_to_target(
             u, d, p = queue.popleft()
             if cutoff is not None and d > cutoff:
                 break
-            if nearest and nearest_targets_dist is not None and d > nearest_targets_dist:
+            if (
+                nearest
+                and nearest_targets_dist is not None
+                and d > nearest_targets_dist
+            ):
                 break
             if u in targets:
                 data.append((source, u, d, p) if capture_paths else (source, u, d))  # type: ignore
@@ -66,7 +70,11 @@ def shortest_paths_to_target(
                     continue
             if cutoff is not None and d >= cutoff:
                 continue  # max distance reached
-            if nearest and nearest_targets_dist is not None and d >= nearest_targets_dist:
+            if (
+                nearest
+                and nearest_targets_dist is not None
+                and d >= nearest_targets_dist
+            ):
                 continue  # don't add neighbors, but finish queue to find targets at same distance
 
             for v in G.neighbors(u):
@@ -210,13 +218,19 @@ def reachability_multi_source(
         # Faster computation via connected components
         if not nx.is_directed(G):
             if callback:
-                logger.warning(f"reachability_multi_source: Callback not applicable")
+                logger.warning("reachability_multi_source: Callback not applicable")
             for C in nx.connected_components(G):
                 if format == "matrix":
                     # TODO untested
-                    comp_source_ix = {source_indices[v] for v in C if v in source_indices}
-                    comp_target_ix = {target_indices[v] for v in C if v in target_indices}
-                    results[list(itertools.product(comp_source_ix, comp_target_ix))] = True
+                    comp_source_ix = {
+                        source_indices[v] for v in C if v in source_indices
+                    }
+                    comp_target_ix = {
+                        target_indices[v] for v in C if v in target_indices
+                    }
+                    results[list(itertools.product(comp_source_ix, comp_target_ix))] = (
+                        True
+                    )
                 else:
                     # TODO untested
                     comp_sources = [v for v in C if v in source_indices]
@@ -226,7 +240,7 @@ def reachability_multi_source(
         else:
             # TODO weak components NOT applicable. Could pre-compute strong components and use quotient graph
             logger.warning(
-                f"reachability_multi_source: Faster solution for unbound reachability in directed graph?"
+                "reachability_multi_source: Faster solution for unbound reachability in directed graph?"
             )
 
     if not skip_bfs:
@@ -275,7 +289,9 @@ def reachability_multi_source(
         return (
             pd.DataFrame(
                 data,
-                columns=["source", "target", "distance"] if distances else ["source", "target"],
+                columns=["source", "target", "distance"]
+                if distances
+                else ["source", "target"],
             ),
             early_stopping,
         )
@@ -302,7 +318,9 @@ def nx_to_graphviz(
     elif isinstance(G, nx.Graph):
         GV = gv.Graph()
     else:
-        raise TypeError(f"nx_to_graphviz received an input other than nx.Graph or nx.DiGraph.")
+        raise TypeError(
+            "nx_to_graphviz received an input other than nx.Graph or nx.DiGraph."
+        )
 
     for v, node in G.nodes.items():
         GV.node(

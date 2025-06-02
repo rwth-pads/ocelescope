@@ -1,4 +1,4 @@
-from typing import Annotated, List, Optional
+from typing import Annotated, Optional
 
 import pm4py
 from fastapi import APIRouter
@@ -8,7 +8,6 @@ from api.dependencies import ApiOcel, ApiSession
 from api.model.cache import CachableObject
 from plugins.berti.models import OCNetModel
 from plugins.berti.util import parse_pm4py_ocpn
-from plugins.ocelot.models import PaginatedResponse
 
 router = APIRouter()
 

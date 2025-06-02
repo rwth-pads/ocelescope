@@ -15,8 +15,6 @@ from typing import (
 
 import pandas as pd
 import pm4py
-from pandas.core.frame import DataFrame
-from pandas.core.indexers import objects
 from pm4py.objects.ocel.obj import OCEL
 from pydantic import BaseModel, Field
 

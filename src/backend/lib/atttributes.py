@@ -71,10 +71,14 @@ def summarize_attribute(df: pd.DataFrame, type_collumn: str):
 
 def summarize_event_attributes(ocel: OCEL) -> dict[str, list[AttributeSummary]]:
     event_attribute_names = [
-        col for col in pm4py.ocel_get_attribute_names(ocel) if col in ocel.events.columns
+        col
+        for col in pm4py.ocel_get_attribute_names(ocel)
+        if col in ocel.events.columns
     ]
 
-    melted_event_attributes = melt_df(ocel.events, ocel.event_activity, event_attribute_names)
+    melted_event_attributes = melt_df(
+        ocel.events, ocel.event_activity, event_attribute_names
+    )
 
     return summarize_attribute(melted_event_attributes, ocel.event_activity)
 
@@ -85,9 +89,13 @@ def summarize_object_attributes(ocel: OCEL) -> dict[str, list[AttributeSummary]]
     # Get valid attributes per dataset
     attribute_names = pm4py.ocel_get_attribute_names(ocel)
     object_cols = [col for col in attribute_names if col in ocel.objects.columns]
-    object_changes_cols = [col for col in attribute_names if col in ocel.object_changes.columns]
+    object_changes_cols = [
+        col for col in attribute_names if col in ocel.object_changes.columns
+    ]
 
-    melted_objects = melt_df(ocel.objects.mask(ocel.objects == "null"), obj_type_col, object_cols)
+    melted_objects = melt_df(
+        ocel.objects.mask(ocel.objects == "null"), obj_type_col, object_cols
+    )
     melted_changes = melt_df(
         ocel.object_changes.mask(ocel.object_changes == "null"),
         obj_type_col,

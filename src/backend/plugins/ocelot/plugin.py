@@ -1,4 +1,4 @@
-from typing import Annotated, List, Literal, Optional, Tuple, cast
+from typing import Annotated, List, Literal, Optional, Tuple
 
 from fastapi import APIRouter
 from fastapi.params import Depends, Query
@@ -18,7 +18,10 @@ class State(CachableObject):
     # ---------------- Events ---------------- #
 
     @instance_lru_cache(
-        key=lambda _, method_name, *args, **kwargs: f"{method_name}_{kwargs.get('activity', '')}_{kwargs.get('sort_by', '')}"
+        key=lambda _,
+        method_name,
+        *args,
+        **kwargs: f"{method_name}_{kwargs.get('activity', '')}_{kwargs.get('sort_by', '')}"
     )
     def get_sorted_events(
         self,
@@ -52,7 +55,9 @@ class State(CachableObject):
         elif sort_by is not None and sort_by[0] == "timestamp":
             sort_by = (ocel.ocel.event_timestamp, sort_by[1])
 
-        sorted_df = self.get_sorted_events(ocel=ocel, activity=activity, sort_by=sort_by)
+        sorted_df = self.get_sorted_events(
+            ocel=ocel, activity=activity, sort_by=sort_by
+        )
         return get_paginated_dataframe(
             df=sorted_df,
             non_attribute_fields=[
@@ -70,7 +75,10 @@ class State(CachableObject):
     # ---------------- Objects ---------------- #
 
     @instance_lru_cache(
-        key=lambda _, method_name, *args, **kwargs: f"{method_name}_{kwargs.get('object_type', '')}_{kwargs.get('sort_by', '')}"
+        key=lambda _,
+        method_name,
+        *args,
+        **kwargs: f"{method_name}_{kwargs.get('object_type', '')}_{kwargs.get('sort_by', '')}"
     )
     def get_sorted_objects(
         self,
@@ -102,7 +110,9 @@ class State(CachableObject):
         page_size: int,
         sort_by: Optional[Tuple[str, Literal["asc", "desc"]]] = None,
     ) -> PaginatedResponse:
-        sorted_df = self.get_sorted_objects(ocel=ocel, object_type=object_type, sort_by=sort_by)
+        sorted_df = self.get_sorted_objects(
+            ocel=ocel, object_type=object_type, sort_by=sort_by
+        )
         return get_paginated_dataframe(
             df=sorted_df,
             non_attribute_fields=[
@@ -151,7 +161,9 @@ def get_events(
     )
 
 
-@router.get("/objects", response_model=PaginatedResponse, operation_id="paginatedObjects")
+@router.get(
+    "/objects", response_model=PaginatedResponse, operation_id="paginatedObjects"
+)
 def get_objects(
     state: StateDep,
     ocel: ApiOcel,

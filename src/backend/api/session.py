@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import uuid
-from importlib import invalidate_caches
 from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
 
 import pandas as pd
@@ -61,13 +60,18 @@ class Session:
     ) -> dict[str, Any]:
         if route is None:
             if task is None:
-                raise ValueError("Session.respond() needs either route or task specified")
+                raise ValueError(
+                    "Session.respond() needs either route or task specified"
+                )
             # When building a task return value, mimic a normal API response. task-status then assigns it to res["task"]["result"].
             route = task.route
 
         # Need route for the following check
         # Session state should only be updated on some routes
-        if route not in ["load", "update", "sample-objects", "sample-events"] and task is None:
+        if (
+            route not in ["load", "update", "sample-objects", "sample-events"]
+            and task is None
+        ):
             self.update_state()
         if task is not None and task.ready():
             # Task finished
@@ -108,7 +112,9 @@ class Session:
 
     @staticmethod
     def info() -> str:
-        return "[\n  " + ",\n  ".join([str(s) for s in Session.sessions.values()]) + "\n]"
+        return (
+            "[\n  " + ",\n  ".join([str(s) for s in Session.sessions.values()]) + "\n]"
+        )
 
     def update_state(self):
         self.state = str(uuid.uuid4())

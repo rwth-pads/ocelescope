@@ -59,8 +59,12 @@ def get_time_info(
     ocel: ApiOcel,
 ) -> EventTimeInfo:
     return EventTimeInfo(
-        start_time=ocel.events[ocel.ocel.event_timestamp].min().isoformat(timespec="microseconds"),
-        end_time=ocel.events[ocel.ocel.event_timestamp].max().isoformat(timespec="microseconds"),
+        start_time=ocel.events[ocel.ocel.event_timestamp]
+        .min()
+        .isoformat(timespec="microseconds"),
+        end_time=ocel.events[ocel.ocel.event_timestamp]
+        .max()
+        .isoformat(timespec="microseconds"),
     )
 
 
