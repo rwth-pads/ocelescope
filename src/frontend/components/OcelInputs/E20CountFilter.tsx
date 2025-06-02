@@ -1,6 +1,6 @@
 import { useO2e } from "@/api/fastapi/info/info";
 import { ConfigByType } from "../OcelFilter";
-import { Select, Stack } from "@mantine/core";
+import { RangeSlider, Select, Stack } from "@mantine/core";
 import { useMemo } from "react";
 
 const E2OCountFilter: React.FC<{
@@ -21,7 +21,7 @@ const E2OCountFilter: React.FC<{
             .map(({ activity }) => activity),
         ),
       ),
-    [value.object_type],
+    [value.object_type, o2e],
   );
 
   const objectTypes = useMemo(
@@ -36,8 +36,17 @@ const E2OCountFilter: React.FC<{
             .map(({ object_type }) => object_type),
         ),
       ),
-    [value.event_type],
+    [value.event_type, o2e],
   );
+
+  const currentE2ORelation = useMemo(() => {
+    return value.object_type && value.event_type
+      ? o2e.find(
+          ({ activity, object_type }) =>
+            activity === value.event_type && object_type === value.object_type,
+        )
+      : undefined;
+  }, [value.object_type, value.event_type, o2e]);
   return (
     <Stack>
       <Select
@@ -52,6 +61,23 @@ const E2OCountFilter: React.FC<{
         data={activities}
         onChange={(val) => onChange({ ...value, event_type: val || "" })}
       />
+      {currentE2ORelation && (
+        <>
+          <RangeSlider
+            minRange={0}
+            step={1}
+            onChange={(a) => {
+              onChange({
+                ...value,
+                min: a[0],
+                max: a[1] === currentE2ORelation.max_count ? undefined : a[1],
+              });
+            }}
+            value={[value.min, value.max ?? currentE2ORelation.max_count]}
+            max={currentE2ORelation.max_count}
+          />
+        </>
+      )}
     </Stack>
   );
 };

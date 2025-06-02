@@ -128,11 +128,20 @@ const filterDefinitions: { [K in FilterTypes]: FilterDefinition<K> } = {
 // --------------------------------------------
 
 export const FilterForm: React.FC<{
-  onSubmit: (data: FilterFormItem[]) => void;
-  initialFilter?: FilterFormItem[];
+  onSubmit: (data: FilterPipeLinePipelineItem[]) => void;
+  initialFilter?: FilterPipeLinePipelineItem[];
 }> = ({ onSubmit, initialFilter = [] }) => {
   const { control, handleSubmit, watch } = useForm<FilterFormValues>({
-    defaultValues: { filters: initialFilter },
+    defaultValues: {
+      filters: initialFilter.map(
+        ({ type, mode, ...rest }) =>
+          ({
+            type,
+            mode,
+            config: rest,
+          }) as FilterFormItem,
+      ),
+    },
   });
 
   const { fields, append, update, remove } = useFieldArray({
@@ -143,7 +152,20 @@ export const FilterForm: React.FC<{
   const watchedFilters = watch("filters");
 
   return (
-    <form onSubmit={handleSubmit((data) => onSubmit(data.filters))}>
+    <form
+      onSubmit={handleSubmit((data) =>
+        onSubmit(
+          data.filters.map(
+            ({ config, mode, type }) =>
+              ({
+                type,
+                mode,
+                ...config,
+              }) as FilterPipeLinePipelineItem,
+          ),
+        ),
+      )}
+    >
       {fields.map((field, index) => {
         const type = watchedFilters[index].type;
         const def = filterDefinitions[type];
