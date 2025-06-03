@@ -12,7 +12,7 @@ services:
       # https://docs.docker.com/compose/file-watch/#compose-watch-versus-bind-mounts
       watch:
         # Sync the working directory with the `/app` directory in the container
-        - action: sync
+        - action: sync+restart
           path: ./src/backend
           target: /app
           # Exclude the project virtual environment — it could be for a
