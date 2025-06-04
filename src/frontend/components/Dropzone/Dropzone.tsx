@@ -1,12 +1,19 @@
 import { ComponentProps, useRef } from "react";
 import { Button, Group, Text, useMantineTheme } from "@mantine/core";
-import { Dropzone, MIME_TYPES } from "@mantine/dropzone";
+import { Dropzone, FileWithPath, MIME_TYPES } from "@mantine/dropzone";
 import classes from "@/components/Dropzone/Dropzone.module.css";
 import { DownloadIcon, Upload, X } from "lucide-react";
 
-export const DropzoneButton: React.FC<{
-  onDrop: ComponentProps<typeof Dropzone>["onDrop"];
-}> = ({ onDrop }) => {
+const FileDropzone: React.FC<{
+  onUpload: (files: FileWithPath[]) => void;
+  accept?: string[];
+  content: {
+    accept?: React.ReactNode;
+    reject?: React.ReactNode;
+    idle?: React.ReactNode;
+    description?: React.ReactNode;
+  };
+}> = ({ onUpload, accept, content }) => {
   const theme = useMantineTheme();
   const openRef = useRef<() => void>(null);
 
@@ -14,10 +21,10 @@ export const DropzoneButton: React.FC<{
     <div className={classes.wrapper}>
       <Dropzone
         openRef={openRef}
-        onDrop={onDrop}
+        onDrop={onUpload}
         className={classes.dropzone}
         radius="md"
-        accept={["text/xml", "application/json", "application/vnd.sqlite3"]}
+        accept={accept}
       >
         <div style={{ pointerEvents: "none" }}>
           <Group justify="center">
@@ -33,13 +40,17 @@ export const DropzoneButton: React.FC<{
           </Group>
 
           <Text ta="center" fw={700} fz="lg" mt="xl">
-            <Dropzone.Accept>Drop files here</Dropzone.Accept>
-            <Dropzone.Reject>Not supported file format</Dropzone.Reject>
-            <Dropzone.Idle>Upload OCEL</Dropzone.Idle>
+            {content.accept && (
+              <Dropzone.Accept>Drop files here</Dropzone.Accept>
+            )}
+            {content.reject && (
+              <Dropzone.Reject>Not supported file format</Dropzone.Reject>
+            )}
+            {content.idle && <Dropzone.Idle>Upload OCEL</Dropzone.Idle>}
           </Text>
 
           <Text className={classes.description}>
-            Drag&apos;n&apos;drop files here to upload. We can accept only{" "}
+            Drag&apos;n&apos;drop files here to upload. We can accept only
             <i>.sqlite, .json, .xml </i> files.
           </Text>
         </div>
@@ -56,3 +67,5 @@ export const DropzoneButton: React.FC<{
     </div>
   );
 };
+
+export default FileDropzone;
