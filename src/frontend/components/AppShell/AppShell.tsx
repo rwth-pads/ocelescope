@@ -32,23 +32,47 @@ import { useLogout } from "@/api/fastapi/session/session";
 import { useQueryClient } from "@tanstack/react-query";
 
 const LogoutButton: React.FC = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const queryClient = useQueryClient()
-  const { push } = useRouter()
-  const { mutate: logout
-  } = useLogout({ mutation: { onSuccess: () => { queryClient.clear(); setIsModalOpen(false); push("/") } } })
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const { push } = useRouter();
+  const { mutate: logout } = useLogout({
+    mutation: {
+      onSuccess: () => {
+        queryClient.clear();
+        setIsModalOpen(false);
+        push("/");
+      },
+    },
+  });
   return (
     <>
-      <Modal opened={isModalOpen} onClose={() => setIsModalOpen(false)} title="Are you sure?">
+      <Modal
+        opened={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Are you sure?"
+      >
         <Text>
-          If you leave now, all your data and progress will be <strong>deleted permanently</strong>. This action cannot be undone.
+          If you leave now, all your data and progress will be{" "}
+          <strong>deleted permanently</strong>. This action cannot be undone.
         </Text>
 
-        <Button color="red" mt="md" onClick={() => { logout() }} fullWidth>
+        <Button
+          color="red"
+          mt="md"
+          onClick={() => {
+            logout();
+          }}
+          fullWidth
+        >
           Accept
         </Button>
       </Modal>
-      <Button variant="subtle" px={5} disabled={isModalOpen} onClick={() => setIsModalOpen(true)}>
+      <Button
+        variant="subtle"
+        px={5}
+        disabled={isModalOpen}
+        onClick={() => setIsModalOpen(true)}
+      >
         <LogOut width={20} />
       </Button>
     </>
