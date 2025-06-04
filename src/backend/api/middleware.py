@@ -2,11 +2,16 @@ from fastapi import Request
 from fastapi.responses import Response
 
 from api.config import config
-from api.model.with_ocel import ocel_ctx
 from api.session import Session
 
 
+EXCLUDED_PATHS = ["/logout"]
+
+
 async def ocel_access_middleware(request: Request, call_next):
+    if request.url.path in EXCLUDED_PATHS:
+        return await call_next(request)
+
     session_id = request.cookies.get(config.SESSION_ID_HEADER)
     session = Session.get(session_id) if session_id else None
 
