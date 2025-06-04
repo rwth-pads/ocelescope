@@ -16,7 +16,7 @@ class FilterPipeLine(BaseModel):
     response_model=FilterPipeLine,
     operation_id="getFilters",
 )
-def get_object_attributes(
+def get_filter(
     ocel: ApiOcel,
 ) -> FilterPipeLine:
     return FilterPipeLine(pipeline=ocel.get_filters())
@@ -26,7 +26,7 @@ def get_object_attributes(
     "/",
     operation_id="setFilters",
 )
-def get_event_attributes(ocel: ApiOcel, pipeline: FilterPipeLine):
+def set_filter(ocel: ApiOcel, pipeline: FilterPipeLine):
     ocel.set_filters(pipeline.pipeline)
     ocel.ocel
     return

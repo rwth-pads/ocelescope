@@ -1,4 +1,5 @@
 from fastapi import Request
+from fastapi.responses import Response
 
 from api.config import config
 from api.model.with_ocel import ocel_ctx
@@ -6,25 +7,25 @@ from api.session import Session
 
 
 async def ocel_access_middleware(request: Request, call_next):
-    """Middleware extracting the session ID from the incomping request header.
-    The session ID is saved to a ContextVar for further processing, allowing for validation of deeply nested pydantic models.
-    """
-
-    # Save session_id from header to ContextVar
     session_id = request.cookies.get(config.SESSION_ID_HEADER)
     session = Session.get(session_id) if session_id else None
 
-    if session:
-        if (ocel := session.get_ocel()) is not None:
-            ocel_ctx.set(ocel)
+    # Auto-create session if not found
+    if not session:
+        session = Session()
 
-    response = await call_next(request)
+    # Attach session to request state for dependency access
+    request.state.session = session
 
-    # Delete the cookie if the session is not valid anymore
-    if session_id and not session:
-        response.delete_cookie(
-            key=config.SESSION_ID_HEADER,
-            path="/",
-        )
+    response: Response = await call_next(request)
+
+    # Set the session cookie on the response
+    response.set_cookie(
+        key=config.SESSION_ID_HEADER,
+        value=session.id,
+        httponly=True,
+        path="/",
+        max_age=3600 * 24,  # 1 day
+    )
 
     return response
