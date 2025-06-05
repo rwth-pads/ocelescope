@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
+from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar, cast
 
 import pandas as pd
 
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from api.task_api import MainTask
 
 
-T = TypeVar("T")
+T = TypeVar("T", bound=CachableObject)  # Constrain T to CachableObject
 
 
 class Session:
@@ -46,8 +46,8 @@ class Session:
 
     def get_plugin_state(self, key: str, cls: Type[T]) -> T:
         if key not in self._tasks:
-            self._tasks[key] = cls()
-        return self._tasks[key]
+            self._plugin_states[key] = cls()
+        return cast(T, self._plugin_states[key])
 
     def respond(
         self,
