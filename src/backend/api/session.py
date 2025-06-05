@@ -28,6 +28,7 @@ class Session:
         # Tasks
         self._tasks: dict[str, Task] = {}
         self._running_tasks: dict[str, Task] = {}
+        self._dedupe_keys: dict[tuple, str] = {}  # dedupe key → task_id
 
         # Plugins
         self._plugin_states: dict[str, CachableObject] = {}
@@ -57,7 +58,8 @@ class Session:
     def list_tasks(self) -> list[TaskSummary]:
         return [
             TaskSummary(
-                key=task.key,
+                key=task.id,
+                name=task.name,
                 state=task.state,
                 has_result=task.result is not None,
             )

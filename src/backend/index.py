@@ -15,7 +15,6 @@ from api.docs import init_custom_docs
 from api.exceptions import BadRequest, NotFound
 from api.middleware import ocel_access_middleware
 from api.model.response import TempFileResponse
-from api.model.with_ocel import set_ocel_context
 from api.utils import (
     custom_snake2camel,
     error_handler_server,
@@ -135,8 +134,6 @@ def import_ocel(
         upload_date=upload_date,
     )
 
-    set_ocel_context(ocel)
-
     session.add_ocel(ocel)
 
     response.status_code = 200
@@ -181,7 +178,6 @@ def import_default_ocel(
 
     # Load OCEL
     ocel = default_ocel.get_ocel_copy(use_abbreviations=False)
-    set_ocel_context(ocel)
 
     session.add_ocel(ocel)
     response.status_code = 200

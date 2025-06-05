@@ -1,6 +1,12 @@
 import threading
 import functools
 from enum import Enum
+import uuid
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from api.session import Session
 
 
 class TaskState(str, Enum):
@@ -13,7 +19,8 @@ class TaskState(str, Enum):
 
 
 class Task:
-    def __init__(self, name, fn, args, kwargs, session):
+    def __init__(self, id, name, fn, args, kwargs, session):
+        self.id = id
         self.name = name
         self.fn = fn
         self.args = args
@@ -31,19 +38,18 @@ class Task:
     def run(self):
         self.state = TaskState.STARTED
         try:
-            result = self.fn(
+            self.result = self.fn(
                 *self.args,
                 session=self.session,
                 stop_event=self.stop_event,
                 **self.kwargs,
             )
             self.state = TaskState.SUCCESS
-            self.result = result
         except Exception:
             self.state = TaskState.FAILURE
             raise
         finally:
-            self.session._running_tasks.pop(self.key, None)
+            self.session.running_tasks.pop(self.id, None)
 
     def cancel(self):
         self.stop_event.set()
@@ -53,41 +59,47 @@ class Task:
         if self.thread:
             self.thread.join(timeout)
 
-    @property
-    def key(self):
-        return self.name
-
 
 def task(name=None, dedupe=False, run_once=False):
     def decorator(fn):
         task_name = name or fn.__name__
 
         @functools.wraps(fn)
-        def wrapper(*args, session=None, **kwargs):
-            if session is None:
-                raise ValueError("Task functions must be called with a session.")
-
-            registry = session._tasks
-            running = session._running_tasks
-
-            key = (
+        def wrapper(*args, session: "Session", **kwargs):
+            # Compute a hashable deduplication key
+            dedupe_key = (
                 task_name
                 if run_once
                 else (task_name, tuple(args), frozenset(kwargs.items()))
             )
 
+            # Deduplication check
             if dedupe or run_once:
-                if key in registry:
+                task_id = session._dedupe_keys.get(dedupe_key)
+                if task_id and task_id in session.tasks:
                     print(f"[Task: {task_name}] Skipped (deduplicated)")
-                    return
+                    return task_id
 
+            # Always create a unique task ID
+            task_id = str(uuid.uuid4())
             task_obj = Task(
-                name=task_name, fn=fn, args=args, kwargs=kwargs, session=session
+                id=task_id,
+                name=task_name,
+                fn=fn,
+                args=args,
+                kwargs=kwargs,
+                session=session,
             )
-            registry[key] = task_obj
-            running[key] = task_obj
-            print(f"[Task: {task_name}] Starting in thread")
+
+            # Register task
+            session.tasks[task_id] = task_obj
+            session.running_tasks[task_id] = task_obj
+            if dedupe or run_once:
+                session._dedupe_keys[dedupe_key] = task_id
+
+            print(f"[Task: {task_name}] Starting in thread (ID: {task_id})")
             task_obj.start()
+            return task_id
 
         return wrapper
 
