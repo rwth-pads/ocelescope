@@ -33,6 +33,7 @@ from routes.filter import filterRouter
 from routes.info import infoRouter
 from routes.session import sessionRouter
 from routes.tasks import taskRouter
+from tasks.ocel import import_ocel_task
 from util.constants import SUPPORTED_FILE_TYPES
 from util.misc import export_example_settings_as_dotenv
 from version import __version__
@@ -111,11 +112,10 @@ def import_ocel(
         raise BadRequest(
             f"Unsupported file type: {file_name_path.suffix}. Supported types are: {', '.join(SUPPORTED_FILE_TYPES)}"
         )
-
     try:
         with NamedTemporaryFile(
             delete=False,
-            prefix=tmp_file_prefix,
+            prefix=name,
             suffix=suffix,
         ) as tmp:
             shutil.copyfileobj(file.file, tmp)
@@ -125,16 +125,14 @@ def import_ocel(
     finally:
         file.file.close()
 
-    # pm4py-based import
-    ocel = OCELWrapper.read_ocel(
-        str(tmp_path),
-        original_file_name=name,
-        version_info=True,
-        output=True,
+    task_id = import_ocel_task(
+        session=session,
+        path=tmp_path,
         upload_date=upload_date,
+        name=tmp_file_prefix,
+        suffix=suffix,
     )
-
-    session.add_ocel(ocel)
+    print(task_id)
 
     response.status_code = 200
 
