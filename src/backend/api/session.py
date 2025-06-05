@@ -2,18 +2,15 @@ from __future__ import annotations
 
 import json
 import uuid
-from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar, cast
-
-import pandas as pd
+from typing import Any, Optional, Type, TypeVar, cast
 
 from api.exceptions import NotFound
 from api.logger import logger
 from api.model.cache import CachableObject
+from api.model.tasks import TaskSummary
 from ocel.ocel_wrapper import OCELWrapper
+from util.tasks import Task
 from util.types import PathLike
-
-if TYPE_CHECKING:
-    from api.task_api import MainTask
 
 
 T = TypeVar("T", bound=CachableObject)  # Constrain T to CachableObject
@@ -28,9 +25,14 @@ class Session:
     ):
         self.id = id or str(uuid.uuid4())
 
-        self._tasks = {}
+        # Tasks
+        self._tasks: dict[str, Task] = {}
+        self._running_tasks: dict[str, Task] = {}
+
+        # Plugins
         self._plugin_states: dict[str, CachableObject] = {}
 
+        # OCELS
         self.ocels: dict[str, OCELWrapper] = {}
         self.current_ocel_id = None
 
@@ -41,70 +43,31 @@ class Session:
         # Store session in static variable
         Session.sessions[self.id] = self
 
+    @property
+    def tasks(self):
+        return self._tasks
+
+    @property
+    def running_tasks(self):
+        return self._running_tasks
+
     def get_task(self, task_id: str):
         return self._tasks.get(task_id, None)
+
+    def list_tasks(self) -> list[TaskSummary]:
+        return [
+            TaskSummary(
+                key=task.key,
+                state=task.state,
+                has_result=task.result is not None,
+            )
+            for task in self._tasks.values()
+        ]
 
     def get_plugin_state(self, key: str, cls: Type[T]) -> T:
         if key not in self._tasks:
             self._plugin_states[key] = cls()
         return cast(T, self._plugin_states[key])
-
-    def respond(
-        self,
-        route: str | None = None,
-        task: MainTask | None = None,
-        include_task: bool = True,
-        msg: str | None = None,
-        status: int = 200,
-        **kwargs,
-    ) -> dict[str, Any]:
-        if route is None:
-            if task is None:
-                raise ValueError(
-                    "Session.respond() needs either route or task specified"
-                )
-            # When building a task return value, mimic a normal API response. task-status then assigns it to res["task"]["result"].
-            route = task.route
-
-        # Need route for the following check
-        # Session state should only be updated on some routes
-        if (
-            route not in ["load", "update", "sample-objects", "sample-events"]
-            and task is None
-        ):
-            self.update_state()
-        if task is not None and task.ready():
-            # Task finished
-            # TODO do all tasks require a status update after finishing? (use task.route)
-            self.update_state()
-
-        response: dict[str, Any] = dict(
-            session=self.id,
-            route=route,
-            state=self.state,
-            status=status,
-            msg=msg,
-        )
-
-        # if route in ["update", "load", "import", "import-default", "interval-transformation"]:
-        if task is not None and include_task:
-            response["task"] = task.serialize()
-
-        # When is caching to/from self.data really necessary? Try to minimize API responses!
-        # Examples when needed:
-        # - After computing emissions, go back to start tab
-        # Examples when not needed:
-        # - task-status - Here, only task info (+result)
-        if save_response_to_cache(route):
-            # Cache the response content in the Session object, accumulating
-            self.response_cache.update(**kwargs)
-        if add_from_response_cache(route):
-            # Add previous response contents
-            response.update(**self.response_cache)
-
-        # Add the actual response content, potentially overriding cached data
-        response.update(**kwargs)
-        return response
 
     @staticmethod
     def get(session_id: str) -> Session | None:
@@ -159,21 +122,6 @@ class Session:
             k: v
             for k, v in {
                 "id": self.id,
-                "tasks": (
-                    ", ".join(
-                        [
-                            f"{count}x {state}"
-                            for state, count in pd.Series(
-                                [task.get_state().name for task in self._tasks.values()]
-                            )
-                            .value_counts()
-                            .to_dict()
-                            .items()
-                        ]
-                    )
-                    if self._tasks
-                    else "---"
-                ),
                 "ocel": str(self.get_ocel()) if self.get_ocel() else None,
             }.items()
             if v is not None

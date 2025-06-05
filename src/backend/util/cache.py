@@ -9,8 +9,6 @@ from typing import Callable, Hashable
 from cachetools import cachedmethod
 from cachetools.keys import methodkey
 
-from api.task_base import Task
-
 
 class CacheError(Exception):
     pass
@@ -95,46 +93,6 @@ def hash_cache_argument(x):
     raise TypeError(f"unhashable type: '{type(x)}'")
 
 
-def key_decorator_ignore_task(ignore_task: bool, func: Callable):
-    """Allows for ignoring `Task` objects for cache key arguments, depending on `ignore_task`. Regardless, `Task` objects may only be passed to cached functions as keyword arguments named `task`."""
-
-    def decorator(key):
-        # func_params = inspect.signature(func).parameters
-
-        @functools.wraps(key)
-        def key_wrapper(*args, **kwargs):
-            # Executed ALWAYS, no matter if ignore_task is True or False.
-            # Sanity checks
-            # - arg of type Task? (should only pass as kwarg)
-            # - kwarg named "task" but not of type Task or None?
-            msg = None
-            if any(
-                k == "task" and not isinstance(v, Task) and v is not None
-                for k, v in kwargs.items()
-            ):
-                msg = f"{func.__name__}: Encountered a keyword argument named 'task' with type other than Task or None. This is probably a mistake and can lead to mistakes while caching."
-            if any(isinstance(arg, Task) for arg in args):
-                msg = f"{func.__name__}: Encountered a positional argument of type Task. Task objects should only be passed to cached functions as keyword arguments."
-            if msg:
-                if EXCEPTION_ON_TASK_ARG:
-                    raise CacheError(msg)
-                else:
-                    warnings.warn(msg)
-
-            if ignore_task:
-                # Set positional arguments of type Task to None
-                args = (arg if not isinstance(arg, Task) else None for arg in args)
-                # Omit keyword arguments named "task"
-                kwargs = {k: v for k, v in kwargs.items() if k != "task"}
-
-            return key(*args, **kwargs)
-
-        object.__setattr__(key_wrapper, "_ignore_task", ignore_task)
-        return key_wrapper
-
-    return decorator
-
-
 def key_decorator_add_func_name(func: Callable):
     """Adds the method name to cache key arguments. This allows using the same Cache object for multiple methods of the same instance."""
 
@@ -174,9 +132,8 @@ def instance_lru_cache(
         key1 = key_decorator_make_hashable(
             make_hashable=make_hashable, func=func, ignore_first=True
         )(key)
-        key2 = key_decorator_ignore_task(ignore_task=ignore_task, func=func)(key1)
-        key3 = key_decorator_add_func_name(func=func)(key2)
-        _key = key3
+        key2 = key_decorator_add_func_name(func=func)(key1)
+        _key = key2
 
         def lock_context(self):
             if use_lock:

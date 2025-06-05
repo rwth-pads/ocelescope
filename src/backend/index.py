@@ -10,12 +10,11 @@ from fastapi import FastAPI, File, Query, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.config import OceanConfig
-from api.dependencies import ApiOcel, ApiSession, ApiTask
+from api.dependencies import ApiOcel, ApiSession
 from api.docs import init_custom_docs
 from api.exceptions import BadRequest, NotFound
 from api.middleware import ocel_access_middleware
 from api.model.response import TempFileResponse
-from api.model.task import TaskStatusResponse
 from api.model.with_ocel import set_ocel_context
 from api.utils import (
     custom_snake2camel,
@@ -34,6 +33,7 @@ from plugin_loader import register_plugins
 from routes.filter import filterRouter
 from routes.info import infoRouter
 from routes.session import sessionRouter
+from routes.tasks import taskRouter
 from util.constants import SUPPORTED_FILE_TYPES
 from util.misc import export_example_settings_as_dotenv
 from version import __version__
@@ -70,25 +70,8 @@ register_plugins(app)
 app.include_router(infoRouter)
 app.include_router(filterRouter)
 app.include_router(sessionRouter)
+app.include_router(taskRouter)
 init_custom_docs(app)
-
-
-# ----- TASK MANAGEMENT ------------------------------------------------------------------------------------------
-# region
-
-
-@app.get("/task-status", summary="Task status")
-def task_status(
-    session: ApiSession,
-    task: ApiTask,
-) -> TaskStatusResponse:
-    """Return the status of a long-running task."""
-    return TaskStatusResponse(
-        **session.respond(route="task-status", msg=None, task=task)
-    )
-
-
-# endregion
 
 
 @app.post(
