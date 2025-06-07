@@ -4,6 +4,7 @@ import { Box } from "@mantine/core";
 
 export type CircleNodeType = Node<
   {
+    type: "circle";
     color: string;
     diameter?: number;
     label?: string | React.ReactNode;

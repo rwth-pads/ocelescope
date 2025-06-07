@@ -4,38 +4,29 @@ import { Box } from "@mantine/core";
 
 export type RectangleNodeType = Node<
   {
-    color: string;
-    width?: number;
-    height?: number;
-    label: string | React.ReactNode;
-    inner: string | React.ReactNode;
+    type: "rectangle";
+    color?: string;
+    label?: string | React.ReactNode;
+    inner?: string | React.ReactNode;
   },
   "rectangle"
 >;
 
 export default memo(
-  ({
-    data: { color = "red", label, inner, width = 80, height = 40 },
-  }: NodeProps<RectangleNodeType>) => {
+  ({ data: { color, label, inner } }: NodeProps<RectangleNodeType>) => {
     return (
       <>
         <Handle type="source" position={Position.Bottom} />
-        <Box
-          w={width}
-          h={height}
-          style={{
-            position: "relative",
-          }}
-        >
+        <Box style={{ position: "relative", display: "inline-block" }}>
           <Box
-            w={width}
-            h={height}
             style={{
               backgroundColor: color,
-              display: "flex",
+              borderRadius: 4,
+              display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
-              borderRadius: 4, // Optional: add slight rounding
+              width: "auto",
+              height: "auto",
             }}
           >
             {inner}

@@ -1,8 +1,11 @@
 import { InternalNode, Position } from "@xyflow/react";
 
-export const getNodeIntersection = (sourceNode: any, targetNode: any) => {
-  const { width, height } = sourceNode.measured;
-
+// Rectangle intersection helper
+export const getRectangleIntersection = (
+  sourceNode: InternalNode,
+  targetNode: InternalNode,
+) => {
+  const { width = 0, height = 0 } = sourceNode.measured;
   const sourcePos = sourceNode.internals.positionAbsolute;
   const targetPos = targetNode.internals.positionAbsolute;
 
@@ -11,31 +14,33 @@ export const getNodeIntersection = (sourceNode: any, targetNode: any) => {
 
   const x2 = sourcePos.x + w;
   const y2 = sourcePos.y + h;
-  const x1 = targetPos.x + targetNode.measured.width / 2;
-  const y1 = targetPos.y + targetNode.measured.height / 2;
+  const x1 = targetPos.x + (targetNode.measured.width ?? 0) / 2;
+  const y1 = targetPos.y + (targetNode.measured.height ?? 0) / 2;
 
   const xx1 = (x1 - x2) / (2 * w) - (y1 - y2) / (2 * h);
   const yy1 = (x1 - x2) / (2 * w) + (y1 - y2) / (2 * h);
   const a = 1 / (Math.abs(xx1) + Math.abs(yy1));
   const xx3 = a * xx1;
   const yy3 = a * yy1;
-  const x = w * (xx3 + yy3) + x2;
-  const y = h * (-xx3 + yy3) + y2;
 
-  return { x, y };
+  return {
+    x: w * (xx3 + yy3) + x2,
+    y: h * (-xx3 + yy3) + y2,
+  };
 };
 
-export function getIntersectionForCircle(
+// Circle intersection helper
+export const getCircleIntersection = (
   source: InternalNode,
   target: InternalNode,
-) {
+) => {
   const sourceX = source.internals.positionAbsolute.x;
   const sourceY = source.internals.positionAbsolute.y;
   const targetX = target.internals.positionAbsolute.x;
   const targetY = target.internals.positionAbsolute.y;
 
-  const diameter = target.measured.width ?? 0; // assuming width === height
-  const radius = diameter / 2;
+  const targetDiameter = target.measured.width ?? 0;
+  const radius = targetDiameter / 2;
 
   const sourceCenterX = sourceX + (source.measured.width ?? 0) / 2;
   const sourceCenterY = sourceY + (source.measured.height ?? 0) / 2;
@@ -46,16 +51,26 @@ export function getIntersectionForCircle(
   const dy = targetCenterY - sourceCenterY;
   const angle = Math.atan2(dy, dx);
 
-  const offsetX = Math.cos(angle) * radius;
-  const offsetY = Math.sin(angle) * radius;
-
   return {
-    x: targetCenterX - offsetX,
-    y: targetCenterY - offsetY,
+    x: targetCenterX - Math.cos(angle) * radius,
+    y: targetCenterY - Math.sin(angle) * radius,
   };
+};
+
+// Determine which function to use based on node types
+function getIntersectionPoint(
+  source: InternalNode,
+  target: InternalNode,
+): { x: number; y: number } {
+  if (target.type === "circle") return getCircleIntersection(source, target);
+  return getRectangleIntersection(source, target);
 }
 
-export function getEdgePosition(node: any, point: { x: number; y: number }) {
+// Determine side of node the edge connects to
+export const getEdgePosition = (
+  node: InternalNode,
+  point: { x: number; y: number },
+): Position => {
   const n = { ...node.internals.positionAbsolute, ...node };
   const nx = Math.round(n.x);
   const ny = Math.round(n.y);
@@ -63,16 +78,27 @@ export function getEdgePosition(node: any, point: { x: number; y: number }) {
   const py = Math.round(point.y);
 
   if (px <= nx + 1) return Position.Left;
-  if (px >= nx + node.measured.width - 1) return Position.Right;
+  if (px >= nx + (node.measured.width ?? 0) - 1) return Position.Right;
   if (py <= ny + 1) return Position.Top;
-  if (py >= n.y + node.measured.height - 1) return Position.Bottom;
+  if (py >= ny + (node.measured.height ?? 0) - 1) return Position.Bottom;
 
   return Position.Top;
-}
+};
 
-export function getEdgeParams(source: InternalNode, target: InternalNode) {
-  const sourceIntersectionPoint = getIntersectionForCircle(source, target);
-  const targetIntersectionPoint = getIntersectionForCircle(target, source);
+// Final exported utility
+export function getEdgeParams(
+  source: InternalNode,
+  target: InternalNode,
+): {
+  sx: number;
+  sy: number;
+  tx: number;
+  ty: number;
+  sourcePos: Position;
+  targetPos: Position;
+} {
+  const sourceIntersectionPoint = getIntersectionPoint(source, target);
+  const targetIntersectionPoint = getIntersectionPoint(target, source);
 
   const sourcePos = getEdgePosition(source, sourceIntersectionPoint);
   const targetPos = getEdgePosition(target, targetIntersectionPoint);
