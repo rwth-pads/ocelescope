@@ -8,6 +8,9 @@ import berti_petrinet, {
 import ocelot_events, {
   config as ocelot_events_config,
 } from "@/plugins/ocelot/pages/events";
+import ocelot_objectGaph, {
+  config as ocelot_objectGaph_config,
+} from "@/plugins/ocelot/pages/objectGaph";
 import ocelot_objects, {
   config as ocelot_objects_config,
 } from "@/plugins/ocelot/pages/objects";
@@ -30,6 +33,11 @@ export const pluginComponentMap = {
         name: ocelot_events_config.name,
         path: "events",
         component: ocelot_events,
+      },
+      {
+        name: ocelot_objectGaph_config.name,
+        path: "objectGaph",
+        component: ocelot_objectGaph,
       },
       {
         name: ocelot_objects_config.name,

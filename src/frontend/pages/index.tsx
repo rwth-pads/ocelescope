@@ -14,7 +14,7 @@ const Overview = () => {
   const { mutate: setCurrentOcel } = useSetCurrentOcel({
     mutation: {
       onSuccess: async () => {
-        queryClient.invalidateQueries();
+        await queryClient.invalidateQueries({ refetchType: "all" });
       },
     },
   });
@@ -25,17 +25,17 @@ const Overview = () => {
         opened={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
         size={"xl"}
-        withCloseButton={false} styles={{
+        withCloseButton={false}
+        styles={{
           content: {
-            backgroundColor: 'transparent', // removes background
-            boxShadow: 'none', // optional: removes drop shadow
+            backgroundColor: "transparent", // removes background
+            boxShadow: "none", // optional: removes drop shadow
           },
         }}
-
       >
         <OcelUpload
-          onUpload={() => {
-            queryClient.invalidateQueries();
+          onUpload={async () => {
+            await queryClient.invalidateQueries();
             setIsUploadModalOpen(false);
           }}
         />

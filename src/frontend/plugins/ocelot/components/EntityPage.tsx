@@ -72,12 +72,10 @@ const EntityPage: React.FC<{ type: "events" | "objects" }> = ({ type }) => {
   return (
     <>
       <SingleLineTabs
-        tabs={Object.entries(entityCounts ?? {}).map(
-          ([entityName, count]) => ({
-            value: entityName,
-            label: `${entityName} (${count})`,
-          }),
-        )}
+        tabs={Object.entries(entityCounts ?? {}).map(([entityName, count]) => ({
+          value: entityName,
+          label: `${entityName} (${count})`,
+        }))}
         setCurrentTab={(newTab) => {
           setCurrentTab(newTab);
           setPage(1);
@@ -85,16 +83,14 @@ const EntityPage: React.FC<{ type: "events" | "objects" }> = ({ type }) => {
         }}
         currentTab={currentTab ?? entityNames[0]}
       />
-      {
-
-        entities && <EntityTable
+      {entities && (
+        <EntityTable
           paginatedEntities={entities}
           onPageChange={setPage}
           onSort={setSort}
           sorted={sort}
         />
-      }
-
+      )}
     </>
   );
 };

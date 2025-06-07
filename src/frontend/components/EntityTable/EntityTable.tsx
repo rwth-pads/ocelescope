@@ -140,11 +140,11 @@ const EntityTable: React.FC<EntityTableProps> = ({
                   {entity.timestamp && <Table.Td>{entity.timestamp}</Table.Td>}
                   {currentSection === "attributes"
                     ? Object.values(entity.attributes).map((value) => (
-                      <Table.Td>{value as string}</Table.Td>
-                    ))
+                        <Table.Td>{value as string}</Table.Td>
+                      ))
                     : Object.values(entity.relations).map((value) => (
-                      <Table.Td>{value.join(", ")}</Table.Td>
-                    ))}
+                        <Table.Td>{value.join(", ")}</Table.Td>
+                      ))}
                 </Table.Tr>
               ))}
             </Table.Tbody>

@@ -9,13 +9,11 @@ const FilterPage = () => {
     query: { slug },
   } = useRouter();
   const queryClient = useQueryClient();
-  const { data: filter = { pipeline: [] } } = useGetFilters({
-    ocel_id: slug?.[0],
-  });
+  const { data: filter } = useGetFilters({});
   const { mutate } = useSetFilters({
     mutation: {
       onSuccess: () => {
-        queryClient.clear();
+        queryClient.invalidateQueries();
       },
     },
   });

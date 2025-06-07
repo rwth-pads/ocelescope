@@ -25,7 +25,6 @@ const OcelUpload: React.FC<{ onUpload: () => void }> = ({ onUpload }) => {
   });
 
   return (
-
     <Paper withBorder shadow="sm" p={22} mt={30} radius="md">
       <FileDropzone
         onUpload={(file) =>

@@ -197,7 +197,7 @@ const getTransitionId = (
 
 const PetriNet = () => {
   const { data } = usePetriNet();
-
+  console.log(JSON.stringify(data));
   const objectTypes = data ? Object.keys(data.objects) : [];
   const colorMap = generateColorMap(objectTypes);
   const elements = data ? ocnetToElements(data, colorMap) : [];
