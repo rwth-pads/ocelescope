@@ -185,7 +185,9 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           </div>
         </ScrollArea>
       </MAppShell.Navbar>
-      <MAppShell.Main>{children}</MAppShell.Main>
+      <MAppShell.Main h="calc(100dvh - var(--app-shell-header-offset, 0rem) - var(--app-shell-footer-height, 0px) + var(--app-shell-padding, 0))">
+        {children}
+      </MAppShell.Main>
     </MAppShell>
   );
 };
