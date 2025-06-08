@@ -35,7 +35,6 @@ package = false
 
 [tool.uv.sources]
 dependentspy = { git = "https://github.com/raihensen/dependentspy", branch = "main" }
-pm4py = { git = "https://github.com/raihensen/pm4py-ocean", branch = "release" }
 
 [build-system]
 requires = ["hatchling"]
