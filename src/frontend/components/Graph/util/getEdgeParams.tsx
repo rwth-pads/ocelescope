@@ -2,8 +2,8 @@ import { InternalNode, Position } from "@xyflow/react";
 
 // Rectangle intersection helper
 export const getRectangleIntersection = (
-  sourceNode: InternalNode,
   targetNode: InternalNode,
+  sourceNode: InternalNode,
 ) => {
   const { width = 0, height = 0 } = sourceNode.measured;
   const sourcePos = sourceNode.internals.positionAbsolute;
@@ -44,6 +44,7 @@ export const getCircleIntersection = (
 
   const sourceCenterX = sourceX + (source.measured.width ?? 0) / 2;
   const sourceCenterY = sourceY + (source.measured.height ?? 0) / 2;
+
   const targetCenterX = targetX + radius;
   const targetCenterY = targetY + radius;
 
@@ -97,8 +98,8 @@ export function getEdgeParams(
   sourcePos: Position;
   targetPos: Position;
 } {
-  const sourceIntersectionPoint = getIntersectionPoint(source, target);
-  const targetIntersectionPoint = getIntersectionPoint(target, source);
+  const sourceIntersectionPoint = getIntersectionPoint(target, source);
+  const targetIntersectionPoint = getIntersectionPoint(source, target);
 
   const sourcePos = getEdgePosition(source, sourceIntersectionPoint);
   const targetPos = getEdgePosition(target, targetIntersectionPoint);

@@ -25,6 +25,7 @@ import FloatingEdge, {
   FloatingEdgeType,
 } from "./edges/FloatingEdge/FloatingEdge";
 import { useDagreLayout } from "./layout/dagre";
+import { useElkLayout } from "./layout/elk";
 
 const edgeTypes = {
   floating: FloatingEdge,
@@ -64,14 +65,15 @@ const InnerFlow: React.FC<Props> = ({ initialNodes, initialEdges }) => {
       ...edge,
       id: `edge_${index}`,
       type: "floating",
+      style: { strokeWidth: 2 },
       markerEnd: { type: MarkerType.Arrow },
     })),
   );
 
-  const { layout } = useDagreLayout();
+  const { layout } = useElkLayout();
 
   useEffect(() => {
-    void layout();
+    void layout({});
   }, [initialNodes, initialEdges, nodes.some(({ measured }) => !!measured)]);
 
   const onConnect: OnConnect = useCallback(
@@ -100,6 +102,7 @@ const InnerFlow: React.FC<Props> = ({ initialNodes, initialEdges }) => {
       fitView
       edgeTypes={edgeTypes}
       nodeTypes={nodeTypes}
+      minZoom={0.1}
       proOptions={{ hideAttribution: true }}
     />
   );
