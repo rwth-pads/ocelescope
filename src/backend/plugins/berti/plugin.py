@@ -6,8 +6,8 @@ from fastapi.params import Depends, Query
 
 from api.dependencies import ApiOcel, ApiSession
 from api.model.cache import CachableObject
-from plugins.berti.models import OCNetModel
-from plugins.berti.util import parse_pm4py_ocpn
+from api.model.process_models import ObjectCentricPetriNet
+from plugins.berti.util import convert_flat_pm4py_to_ocpn
 
 router = APIRouter()
 
@@ -33,10 +33,10 @@ meta = {
 }
 
 
-@router.get("/petriNet", response_model=OCNetModel, operation_id="petriNet")
+@router.get("/petriNet", response_model=ObjectCentricPetriNet, operation_id="petriNet")
 def get_objects_info(
     ocel: ApiOcel,
     objectTypes: Annotated[Optional[list[str]], Query()] = None,
-) -> OCNetModel:
+) -> ObjectCentricPetriNet:
     petri_net = pm4py.discover_oc_petri_net(ocel.ocel)
-    return parse_pm4py_ocpn(petri_net["petri_nets"])
+    return convert_flat_pm4py_to_ocpn(petri_net["petri_nets"])

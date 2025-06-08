@@ -1,31 +1,70 @@
-from plugins.berti.models import Arc, OCNet, OCNetModel, Transition
+from api.model.process_models import (
+    Arc,
+    ObjectCentricPetriNet,
+    PetriNet,
+    Place,
+    Transition,
+)
+from pm4py.objects.petri_net.obj import PetriNet as PMNet
 
 
-def parse_pm4py_ocpn(raw: dict[str, tuple]) -> OCNetModel:
-    result = {}
+def convert_flat_pm4py_to_ocpn(flat_nets: dict[str, PMNet]) -> ObjectCentricPetriNet:
+    place_set: list[Place] = []
+    transition_map: dict[str, Transition] = {}
+    arcs: list[Arc] = []
 
-    for obj_type, (net, _, _) in raw.items():
-        # Access PetriNet object attributes
-        places = net.places
-        transitions = net.transitions
-        arcs = net.arcs
+    seen_places: set[str] = set()
 
-        place_ids = [p.name for p in places]
+    for object_type, pm_net in flat_nets.items():
+        pm_net = pm_net[0]
 
-        t_objs = [
-            Transition(id=t.name, label=getattr(t, "label", None)) for t in transitions
-        ]
+        for place in pm_net.places:
+            qualified_id = f"{object_type}:{place.name}"
+            if qualified_id not in seen_places:
+                place_set.append(
+                    Place(id=qualified_id, object_type=object_type, annotations={})
+                )
+                seen_places.add(qualified_id)
 
-        arc_objs = []
-        for arc in arcs:
-            src = arc.source
-            tgt = arc.target
-            source_id = getattr(src, "name", str(src))
-            target_id = getattr(tgt, "name", str(tgt))
+        for transition in pm_net.transitions:
+            label = transition.label or transition.name  # Use fallback if label is None
+            if label not in transition_map:
+                transition_map[label] = Transition(
+                    id=label, label=label, annotations={}
+                )
 
-            label = getattr(src, "label", None) if hasattr(src, "label") else None
-            arc_objs.append(Arc(source=source_id, target=target_id, label=label))
+        for arc in pm_net.arcs:
+            source_id = (
+                arc.source.name
+                if isinstance(arc.source, (PMNet.Place, PMNet.Transition))
+                else str(arc.source)
+            )
+            target_id = (
+                arc.target.name
+                if isinstance(arc.target, (PMNet.Place, PMNet.Transition))
+                else str(arc.target)
+            )
 
-        result[obj_type] = OCNet(places=place_ids, transitions=t_objs, arcs=arc_objs)
+            # Adjust for qualified place IDs
+            if isinstance(arc.source, PMNet.Place):
+                source_id = f"{object_type}:{source_id}"
+            if isinstance(arc.target, PMNet.Place):
+                target_id = f"{object_type}:{target_id}"
 
-    return OCNetModel(objects=result)
+            # If transition, map to unified label
+            if isinstance(arc.source, PMNet.Transition):
+                source_id = arc.source.label or arc.source.name
+            if isinstance(arc.target, PMNet.Transition):
+                target_id = arc.target.label or arc.target.name
+
+            arcs.append(
+                Arc(source=source_id, target=target_id, variable=False, annotations={})
+            )
+
+    # Assemble the final Petri net and OCPN
+    net = PetriNet(
+        places=place_set, transitions=list(transition_map.values()), arcs=arcs
+    )
+    return ObjectCentricPetriNet(
+        net=net,
+    )
