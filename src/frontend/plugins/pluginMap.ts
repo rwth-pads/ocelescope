@@ -21,7 +21,7 @@ export const pluginComponentMap = {
     ]
   },
   "ocelot": {
-    label: "Totem",
+    label: "Ocelot",
     routes: [
       {
         name: ocelot_events_config.name,
