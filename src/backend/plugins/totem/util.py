@@ -541,4 +541,27 @@ def mine_totem(ocel, tau=1) -> TotemResult:
             )
             result.append(relation)
 
+    result = [
+        rel
+        for rel in result
+        if all(
+            value != "ERROR 0"
+            for value in [
+                rel.lc,
+                rel.lc_inverse,
+                rel.ec,
+                rel.ec_inverse,
+                rel.tr,
+                rel.tr_inverse,
+            ]
+        )
+    ]
+    unique_relations = {}
+    for rel in result:
+        key = (rel.source, rel.target)
+        if key not in unique_relations:
+            unique_relations[key] = rel
+
+    result = list(unique_relations.values())
+
     return TotemResult(relations=result)
