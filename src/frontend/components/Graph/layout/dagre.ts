@@ -1,44 +1,46 @@
-import dagre from "@dagrejs/dagre";
+import dagre, { GraphLabel } from "@dagrejs/dagre";
 import { Node, useReactFlow } from "@xyflow/react";
 import { useCallback } from "react";
 
 export const useDagreLayout = () => {
-  const { getNodes, setNodes, getEdges, fitView, viewportInitialized } =
-    useReactFlow();
+  const { getNodes, setNodes, getEdges, fitView } = useReactFlow();
 
-  const layout = useCallback(async () => {
-    const dagreGraph = new dagre.graphlib.Graph();
-    dagreGraph.setDefaultEdgeLabel(() => ({}));
-    dagreGraph.setGraph({ rankdir: "TB" });
+  const layout = useCallback(
+    async (options?: GraphLabel) => {
+      const dagreGraph = new dagre.graphlib.Graph();
+      dagreGraph.setDefaultEdgeLabel(() => ({}));
+      dagreGraph.setGraph(options ?? { rankdir: "TB" });
 
-    const nodes = getNodes();
+      const nodes = getNodes();
 
-    nodes.forEach((node) => {
-      dagreGraph.setNode(node.id, {
-        width: node.measured?.width,
-        height: node.measured?.height,
+      nodes.forEach((node) => {
+        dagreGraph.setNode(node.id, {
+          width: node.measured?.width,
+          height: node.measured?.height,
+        });
       });
-    });
 
-    getEdges().forEach((edge) => {
-      dagreGraph.setEdge(edge.source, edge.target);
-    });
+      getEdges().forEach((edge) => {
+        dagreGraph.setEdge(edge.source, edge.target);
+      });
 
-    dagre.layout(dagreGraph);
+      dagre.layout(dagreGraph);
 
-    const positionedNodes: Node[] = nodes.map((node) => {
-      const { x, y } = dagreGraph.node(node.id);
+      const positionedNodes: Node[] = nodes.map((node) => {
+        const { x, y } = dagreGraph.node(node.id);
 
-      return {
-        ...node,
-        position: { x, y },
-      };
-    });
+        return {
+          ...node,
+          position: { x, y },
+        };
+      });
 
-    setNodes(positionedNodes);
+      setNodes(positionedNodes);
 
-    await fitView();
-  }, [getNodes, getEdges, setNodes, fitView]);
+      await fitView();
+    },
+    [getNodes, getEdges, setNodes, fitView],
+  );
 
   return { layout };
 };

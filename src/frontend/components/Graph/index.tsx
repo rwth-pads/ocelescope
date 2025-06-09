@@ -10,6 +10,7 @@ import {
   Node,
   Edge,
   ReactFlowProvider,
+  Controls,
 } from "@xyflow/react";
 
 import "@xyflow/react/dist/style.css";
@@ -25,6 +26,7 @@ import FloatingEdge, {
   FloatingEdgeType,
 } from "./edges/FloatingEdge/FloatingEdge";
 import { useDagreLayout } from "./layout/dagre";
+import { GraphLabel } from "@dagrejs/dagre";
 import { useElkLayout } from "./layout/elk";
 
 const edgeTypes = {
@@ -41,14 +43,34 @@ export type NodeComponents = Pick<
   "id" | "data"
 >;
 
-export type EdgeComponents = Pick<FloatingEdgeType, "source" | "target">;
+export type EdgeComponents = Omit<FloatingEdgeType, "position" | "id">;
+
+type Layout =
+  | {
+      type: "dagre";
+      options?: GraphLabel;
+    }
+  | { type: "elk"; options?: any };
+
+const layoutToHook: Record<
+  Layout["type"],
+  typeof useDagreLayout | typeof useElkLayout
+> = {
+  elk: useElkLayout,
+  dagre: useDagreLayout,
+};
 
 type Props = {
   initialNodes: NodeComponents[];
   initialEdges: EdgeComponents[];
+  layoutOptions?: Layout;
 };
 
-const InnerFlow: React.FC<Props> = ({ initialNodes, initialEdges }) => {
+const InnerFlow: React.FC<Props> = ({
+  initialNodes,
+  initialEdges,
+  layoutOptions = { type: "dagre" },
+}) => {
   const [nodes, _setNodes, onNodesChange] = useNodesState<Node>(
     initialNodes.map((node) => ({
       ...node,
@@ -65,15 +87,13 @@ const InnerFlow: React.FC<Props> = ({ initialNodes, initialEdges }) => {
       ...edge,
       id: `edge_${index}`,
       type: "floating",
-      style: { strokeWidth: 2 },
-      markerEnd: { type: MarkerType.Arrow },
     })),
   );
 
-  const { layout } = useElkLayout();
+  const { layout } = layoutToHook[layoutOptions.type]();
 
   useEffect(() => {
-    void layout({});
+    void layout(layoutOptions?.options);
   }, [initialNodes, initialEdges, nodes.some(({ measured }) => !!measured)]);
 
   const onConnect: OnConnect = useCallback(
@@ -92,19 +112,23 @@ const InnerFlow: React.FC<Props> = ({ initialNodes, initialEdges }) => {
   );
 
   return (
-    <ReactFlow
-      style={{ height: "100%" }}
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
-      fitView
-      edgeTypes={edgeTypes}
-      nodeTypes={nodeTypes}
-      minZoom={0.1}
-      proOptions={{ hideAttribution: true }}
-    />
+    <>
+      <ReactFlow
+        style={{ height: "100%" }}
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        fitView
+        edgeTypes={edgeTypes}
+        nodeTypes={nodeTypes}
+        minZoom={0.1}
+        proOptions={{ hideAttribution: true }}
+      >
+        <Controls />
+      </ReactFlow>
+    </>
   );
 };
 

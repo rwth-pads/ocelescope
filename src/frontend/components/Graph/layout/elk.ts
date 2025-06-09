@@ -1,5 +1,5 @@
 import { useReactFlow } from "@xyflow/react";
-import ELK, { type ElkNode } from "elkjs/lib/elk.bundled.js";
+import ELK, { LayoutOptions, type ElkNode } from "elkjs/lib/elk.bundled.js";
 import { useCallback } from "react";
 import { NodeComponents } from "..";
 const elk = new ELK();
@@ -30,56 +30,53 @@ export const useElkLayout = () => {
     "elk.layered.layering.strategy": "NETWORK_SIMPLEX",
   };
 
-  const layout = useCallback(
-    async (options: any, fitViewAfter: boolean = true) => {
-      const nodes = getNodes();
-      const layoutOptions = { ...defaultOptions, ...options };
-      // void elk.knownLayoutAlgorithms().then((r) => console.log({ r }));
-      const graph: ElkNode = {
-        id: "root",
-        layoutOptions,
-        children: nodes.map((node) => {
+  const layout = useCallback(async (options?: any) => {
+    const nodes = getNodes();
+    const layoutOptions: LayoutOptions = { ...defaultOptions, ...options };
+    // void elk.knownLayoutAlgorithms().then((r) => console.log({ r }));
+    const graph: ElkNode = {
+      id: "root",
+      layoutOptions,
+      children: nodes.map((node) => {
+        return {
+          id: node.id,
+          width: node.measured?.width,
+          height: node.measured?.height,
+          properties: {},
+          layoutOptions: {},
+        };
+      }),
+      edges: getEdges().map((edge) => ({
+        id: edge.id,
+        sources: [edge.source],
+        targets: [edge.target],
+      })),
+    };
+
+    try {
+      const layoutedGraph = await elk.layout(graph);
+      layoutedGraph.children?.forEach((node) => {
+        node.id;
+      });
+
+      setNodes(
+        nodes.map((node) => {
+          const elkNode = layoutedGraph.children?.find(
+            ({ id }) => id === node.id,
+          );
+
           return {
-            id: node.id,
-            width: node.measured?.width,
-            height: node.measured?.height,
-            properties: {},
-            layoutOptions: {},
+            ...node,
+            position: {
+              x: elkNode?.x ?? 0,
+              y: elkNode?.y ?? 0,
+            },
           };
         }),
-        edges: getEdges().map((edge) => ({
-          id: edge.id,
-          sources: [edge.source],
-          targets: [edge.target],
-        })),
-      };
-
-      try {
-        const layoutedGraph = await elk.layout(graph);
-        layoutedGraph.children?.forEach((node) => {
-          node.id;
-        });
-
-        setNodes(
-          nodes.map((node) => {
-            const elkNode = layoutedGraph.children?.find(
-              ({ id }) => id === node.id,
-            );
-
-            return {
-              ...node,
-              position: {
-                x: elkNode?.x ?? 0,
-                y: elkNode?.y ?? 0,
-              },
-            };
-          }),
-        );
-        (await fitViewAfter) && fitView();
-      } catch (error) {}
-    },
-    [],
-  );
+      );
+      fitView();
+    } catch (error) {}
+  }, []);
 
   return { layout };
 };
