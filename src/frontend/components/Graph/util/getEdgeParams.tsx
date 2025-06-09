@@ -98,8 +98,8 @@ export function getEdgeParams(
   sourcePos: Position;
   targetPos: Position;
 } {
-  const sourceIntersectionPoint = getIntersectionPoint(target, source);
-  const targetIntersectionPoint = getIntersectionPoint(source, target);
+  const sourceIntersectionPoint = getIntersectionPoint(source, target);
+  const targetIntersectionPoint = getIntersectionPoint(target, source);
 
   const sourcePos = getEdgePosition(source, sourceIntersectionPoint);
   const targetPos = getEdgePosition(target, targetIntersectionPoint);
