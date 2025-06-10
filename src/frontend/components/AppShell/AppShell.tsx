@@ -30,6 +30,7 @@ import {
 } from "@/plugins/pluginMap";
 import { useLogout } from "@/api/fastapi/session/session";
 import { useQueryClient } from "@tanstack/react-query";
+import { TaskModalProvider } from "../TaskModal/TaskModal";
 
 const LogoutButton: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -185,8 +186,11 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           </div>
         </ScrollArea>
       </MAppShell.Navbar>
-      <MAppShell.Main h="calc(100dvh - var(--app-shell-header-offset, 0rem) - var(--app-shell-footer-height, 0px) + var(--app-shell-padding, 0))">
-        {children}
+      <MAppShell.Main
+        pos="relative"
+        h="calc(100dvh - var(--app-shell-header-offset, 0rem) - var(--app-shell-footer-height, 0px) + var(--app-shell-padding, 0))"
+      >
+        <TaskModalProvider>{children}</TaskModalProvider>
       </MAppShell.Main>
     </MAppShell>
   );

@@ -67,7 +67,7 @@ class Session:
         ]
 
     def get_plugin_state(self, key: str, cls: Type[T]) -> T:
-        if key not in self._tasks:
+        if key not in self._plugin_states:
             self._plugin_states[key] = cls()
         return cast(T, self._plugin_states[key])
 
@@ -86,10 +86,9 @@ class Session:
 
     def add_ocel(self, ocel: OCELWrapper) -> str:
         id = str(uuid.uuid4())
-        is_ocels_empty = not self.ocels
         self.ocels[id] = ocel
 
-        if is_ocels_empty:
+        if not self.current_ocel_id:
             self.current_ocel_id = id
 
         return id
