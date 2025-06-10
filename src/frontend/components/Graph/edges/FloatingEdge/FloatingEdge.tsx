@@ -10,7 +10,7 @@ import {
 import { getEdgeParams } from "@/components/Graph/util/getEdgeParams";
 
 export type FloatingEdgeType = Edge<
-  { start?: ReactNode; end?: ReactNode },
+  { start?: ReactNode; end?: ReactNode; mid?: ReactNode },
   "floating"
 >;
 
@@ -49,7 +49,7 @@ const FloatingEdge = ({
 
   const { sx, sy, tx, ty } = getEdgeParams(sourceNode, targetNode);
 
-  const [edgePath] = getStraightPath({
+  const [edgePath, labelX, labelY] = getStraightPath({
     sourceX: sx,
     sourceY: sy,
     targetX: tx,
@@ -116,16 +116,30 @@ const FloatingEdge = ({
       <EdgeLabelRenderer>
         {data?.start && (
           <EdgeLabel
-            transform={`translate(-40%, 0%) translate(${sx}px,${sy}px)`}
+            transform={`translate(-50%, 0%) translate(${sx}px,${sy}px)`}
           >
             {data?.start}
           </EdgeLabel>
         )}
         {data?.end && (
           <EdgeLabel
-            transform={`translate(-40%, 0%) translate(${tx}px,${ty}px)`}
+            transform={`translate(-50%, -100%) translate(${tx}px,${ty}px)`}
           >
             {data?.end}
+          </EdgeLabel>
+        )}
+        {data?.end && (
+          <EdgeLabel
+            transform={`translate(-50%, -100%) translate(${tx}px,${ty}px)`}
+          >
+            {data?.end}
+          </EdgeLabel>
+        )}
+        {data?.mid && (
+          <EdgeLabel
+            transform={`translate(-50%, -50%) translate(${labelX}px,${labelY}px)`}
+          >
+            {data?.mid}
           </EdgeLabel>
         )}
       </EdgeLabelRenderer>
