@@ -4,6 +4,7 @@ import Graph, { NodeComponents } from "@/components/Graph";
 import { Box, Divider, Table, Text } from "@mantine/core";
 import { ObjectAttributes200Item } from "@/api/fastapi-schemas";
 import { useMemo } from "react";
+import { MarkerType } from "@xyflow/react";
 
 const AttributeTable: React.FC<{
   name: string;
@@ -62,9 +63,11 @@ const ObjectGraph = () => {
       {o2o && objectAttributes && (
         <Graph
           initialNodes={nodes}
-          initialEdges={o2o.map(({ src, target }) => ({
+          initialEdges={o2o.map(({ src, target, freq }) => ({
             source: src,
             target,
+            markerEnd: { type: MarkerType.Arrow },
+            data: { mid: <Text size="xs">{freq}</Text> },
           }))}
         />
       )}
