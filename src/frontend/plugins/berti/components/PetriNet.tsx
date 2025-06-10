@@ -20,7 +20,7 @@ const PetriNet: React.FC<{ ocpn: ObjectCentricPetriNet }> = ({ ocpn }) => {
     id,
     data: {
       type: "circle",
-      diameter: 20,
+      diameter: 40,
       color: colorMap[object_type],
     },
   }));
@@ -32,7 +32,11 @@ const PetriNet: React.FC<{ ocpn: ObjectCentricPetriNet }> = ({ ocpn }) => {
         type: "rectangle",
         ...(label
           ? {
-              inner: <Text bd={"1px solid black"}>{label}</Text>,
+              inner: (
+                <Text p={"md"} bd={"1px solid black"}>
+                  {label}
+                </Text>
+              ),
               color: "white",
             }
           : { inner: <Box w={10} h={40}></Box>, color: "black" }),
@@ -51,9 +55,9 @@ const PetriNet: React.FC<{ ocpn: ObjectCentricPetriNet }> = ({ ocpn }) => {
         return {
           source,
           target,
-          style: { strokeWidth: 2 },
+          style: { strokeWidth: 3 },
           markerEnd: {
-            type: MarkerType.Arrow,
+            type: MarkerType.ArrowClosed,
             ...(object_type && { color: colorMap[object_type] }),
           },
           ...(object_type && { style: { stroke: colorMap[object_type] } }),

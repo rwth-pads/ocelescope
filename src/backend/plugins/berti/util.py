@@ -1,4 +1,8 @@
+import pm4py
+from pm4py.objects.ocel.obj import OCEL
 from api.model.process_models import (
+    DFG_EDGE,
+    OCDFG,
     Arc,
     ObjectCentricPetriNet,
     PetriNet,
@@ -76,4 +80,38 @@ def convert_flat_pm4py_to_ocpn(flat_nets: dict[str, PMNet]) -> ObjectCentricPetr
     )
     return ObjectCentricPetriNet(
         net=net,
+    )
+
+
+def compute_ocdfg(ocel: OCEL) -> OCDFG:
+    ocdfg = pm4py.discover_ocdfg(ocel)
+
+    edges = []
+    for object_type, raw_edges in ocdfg["edges"]["event_couples"].items():
+        edges = edges + (
+            [
+                DFG_EDGE(object_type=object_type, source=source, target=target)
+                for source, target in raw_edges
+            ]
+        )
+
+    start_activities = {
+        object_type: list(raw_start_activities)
+        for object_type, raw_start_activities in ocdfg["start_activities"][
+            "events"
+        ].items()
+    }
+    end_activities = {
+        object_type: list(raw_start_activities)
+        for object_type, raw_start_activities in ocdfg["start_activities"][
+            "events"
+        ].items()
+    }
+
+    return OCDFG(
+        activities=ocdfg["activities"],
+        edges=edges,
+        object_types=ocdfg["object_types"],
+        end_activities=end_activities,
+        start_activities=start_activities,
     )

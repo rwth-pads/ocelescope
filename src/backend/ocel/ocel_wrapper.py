@@ -16,7 +16,11 @@ import pm4py
 from cachetools import LRUCache
 from pm4py.objects.ocel.obj import OCEL
 
-from api.extensions import OcelExtension, get_registered_extensions
+from api.extensions import (
+    OcelExtension,
+    get_registered_extensions,
+    list_extension_metadata,
+)
 from api.logger import logger
 from lib.filters import FilterConfig, apply_filters
 from ocel.utils import add_object_order, filter_relations
