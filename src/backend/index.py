@@ -3,8 +3,9 @@ from __future__ import annotations
 import datetime
 import shutil
 from pathlib import Path
+import sqlite3
 from tempfile import NamedTemporaryFile
-from typing import Annotated
+from typing import Annotated, Literal, Optional
 
 from fastapi import FastAPI, File, Query, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -131,8 +132,8 @@ def import_ocel(
         upload_date=upload_date,
         name=tmp_file_prefix,
         suffix=suffix,
+        metadata={"file_name": tmp_file_prefix, "upload_date": upload_date.isoformat()},
     )
-    print(task_id)
 
     response.status_code = 200
 
@@ -191,15 +192,18 @@ def import_default_ocel(
 
 @app.get("/download", summary="Download OCEL including app state")
 def download_ocel(
-    session: ApiSession,
     ocel: ApiOcel,
+    ext: Optional[Literal[".xml", ".json", ".sqlite"]],
 ) -> TempFileResponse:
     name = ocel.meta["fileName"]
     tmp_file_prefix = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + name
     file_response = TempFileResponse(
-        prefix=tmp_file_prefix, suffix=".sqlite", filename=name
+        prefix=tmp_file_prefix, suffix=ext, filename=name + (ext or ".sqlite")
     )
-    session.export_sqlite(file_response.tmp_path)
+    print(file_response.tmp_path)
+
+    ocel.write_ocel2_sqlite(file_response.tmp_path, ext)
+
     return file_response
 
 

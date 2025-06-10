@@ -62,6 +62,7 @@ const CytoscapeGraph: React.FC<CytoscapeGraphProps> = memo(
         cyRef.current = null;
       };
     }, []);
+
     return (
       <Card
         w={"100%"}

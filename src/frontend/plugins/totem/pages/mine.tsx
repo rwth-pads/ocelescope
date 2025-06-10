@@ -1,18 +1,20 @@
 import { useTotem } from "@/api/fastapi/totem/totem";
 import Graph, { EdgeComponents, NodeComponents } from "@/components/Graph";
+import useWaitForTask from "@/hooks/useTaskWaiter";
 import { RouteDefinition } from "@/plugins/types";
 import assignUniqueColors from "@/util/colors";
-import { Box, Center, Text } from "@mantine/core";
-import { MarkerType } from "@xyflow/react";
+import { Box, Button, HoverCard, LoadingOverlay, Text } from "@mantine/core";
+import { Info } from "lucide-react";
 import { useMemo } from "react";
 
 const MinePage = () => {
-  const { data: totem } = useTotem();
+  const { data: result, refetch } = useTotem();
 
   const { edges, nodes } = useMemo(() => {
-    if (!totem) {
+    if (!result?.result) {
       return { nodes: [], edges: [] };
     }
+    const totem = result.result;
 
     const nodesNames = Array.from(
       new Set(
@@ -21,12 +23,23 @@ const MinePage = () => {
     );
 
     const edges: EdgeComponents[] = totem.relations.map(
-      ({ source, target, tr }) => ({
-        source: target,
-        target: source,
-        markerEnd: tr === "P" ? "double-rect" : tr == "D" ? "rect" : undefined,
+      ({ source, target, tr, tr_inverse }) => ({
+        source: source,
+        target: target,
+        markerEnd:
+          tr === "P"
+            ? "double-rect"
+            : tr === "D"
+              ? "rect"
+              : tr === "I"
+                ? "circle"
+                : undefined,
         markerStart:
-          tr === "P" ? "double-rect" : tr == "Di" ? "rect" : undefined,
+          tr === "P" || tr_inverse == "P"
+            ? "double-rect"
+            : tr === "Di"
+              ? "rect"
+              : undefined,
         data: {},
       }),
     );
@@ -50,9 +63,20 @@ const MinePage = () => {
       ),
       edges,
     };
-  }, [totem]);
-  console.log(edges);
-  return <>{totem && <Graph initialNodes={nodes} initialEdges={edges} />}</>;
+  }, [result]);
+  console.log(edges, nodes);
+
+  const { isTaskRunning } = useWaitForTask({
+    taskId: result?.taskId ?? undefined,
+    onSuccess: refetch,
+  });
+
+  return (
+    <Box pos={"relative"} w={"100%"} h={"100%"}>
+      <LoadingOverlay visible={isTaskRunning} />
+      {result?.result && <Graph initialNodes={nodes} initialEdges={edges} />}
+    </Box>
+  );
 };
 export default MinePage;
 

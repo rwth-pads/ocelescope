@@ -6,12 +6,13 @@ from fastapi.routing import APIRouter
 from pydantic.main import BaseModel
 
 from api.dependencies import ApiSession
-from api.model.ocel import OCEL_Metadata
+from api.model.ocel import OCEL_Metadata, Uploading_OCEL_Metadata
 from fastapi import Request
 from fastapi.responses import Response, JSONResponse
 
 from api.config import config
 from api.session import Session
+from util.tasks import TaskState
 
 
 sessionRouter = APIRouter(prefix="/session", tags=["session"])
@@ -20,6 +21,7 @@ sessionRouter = APIRouter(prefix="/session", tags=["session"])
 class GetOcelResponse(BaseModel):
     current_ocel_id: Optional[str]
     ocels: list[OCEL_Metadata]
+    uploading_ocels: list[Uploading_OCEL_Metadata]
 
 
 @sessionRouter.post("/logout", summary="Deletes the Session", operation_id="logout")
@@ -55,6 +57,15 @@ def getOcels(session: ApiSession) -> GetOcelResponse:
             )
             for key, value in session.ocels.items()
         ],
+        uploading_ocels=[
+            Uploading_OCEL_Metadata(
+                task_id=task.key,
+                name=task.metadata["file_name"],
+                uploaded_at=task.metadata["upload_date"],
+            )
+            for task in session.list_tasks()
+            if (task.name == "import_ocel_task") & (task.state == TaskState.STARTED)
+        ],
     )
 
 
@@ -63,3 +74,10 @@ def getOcels(session: ApiSession) -> GetOcelResponse:
 )
 def set_current_ocel(session: ApiSession, ocel_id: str):
     session.set_current_ocel(ocel_id)
+
+
+@sessionRouter.post(
+    "/ocel/delete", summary="Deletes the ocel with the id", operation_id="deleteOcel"
+)
+def delete_ocel(session: ApiSession, ocel_id: str):
+    session.delete_ocel(ocel_id)

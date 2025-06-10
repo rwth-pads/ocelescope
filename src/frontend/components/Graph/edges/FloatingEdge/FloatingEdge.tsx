@@ -102,6 +102,15 @@ const FloatingEdge = ({
             <rect x="2" y="2" width="4" height="6" fill="black" />
             <rect x="8" y="2" width="4" height="6" fill="black" />
           </marker>
+          <marker
+            id="circle"
+            markerWidth="8"
+            markerHeight="8"
+            refX="5"
+            refY="5"
+          >
+            <circle cx="5" cy="5" r="3" fill="black" />
+          </marker>
         </defs>
       </svg>
       <BaseEdge

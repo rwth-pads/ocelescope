@@ -29,4 +29,5 @@ def getTask(session: ApiSession, task_id: str) -> TaskSummary:
         name=task.name,
         state=task.state,
         has_result=task.result is not None,
+        metadata=task.metadata,
     )

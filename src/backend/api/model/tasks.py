@@ -1,4 +1,4 @@
-from typing import Generic, Optional, TypeVar
+from typing import Any, Generic, Optional, TypeVar
 from pydantic.main import BaseModel
 
 from util.tasks import TaskState
@@ -12,6 +12,7 @@ class TaskSummary(BaseModel):
     name: str
     state: TaskState
     has_result: bool
+    metadata: dict[str, Any]
 
 
 class TaskResponse(BaseModel, Generic[T]):

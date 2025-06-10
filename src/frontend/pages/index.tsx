@@ -1,13 +1,56 @@
-import { useGetOcels, useSetCurrentOcel } from "@/api/fastapi/session/session";
+import {
+  useDeleteOcel,
+  useGetOcels,
+  useSetCurrentOcel,
+} from "@/api/fastapi/session/session";
 import OcelUpload from "@/components/OcelUpload/OcelUpload";
-import { Button, Container, Menu, Modal, Table, Title } from "@mantine/core";
+import {
+  Button,
+  Container,
+  Group,
+  Loader,
+  Menu,
+  Modal,
+  Table,
+  Text,
+  Title,
+} from "@mantine/core";
 import { useQueryClient } from "@tanstack/react-query";
-import { EllipsisVerticalIcon, FileUp, StarIcon } from "lucide-react";
+import {
+  Download,
+  EllipsisVerticalIcon,
+  FileUp,
+  Filter,
+  StarIcon,
+  Trash,
+} from "lucide-react";
+import { useRouter } from "next/router";
 import { useState } from "react";
 
 const Overview = () => {
   const queryClient = useQueryClient();
-  const { data: ocels } = useGetOcels();
+  const router = useRouter();
+
+  const [deletedOcelId, setDeletedOcelId] = useState<
+    { name: string; id: string } | undefined
+  >(undefined);
+  const { data: ocels } = useGetOcels({
+    query: {
+      refetchInterval: ({ state }) => {
+        if (state.data && state.data.uploading_ocels.length > 0) {
+          return 1000;
+        }
+        return false;
+      },
+    },
+  });
+  const { mutate: deleteOcel } = useDeleteOcel({
+    mutation: {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ refetchType: "all" });
+      },
+    },
+  });
 
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
@@ -89,59 +132,94 @@ const Overview = () => {
                       <Table.Td align="right" px={0}>
                         <Menu width={200} position="left-start">
                           <Menu.Target>
-                            <Button p={0} variant="subtle">
+                            <Button
+                              p={0}
+                              variant="subtle"
+                              onClick={(e) => e.stopPropagation()}
+                            >
                               <EllipsisVerticalIcon />
                             </Button>
                           </Menu.Target>
 
                           <Menu.Dropdown>
-                            <Menu.Item>Dashboard</Menu.Item>
-
+                            <Menu.Item
+                              disabled
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/filter/${id}`);
+                              }}
+                              leftSection={<Filter size={16} />}
+                            >
+                              Filter
+                            </Menu.Item>
                             <Menu.Sub>
                               <Menu.Sub.Target>
-                                <Menu.Sub.Item>Products</Menu.Sub.Item>
+                                <Menu.Sub.Item
+                                  leftSection={<Download size={16} />}
+                                >
+                                  Download
+                                </Menu.Sub.Item>
                               </Menu.Sub.Target>
 
                               <Menu.Sub.Dropdown>
-                                <Menu.Item>All products</Menu.Item>
-                                <Menu.Item>Categories</Menu.Item>
-                                <Menu.Item>Tags</Menu.Item>
-                                <Menu.Item>Attributes</Menu.Item>
-                                <Menu.Item>Shipping classes</Menu.Item>
+                                {[".xml", ".sqlite", ".json"].map((ext) => (
+                                  <Menu.Item
+                                    component={"a"}
+                                    href={`http://localhost:8000/download?ext=${ext}&ocel_id=${id}`}
+                                  >
+                                    {ext}
+                                  </Menu.Item>
+                                ))}
                               </Menu.Sub.Dropdown>
                             </Menu.Sub>
-
-                            <Menu.Sub>
-                              <Menu.Sub.Target>
-                                <Menu.Sub.Item>Orders</Menu.Sub.Item>
-                              </Menu.Sub.Target>
-
-                              <Menu.Sub.Dropdown>
-                                <Menu.Item>Open</Menu.Item>
-                                <Menu.Item>Completed</Menu.Item>
-                                <Menu.Item>Cancelled</Menu.Item>
-                              </Menu.Sub.Dropdown>
-                            </Menu.Sub>
-
-                            <Menu.Sub>
-                              <Menu.Sub.Target>
-                                <Menu.Sub.Item>Settings</Menu.Sub.Item>
-                              </Menu.Sub.Target>
-
-                              <Menu.Sub.Dropdown>
-                                <Menu.Item>Profile</Menu.Item>
-                                <Menu.Item>Security</Menu.Item>
-                                <Menu.Item>Notifications</Menu.Item>
-                              </Menu.Sub.Dropdown>
-                            </Menu.Sub>
+                            <Menu.Divider />
+                            <Menu.Item
+                              leftSection={<Trash size={16} color={"red"} />}
+                              color="red"
+                              fw="bold"
+                              onClick={() => setDeletedOcelId({ id, name })}
+                            >
+                              Delete
+                            </Menu.Item>
                           </Menu.Dropdown>
                         </Menu>
                       </Table.Td>
                     </Table.Tr>
                   ),
                 )}
+                {(ocels.uploading_ocels ?? []).map(({ name, uploaded_at }) => (
+                  <Table.Tr>
+                    <Table.Td>
+                      <Loader size={14} />
+                    </Table.Td>
+                    <Table.Td>{name}</Table.Td>
+                    <Table.Td>{uploaded_at}</Table.Td>
+                  </Table.Tr>
+                ))}
               </Table.Tbody>
             </Table>
+            <Modal
+              opened={!!deletedOcelId}
+              onClose={() => setDeletedOcelId(undefined)}
+              title={`Delete ${deletedOcelId?.name}`}
+            >
+              <Text>
+                Are you sure you want to delete this ocel? This action cannot be
+                undone.
+              </Text>
+              <Group>
+                <Button
+                  mt={"md"}
+                  onClick={() => {
+                    deleteOcel({ params: { ocel_id: deletedOcelId!.id } });
+                    setDeletedOcelId(undefined);
+                  }}
+                  color={"red"}
+                >
+                  Delete
+                </Button>
+              </Group>
+            </Modal>
           </Table.ScrollContainer>
         ) : (
           <OcelUpload onUpload={() => queryClient.invalidateQueries()} />

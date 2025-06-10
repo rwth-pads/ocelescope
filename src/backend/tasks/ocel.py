@@ -18,7 +18,6 @@ def import_ocel_task(
     upload_date: datetime,
     stop_event=None,
 ):  # Save file
-    print("as")
     # pm4py-based import
     ocel = OCELWrapper.read_ocel(
         str(path),

@@ -1029,7 +1029,17 @@ class OCELWrapper:
 
         return ocel
 
-    def write_ocel2_sqlite(self, file_path: PathLike):
-        pm4py.write_ocel2_sqlite(self.ocel, str(file_path))
+    def write_ocel2_sqlite(
+        self,
+        file_path: PathLike,
+        ext: Optional[Literal[".json", ".xml", ".sqlite"]],
+    ):
+        match ext:
+            case ".xml":
+                pm4py.write_ocel2_xml(self.ocel, str(file_path))
+            case ".json":
+                pm4py.write_ocel2_json(self.ocel, str(file_path))
+            case _:
+                pm4py.write_ocel2_sqlite(self.ocel, str(file_path))
 
     # endregion

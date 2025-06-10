@@ -3,7 +3,7 @@ import functools
 from enum import Enum
 import uuid
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from api.session import Session
@@ -19,13 +19,14 @@ class TaskState(str, Enum):
 
 
 class Task:
-    def __init__(self, id, name, fn, args, kwargs, session):
+    def __init__(self, id, name, fn, args, kwargs, session, metadata=None):
         self.id = id
         self.name = name
         self.fn = fn
         self.args = args
         self.kwargs = kwargs
         self.session = session
+        self.metadata = metadata or {}
         self.state = TaskState.PENDING
         self.thread = None
         self.result = None
@@ -65,7 +66,7 @@ def task(name=None, dedupe=False, run_once=False):
         task_name = name or fn.__name__
 
         @functools.wraps(fn)
-        def wrapper(*args, session: "Session", **kwargs):
+        def wrapper(*args, session: "Session", metadata: dict[str, Any] = {}, **kwargs):
             # Compute a hashable deduplication key
             dedupe_key = (
                 task_name
@@ -89,6 +90,7 @@ def task(name=None, dedupe=False, run_once=False):
                 args=args,
                 kwargs=kwargs,
                 session=session,
+                metadata=metadata,
             )
 
             # Register task

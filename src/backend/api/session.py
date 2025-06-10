@@ -62,6 +62,7 @@ class Session:
                 name=task.name,
                 state=task.state,
                 has_result=task.result is not None,
+                metadata=task.metadata,
             )
             for task in self._tasks.values()
         ]
@@ -109,14 +110,20 @@ class Session:
 
         self.invalidate_plugin_states()
 
+    def delete_ocel(self, ocel_id: str):
+        if ocel_id not in self.ocels:
+            return
+
+        if ocel_id == self.current_ocel_id:
+            self.current_ocel_id = None
+
+        self.ocels.pop(ocel_id, None)
+
+        self.invalidate_plugin_states()
+
     def invalidate_plugin_states(self):
         for plugin_state in self._plugin_states.values():
             plugin_state.clear_cache()
-
-    def export_sqlite(self, export_path: PathLike):
-        # Write OCEL
-        logger.info(f"Exporting OCEL to '{export_path}' ...")
-        self.get_ocel().write_ocel2_sqlite(export_path)
 
     def __str__(self):
         d = {

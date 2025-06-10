@@ -6,6 +6,7 @@ import { Edge, MarkerType } from "@xyflow/react";
 import { Box, Text } from "@mantine/core";
 import CytoscapeGraph from "@/components/Cytoscape/Cytoscape";
 import { ElementDefinition } from "cytoscape";
+import { BaseLayoutOptions } from "cytoscape";
 
 const OCDFG: React.FC<{ ocdfg: Ocdfg }> = ({ ocdfg }) => {
   const colorMap = useMemo(
@@ -200,24 +201,27 @@ const AlternativeDFG: React.FC<{ ocdfg: Ocdfg }> = ({ ocdfg }) => {
         })),
     ),
   ];
+
   return (
     <CytoscapeGraph
       elements={elements}
-      layout={{
-        name: "elk",
-        nodeDimensionsIncludeLabels: true,
-        elk: {
-          algorithm: "layered",
-          "elk.direction": "DOWN", // or "RIGHT" for horizontal flow
-          "elk.layered.spacing.nodeNodeBetweenLayers": 50,
-          "elk.spacing.nodeNode": 30,
-          "elk.layered.considerModelOrder.strategy": "NODES_AND_EDGES",
-          "elk.layered.nodePlacement.strategy": "BRANDES_KOEPF", // better flow layout
-          "elk.edgeRouting": "ORTHOGONAL", // "SPLINES" if you want curves
-          "elk.layered.crossingMinimization.strategy": "LAYER_SWEEP",
-          "elk.layered.mergeEdges": true, // optional: merges edges between same source/target
-        },
-      }}
+      layout={
+        {
+          name: "elk",
+          nodeDimensionsIncludeLabels: true,
+          elk: {
+            algorithm: "layered",
+            "elk.direction": "DOWN", // or "RIGHT" for horizontal flow
+            "elk.layered.spacing.nodeNodeBetweenLayers": 50,
+            "elk.spacing.nodeNode": 30,
+            "elk.layered.considerModelOrder.strategy": "NODES_AND_EDGES",
+            "elk.layered.nodePlacement.strategy": "BRANDES_KOEPF", // better flow layout
+            "elk.edgeRouting": "ORTHOGONAL", // "SPLINES" if you want curves
+            "elk.layered.crossingMinimization.strategy": "LAYER_SWEEP",
+            "elk.layered.mergeEdges": true, // optional: merges edges between same source/target
+          },
+        } as any as BaseLayoutOptions
+      }
     />
   );
 };

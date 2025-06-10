@@ -1,4 +1,12 @@
-import { Button, Container, Divider, Paper, Stack, Title } from "@mantine/core";
+import {
+  Button,
+  Container,
+  Divider,
+  LoadingOverlay,
+  Paper,
+  Stack,
+  Title,
+} from "@mantine/core";
 
 import classes from "@/styles/Import.module.css";
 import {
@@ -14,18 +22,20 @@ const OcelUpload: React.FC<{ onUpload: () => void }> = ({ onUpload }) => {
     only_latest_versions: true,
   });
 
-  const { mutate: importDefaultOcel } = useImportDefaultOcel({
-    mutation: {
-      onSuccess: onUpload,
-    },
-  });
+  const { mutate: importDefaultOcel, isPending: isDefaultImportPending } =
+    useImportDefaultOcel({
+      mutation: {
+        onSuccess: onUpload,
+      },
+    });
 
-  const { mutate } = useImportOcel({
+  const { mutate, isPending: isImportPending } = useImportOcel({
     mutation: { onSuccess: onUpload },
   });
 
   return (
-    <Paper withBorder shadow="sm" p={22} mt={30} radius="md">
+    <Paper withBorder pos={"relative"} shadow="sm" p={22} mt={30} radius="md">
+      <LoadingOverlay visible={isImportPending || isDefaultImportPending} />
       <FileDropzone
         onUpload={(file) =>
           mutate({ data: { file: file[0] }, params: { name: file[0].name } })

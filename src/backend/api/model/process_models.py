@@ -33,4 +33,18 @@ class ObjectCentricPetriNet(BaseModel):
     net: PetriNet
 
 
-# Totem
+# DFG
+
+
+class DFG_EDGE(BaseModel):
+    source: str
+    target: str
+    object_type: str
+
+
+class OCDFG(BaseModel):
+    object_types: list[str]
+    activities: list[str]
+    edges: list[DFG_EDGE]
+    start_activities: dict[str, list[str]]
+    end_activities: dict[str, list[str]]

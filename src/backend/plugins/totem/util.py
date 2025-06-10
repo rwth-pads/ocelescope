@@ -233,7 +233,7 @@ def get_most_precise_tr(directed_type_tuple, tau, temporal_relation):
     return "None"
 
 
-def mine_totem(ocel, tau=1) -> TotemResult:
+def mine_totem(ocel, tau: float = 1) -> TotemResult:
     # temporal relations results
     h_temporal_relations: dict[tuple[str, str], dict[str, int]] = (
         dict()

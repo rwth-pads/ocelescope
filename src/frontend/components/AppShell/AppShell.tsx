@@ -128,7 +128,7 @@ const LinksGroup: React.FC<LinksGroupProps> = ({
 
 const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
-  const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
+  const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(false);
 
   const { pathname } = useRouter();
 
@@ -186,10 +186,7 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           </div>
         </ScrollArea>
       </MAppShell.Navbar>
-      <MAppShell.Main
-        pos="relative"
-        h="calc(100dvh - var(--app-shell-header-offset, 0rem) - var(--app-shell-footer-height, 0px) + var(--app-shell-padding, 0))"
-      >
+      <MAppShell.Main h="calc(100dvh - var(--app-shell-header-offset, 0rem) - var(--app-shell-footer-height, 0px) + var(--app-shell-padding, 0))">
         <TaskModalProvider>{children}</TaskModalProvider>
       </MAppShell.Main>
     </MAppShell>
