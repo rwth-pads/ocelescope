@@ -1,10 +1,12 @@
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Literal, Optional, Any
 from pydantic import BaseModel
 
 
+# Petri Nets
 class Place(BaseModel):
     id: str
     object_type: str
+    place_type: Optional[Literal["sink", "source"]] = None
     annotations: Dict[str, Any] = {}
 
 
@@ -27,10 +29,8 @@ class PetriNet(BaseModel):
     arcs: List[Arc]
 
 
-class Marking(BaseModel):
-    tokens: Dict[str, List[str]]
-    annotations: Dict[str, Any] = {}
-
-
 class ObjectCentricPetriNet(BaseModel):
     net: PetriNet
+
+
+# Totem

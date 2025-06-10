@@ -1,3 +1,4 @@
+import threading
 from typing import Annotated, Optional
 
 import pm4py
@@ -5,21 +6,25 @@ from fastapi import APIRouter
 from fastapi.params import Depends, Query
 
 from api.dependencies import ApiOcel, ApiSession
+from api.exceptions import NotFound
 from api.model.cache import CachableObject
 from api.model.process_models import ObjectCentricPetriNet
+from api.model.tasks import TaskResponse, TaskSummary
+from api.session import Session
 from plugins.berti.util import convert_flat_pm4py_to_ocpn
+from util.tasks import TaskState, task
 
 router = APIRouter()
 
 
 class State(CachableObject):
-    # ---------------- Events ---------------- #
-    def test(self):
-        return ""
+    def __init__(self):
+        super().__init__()
+        self.petri_nets: dict[str, ObjectCentricPetriNet] = {}
 
 
 def get_state(session: ApiSession):
-    return session.get_plugin_state("ocelot", State)
+    return session.get_plugin_state("berti", State)
 
 
 StateDep = Annotated[State, Depends(get_state)]
@@ -33,10 +38,32 @@ meta = {
 }
 
 
-@router.get("/petriNet", response_model=ObjectCentricPetriNet, operation_id="petriNet")
-def get_objects_info(
-    ocel: ApiOcel,
-    objectTypes: Annotated[Optional[list[str]], Query()] = None,
-) -> ObjectCentricPetriNet:
-    petri_net = pm4py.discover_oc_petri_net(ocel.ocel)
-    return convert_flat_pm4py_to_ocpn(petri_net["petri_nets"])
+@router.get("/petriNet", operation_id="petriNet")
+def get_petri_net(
+    session: ApiSession,
+    state: StateDep,
+) -> TaskResponse[ObjectCentricPetriNet]:
+    ocel_id = session.current_ocel_id
+
+    print(state.petri_nets)
+    if ocel_id is None:
+        raise NotFound("There is no OCEL to be mined")
+
+    if ocel_id in state.petri_nets:
+        return TaskResponse(status=TaskState.SUCCESS, result=state.petri_nets[ocel_id])
+
+    test = mine_petri_net(session=session, ocel_id=ocel_id)
+
+    return TaskResponse(status=TaskState.STARTED, taskId=test)
+
+
+@task(dedupe=True)
+def mine_petri_net(
+    session: Session, ocel_id: str, stop_event: Optional[threading.Event] = None
+):
+    petri_net = pm4py.discover_oc_petri_net(session.get_ocel(ocel_id).ocel)
+    petri_net = convert_flat_pm4py_to_ocpn(petri_net["petri_nets"])
+
+    if stop_event is not None and not stop_event.is_set():
+        plugin_state = session.get_plugin_state("berti", State)
+        plugin_state.petri_nets[ocel_id] = petri_net

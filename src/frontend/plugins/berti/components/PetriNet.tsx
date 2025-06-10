@@ -1,8 +1,9 @@
 import { ObjectCentricPetriNet } from "@/api/fastapi-schemas";
-import Graph, { EdgeComponents, NodeComponents } from "@/components/Graph";
+import Graph, { NodeComponents } from "@/components/Graph";
 import { useMemo } from "react";
 import assignUniqueColors from "../util";
-import { Box } from "@mantine/core";
+import { MarkerType } from "@xyflow/react";
+import { Box, Text } from "@mantine/core";
 
 const PetriNet: React.FC<{ ocpn: ObjectCentricPetriNet }> = ({ ocpn }) => {
   const { places, transitions, arcs } = ocpn.net;
@@ -17,20 +18,48 @@ const PetriNet: React.FC<{ ocpn: ObjectCentricPetriNet }> = ({ ocpn }) => {
 
   const placeNodes: NodeComponents[] = places.map(({ id, object_type }) => ({
     id,
-    data: { type: "circle", color: colorMap[object_type] },
+    data: {
+      type: "circle",
+      diameter: 20,
+      color: colorMap[object_type],
+    },
   }));
 
   const transitionNodes: NodeComponents[] = transitions.map(
     ({ id, label }) => ({
       id,
-      data: { type: "rectangle", inner: label },
+      data: {
+        type: "rectangle",
+        ...(label
+          ? {
+              inner: <Text bd={"1px solid black"}>{label}</Text>,
+              color: "white",
+            }
+          : { inner: <Box w={10} h={40}></Box>, color: "black" }),
+      },
     }),
   );
 
   return (
     <Graph
       initialNodes={[...placeNodes, ...transitionNodes]}
-      initialEdges={arcs}
+      initialEdges={arcs.map(({ source, target }) => {
+        const object_type = places.find(
+          ({ id }) => id === source || id === target,
+        )?.object_type;
+
+        return {
+          source,
+          target,
+          style: { strokeWidth: 2 },
+          markerEnd: {
+            type: MarkerType.Arrow,
+            ...(object_type && { color: colorMap[object_type] }),
+          },
+          ...(object_type && { style: { stroke: colorMap[object_type] } }),
+        };
+      })}
+      layoutOptions={{ type: "elk" }}
     />
   );
 };

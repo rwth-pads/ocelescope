@@ -22,7 +22,16 @@ def convert_flat_pm4py_to_ocpn(flat_nets: dict[str, PMNet]) -> ObjectCentricPetr
             qualified_id = f"{object_type}:{place.name}"
             if qualified_id not in seen_places:
                 place_set.append(
-                    Place(id=qualified_id, object_type=object_type, annotations={})
+                    Place(
+                        id=qualified_id,
+                        place_type="source"
+                        if place == "source"
+                        else "sink"
+                        if place == "sink"
+                        else None,
+                        object_type=object_type,
+                        annotations={},
+                    )
                 )
                 seen_places.add(qualified_id)
 
@@ -30,7 +39,7 @@ def convert_flat_pm4py_to_ocpn(flat_nets: dict[str, PMNet]) -> ObjectCentricPetr
             label = transition.label or transition.name  # Use fallback if label is None
             if label not in transition_map:
                 transition_map[label] = Transition(
-                    id=label, label=label, annotations={}
+                    id=label, label=transition.label, annotations={}
                 )
 
         for arc in pm_net.arcs:
