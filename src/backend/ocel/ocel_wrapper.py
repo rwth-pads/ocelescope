@@ -1043,3 +1043,6 @@ class OCELWrapper:
                 pm4py.write_ocel2_sqlite(self.ocel, str(file_path))
 
     # endregion
+    #
+    def rename(self, new_name: str):
+        self.meta["fileName"] = new_name

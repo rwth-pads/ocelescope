@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from os import SEEK_CUR
 from typing import Optional
 
 from fastapi.routing import APIRouter
 from pydantic.main import BaseModel
 
-from api.dependencies import ApiSession
+from api.dependencies import ApiOcel, ApiSession
 from api.model.ocel import OCEL_Metadata, Uploading_OCEL_Metadata
 from fastapi import Request
 from fastapi.responses import Response, JSONResponse
@@ -81,3 +82,10 @@ def set_current_ocel(session: ApiSession, ocel_id: str):
 )
 def delete_ocel(session: ApiSession, ocel_id: str):
     session.delete_ocel(ocel_id)
+
+
+@sessionRouter.post(
+    "/ocel/rename", summary="Renames the ocel with the id", operation_id="renameOcel"
+)
+def rename_ocel(session: ApiSession, ocel: ApiOcel, new_name: str):
+    ocel.rename(new_name)

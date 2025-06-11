@@ -1,11 +1,13 @@
 import {
   useDeleteOcel,
   useGetOcels,
+  useRenameOcel,
   useSetCurrentOcel,
 } from "@/api/fastapi/session/session";
 import OcelUpload from "@/components/OcelUpload/OcelUpload";
 import {
   Button,
+  ButtonGroup,
   Container,
   Group,
   Loader,
@@ -13,16 +15,20 @@ import {
   Modal,
   Table,
   Text,
+  TextInput,
   Title,
 } from "@mantine/core";
 import { useQueryClient } from "@tanstack/react-query";
 import {
+  Check,
   Download,
   EllipsisVerticalIcon,
   FileUp,
   Filter,
+  Pencil,
   StarIcon,
   Trash,
+  X,
 } from "lucide-react";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -34,7 +40,7 @@ const Overview = () => {
   const [deletedOcelId, setDeletedOcelId] = useState<
     { name: string; id: string } | undefined
   >(undefined);
-  const { data: ocels } = useGetOcels({
+  const { data: ocels, refetch } = useGetOcels({
     query: {
       refetchInterval: ({ state }) => {
         if (state.data && state.data.uploading_ocels.length > 0) {
@@ -53,6 +59,9 @@ const Overview = () => {
   });
 
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [renamedOcel, setRenamedOcel] = useState<
+    { id: string; value: string } | undefined
+  >(undefined);
 
   const { mutate: setCurrentOcel } = useSetCurrentOcel({
     mutation: {
@@ -61,6 +70,8 @@ const Overview = () => {
       },
     },
   });
+
+  const { mutateAsync: renameOcel } = useRenameOcel();
 
   return (
     <>
@@ -126,7 +137,64 @@ const Overview = () => {
                           <StarIcon size={14} fill="blue" color="blue" />
                         )}
                       </Table.Td>
-                      <Table.Td>{name}</Table.Td>
+                      <Table.Td align="center">
+                        <Group>
+                          {renamedOcel?.id !== id ? (
+                            <>
+                              {name}
+                              <Button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setRenamedOcel({ id, value: name });
+                                }}
+                                size={"xs"}
+                              >
+                                <Pencil size={16} />
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <TextInput
+                                value={renamedOcel.value}
+                                onChange={(newName) =>
+                                  setRenamedOcel({
+                                    id,
+                                    value: newName.currentTarget.value,
+                                  })
+                                }
+                              />
+                              <Button
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  await renameOcel({
+                                    params: {
+                                      ocel_id: renamedOcel.id,
+                                      new_name: renamedOcel.value,
+                                    },
+                                  });
+                                  setRenamedOcel(undefined);
+                                  await refetch();
+                                }}
+                                size={"xs"}
+                                color="green"
+                              >
+                                <Check size={16} />
+                              </Button>
+                              <Button
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+
+                                  setRenamedOcel(undefined);
+                                }}
+                                size={"xs"}
+                                color="red"
+                              >
+                                <X size={16} />
+                              </Button>
+                            </>
+                          )}
+                        </Group>
+                      </Table.Td>
                       <Table.Td>{created_at}</Table.Td>
                       <Table.Td>{extensions}</Table.Td>
                       <Table.Td align="right" px={0}>
