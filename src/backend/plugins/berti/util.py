@@ -102,10 +102,8 @@ def compute_ocdfg(ocel: OCEL) -> OCDFG:
         ].items()
     }
     end_activities = {
-        object_type: list(raw_start_activities)
-        for object_type, raw_start_activities in ocdfg["start_activities"][
-            "events"
-        ].items()
+        object_type: list(raw_end_activities)
+        for object_type, raw_end_activities in ocdfg["end_activities"]["events"].items()
     }
 
     return OCDFG(

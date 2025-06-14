@@ -1,93 +1,10 @@
+// components/AlternativeDFG.tsx
 import { ObjectCentricPetriNet, Ocdfg } from "@/api/fastapi-schemas";
-import Graph, { EdgeComponents, NodeComponents } from "@/components/Graph";
-import { useMemo } from "react";
 import assignUniqueColors from "../util";
-import { Edge, MarkerType } from "@xyflow/react";
-import { Box, Text } from "@mantine/core";
+import { useMemo } from "react";
+import { CoseLayoutOptions, ElementDefinition, StylesheetCSS } from "cytoscape";
 import CytoscapeGraph from "@/components/Cytoscape/Cytoscape";
-import { ElementDefinition } from "cytoscape";
 import { BaseLayoutOptions } from "cytoscape";
-
-const OCDFG: React.FC<{ ocdfg: Ocdfg }> = ({ ocdfg }) => {
-  const colorMap = useMemo(
-    () => assignUniqueColors(Array.from(new Set(ocdfg.object_types))),
-    [ocdfg.object_types],
-  );
-
-  const objectNodes: NodeComponents[] = ocdfg.object_types.flatMap(
-    (objectType) => [
-      {
-        id: `${objectType}-start`,
-        data: {
-          type: "circle",
-          diameter: 20,
-          color: colorMap[objectType],
-          label: objectType,
-        },
-      },
-      {
-        id: `${objectType}-end`,
-        data: {
-          type: "circle",
-          diameter: 20,
-          color: colorMap[objectType],
-          label: objectType,
-        },
-      },
-    ],
-  );
-
-  const activityNodes: NodeComponents[] = ocdfg.activities.map((activity) => ({
-    id: activity,
-    data: {
-      type: "rectangle",
-      inner: (
-        <Text p={"md"} bd={"1px solid black"}>
-          {activity}
-        </Text>
-      ),
-      color: "white",
-    },
-  }));
-
-  const edges: EdgeComponents[] = ocdfg.edges.map(
-    ({ target, source, object_type }) => ({
-      source: source,
-      target: target,
-      style: { stroke: colorMap[object_type] },
-      markerEnd: { type: MarkerType.ArrowClosed, color: colorMap[object_type] },
-    }),
-  );
-
-  const startEdges: EdgeComponents[] = Object.entries(
-    ocdfg.start_activities,
-  ).flatMap(([objectType, startActivities]) =>
-    startActivities.map((activity) => ({
-      source: `${objectType}-start`,
-      target: activity,
-      style: { stroke: colorMap[objectType] },
-      markerEnd: { type: MarkerType.ArrowClosed, color: colorMap[objectType] },
-    })),
-  );
-
-  const endEdges: EdgeComponents[] = Object.entries(
-    ocdfg.start_activities,
-  ).flatMap(([objectType, startActivities]) =>
-    startActivities.map((activity) => ({
-      target: `${objectType}-end`,
-      source: activity,
-      style: { stroke: colorMap[objectType], color: colorMap[objectType] },
-      markerEnd: { type: MarkerType.ArrowClosed, color: colorMap[objectType] },
-    })),
-  );
-  return (
-    <Graph
-      initialNodes={[...objectNodes, ...activityNodes]}
-      initialEdges={[...edges, ...startEdges, ...endEdges]}
-      layoutOptions={{ type: "elk", options: { "elk.direction": "DOWN" } }}
-    />
-  );
-};
 
 const AlternativeDFG: React.FC<{ ocdfg: Ocdfg }> = ({ ocdfg }) => {
   const colorMap = useMemo(
@@ -95,135 +12,124 @@ const AlternativeDFG: React.FC<{ ocdfg: Ocdfg }> = ({ ocdfg }) => {
     [ocdfg.object_types],
   );
 
+  const layout: CoseLayoutOptions = {
+    name: "elk",
+    elk: {
+      spacing: 80, // general node spacing
+      "spacing.nodeNodeBetweenLayers": 100, // vertical distance between layers
+      "spacing.nodeNode": 60, // space between siblings
+      "spacing.edgeNode": 40, // edge-to-node padding
+      "layering.strategy": "LONGEST_PATH",
+      algorithm: "layered", // or 'mrtree', 'force', etc.
+      direction: "RIGHT", // also: DOWN, UP, LEFT
+      spacing: 50,
+      edgeRouting: "ORTHOGONAL",
+      nodePlacement: "LINEAR_SEGMENTS",
+    },
+
+    animate: true,
+  };
+
   const elements: ElementDefinition[] = [
-    // Object Nodes (start and end for each object type)
-    ...ocdfg.object_types.flatMap((objectType) => [
+    ...ocdfg.activities.map<ElementDefinition>((activity) => ({
+      data: { id: activity, label: activity },
+      classes: "activity",
+    })),
+    ...ocdfg.object_types.flatMap<ElementDefinition>((objectType) => [
       {
         data: {
-          id: `${objectType}-start`,
+          id: `start_${objectType}`,
           label: objectType,
+          type: objectType,
         },
-        style: {
-          shape: "ellipse",
-          width: 40,
-          height: 40,
-          backgroundColor: colorMap[objectType],
-          label: objectType,
-        },
+        classes: `object`,
       },
       {
-        data: {
-          id: `${objectType}-end`,
-          label: objectType,
-        },
-        style: {
-          shape: "ellipse",
-          width: 40,
-          height: 40,
-          backgroundColor: colorMap[objectType],
-          label: objectType,
-        },
+        data: { id: `end_${objectType}`, label: objectType, type: objectType },
+        classes: `object`,
       },
     ]),
-
-    // Activity Nodes
-    ...ocdfg.activities.map((activity) => ({
+    ...ocdfg.edges.map<ElementDefinition>((edge) => ({
       data: {
-        id: activity,
-        label: activity,
-      },
-      style: {
-        shape: "rectangle",
-        backgroundColor: "#ffffff",
-        label: "data(label)",
-        textValign: "center",
-        "text-max-width": "data(width)",
-        width: 200,
-        textHalign: "center",
-        fontSize: 12,
-        padding: 10,
-        borderColor: "#000000",
-        borderWidth: 1,
+        id: `${edge.source}->${edge.target}`,
+        source: edge.source,
+        target: edge.target,
+        objectType: edge.object_type,
+        color: colorMap[edge.object_type],
       },
     })),
-
-    // Main Edges
-    ...ocdfg.edges.map(({ source, target, object_type }) => ({
-      data: {
-        id: `${source}->${target}-${object_type}`,
-        source,
-        target,
-        label: object_type,
-      },
-      style: {
-        lineColor: colorMap[object_type],
-        targetArrowColor: colorMap[object_type],
-        targetArrowShape: "triangle",
-        curveStyle: "bezier",
-      },
-    })),
-
-    // Start Edges
     ...Object.entries(ocdfg.start_activities).flatMap(
       ([objectType, startActivities]) =>
-        startActivities.map((activity) => ({
+        startActivities.map<ElementDefinition>((activity) => ({
           data: {
-            id: `${objectType}-start->${activity}`,
-            source: `${objectType}-start`,
+            source: `start_${objectType}`,
             target: activity,
-            label: objectType,
+            id: `start_${objectType}->${activity}`,
+            color: colorMap[objectType],
+            "elk.layerConstraint": "FIRST",
           },
-          style: {
-            lineColor: colorMap[objectType],
-            targetArrowColor: colorMap[objectType],
-            targetArrowShape: "triangle",
-            curveStyle: "bezier",
-          },
+          classes: "objectType",
         })),
     ),
-
-    // End Edges
-    ...Object.entries(ocdfg.start_activities).flatMap(
-      ([objectType, startActivities]) =>
-        startActivities.map((activity) => ({
+    ...Object.entries(ocdfg.end_activities).flatMap(
+      ([objectType, endActivities]) =>
+        endActivities.map<ElementDefinition>((activity) => ({
           data: {
-            id: `${activity}->${objectType}-end`,
             source: activity,
-            target: `${objectType}-end`,
-            label: objectType,
-          },
-          style: {
-            lineColor: colorMap[objectType],
-            targetArrowColor: colorMap[objectType],
-            targetArrowShape: "triangle",
-            curveStyle: "bezier",
+            target: `end_${objectType}`,
+            id: `${activity}->end_${objectType}`,
+            color: colorMap[objectType],
+            "elk.layerConstraint": "LAST",
           },
         })),
     ),
   ];
 
-  return (
-    <CytoscapeGraph
-      elements={elements}
-      layout={
-        {
-          name: "elk",
-          nodeDimensionsIncludeLabels: true,
-          elk: {
-            algorithm: "layered",
-            "elk.direction": "DOWN", // or "RIGHT" for horizontal flow
-            "elk.layered.spacing.nodeNodeBetweenLayers": 50,
-            "elk.spacing.nodeNode": 30,
-            "elk.layered.considerModelOrder.strategy": "NODES_AND_EDGES",
-            "elk.layered.nodePlacement.strategy": "BRANDES_KOEPF", // better flow layout
-            "elk.edgeRouting": "ORTHOGONAL", // "SPLINES" if you want curves
-            "elk.layered.crossingMinimization.strategy": "LAYER_SWEEP",
-            "elk.layered.mergeEdges": true, // optional: merges edges between same source/target
-          },
-        } as any as BaseLayoutOptions
-      }
-    />
-  );
+  const styles: StylesheetCSS[] = [
+    {
+      selector: ".activity",
+      css: {
+        shape: "rectangle",
+        label: "data(label)",
+        backgroundColor: "white",
+        "text-valign": "center",
+        "text-halign": "center",
+        "font-size": "12px",
+        "text-wrap": "wrap",
+        "border-width": "2px",
+        width: "label",
+        padding: "10px",
+      },
+    },
+    {
+      selector: ".object",
+      css: {
+        label: "data(label)",
+        backgroundColor: (node) => colorMap[node.data("type")],
+        "font-size": "12px",
+        "text-wrap": "wrap",
+        "border-width": "2px",
+        width: 10,
+        height: 10,
+        padding: "10px",
+        "text-valign": "bottom",
+        "text-halign": "center",
+      },
+    },
+    {
+      selector: "edge",
+      css: {
+        width: 2,
+        "target-arrow-shape": "triangle",
+        "target-arrow-color": "data(color)",
+        "line-color": "data(color)",
+        "font-size": "10px",
+        "text-margin-y": -10,
+        "curve-style": "bezier",
+      },
+    },
+  ];
+  return <CytoscapeGraph elements={elements} styles={styles} layout={layout} />;
 };
 
 export default AlternativeDFG;

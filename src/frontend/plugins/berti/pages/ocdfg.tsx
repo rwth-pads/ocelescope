@@ -18,6 +18,7 @@ const OCDFGPage = () => {
       });
     }
   }, [ocdfg?.taskId]);
+
   return ocdfg?.result && <OCDFG ocdfg={ocdfg.result} />;
 };
 
