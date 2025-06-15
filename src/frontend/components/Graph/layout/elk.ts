@@ -5,7 +5,7 @@ import { NodeComponents } from "..";
 const elk = new ELK();
 
 export const useElkLayout = () => {
-  const { getNodes, setNodes, getEdges, fitView } = useReactFlow();
+  const { getNodes, setNodes, setEdges, getEdges, fitView } = useReactFlow();
 
   const defaultOptions = {
     "org.eclipse.elk.randomSeed": 2,
@@ -32,7 +32,9 @@ export const useElkLayout = () => {
 
   const layout = useCallback(async (options?: any) => {
     const nodes = getNodes();
-    const layoutOptions: LayoutOptions = { ...defaultOptions, ...options };
+    const edges = getEdges();
+
+    const layoutOptions: LayoutOptions = options ?? defaultOptions;
     // void elk.knownLayoutAlgorithms().then((r) => console.log({ r }));
     const graph: ElkNode = {
       id: "root",
@@ -70,6 +72,27 @@ export const useElkLayout = () => {
             position: {
               x: elkNode?.x ?? 0,
               y: elkNode?.y ?? 0,
+            },
+          };
+        }),
+      );
+      setEdges(
+        edges.map((edge) => {
+          const elkEdge = layoutedGraph.edges?.find(({ id }) => id === edge.id)
+            ?.sections?.[0];
+
+          return {
+            ...edge,
+            data: {
+              ...edge.data,
+              ...(elkEdge && {
+                position: {
+                  sourceX: elkEdge.startPoint.x,
+                  sourceY: elkEdge.startPoint.y,
+                  targetX: elkEdge.endPoint.x,
+                  targetY: elkEdge.endPoint.y,
+                },
+              }),
             },
           };
         }),

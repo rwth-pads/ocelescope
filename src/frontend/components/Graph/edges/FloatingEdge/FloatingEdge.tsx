@@ -4,13 +4,25 @@ import {
   Edge,
   EdgeLabelRenderer,
   EdgeProps,
+  getBezierPath,
   getStraightPath,
   useInternalNode,
 } from "@xyflow/react";
 import { getEdgeParams } from "@/components/Graph/util/getEdgeParams";
+import { getStaticPaths } from "@/pages/plugin/[[...slug]]";
 
 export type FloatingEdgeType = Edge<
-  { start?: ReactNode; end?: ReactNode; mid?: ReactNode },
+  {
+    start?: ReactNode;
+    end?: ReactNode;
+    mid?: ReactNode;
+    position?: {
+      sourceX: number;
+      sourceY: number;
+      targetX: number;
+      targetY: number;
+    };
+  },
   "floating"
 >;
 
@@ -49,12 +61,14 @@ const FloatingEdge = ({
 
   const { sx, sy, tx, ty } = getEdgeParams(sourceNode, targetNode);
 
-  const [edgePath, labelX, labelY] = getStraightPath({
-    sourceX: sx,
-    sourceY: sy,
-    targetX: tx,
-    targetY: ty,
-  });
+  const [edgePath, labelX, labelY] = getStraightPath(
+    data?.position ?? {
+      sourceX: sx,
+      sourceY: sy,
+      targetX: tx,
+      targetY: ty,
+    },
+  );
 
   return (
     <>
