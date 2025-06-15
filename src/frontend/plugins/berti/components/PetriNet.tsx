@@ -1,13 +1,14 @@
+// components/PetriNet.tsx
 import { ObjectCentricPetriNet } from "@/api/fastapi-schemas";
-import Graph, { NodeComponents } from "@/components/Graph";
-import { useMemo } from "react";
 import assignUniqueColors from "../util";
-import { MarkerType } from "@xyflow/react";
-import { Box, Text } from "@mantine/core";
+import { useMemo } from "react";
+import CytoscapeGraph from "@/components/Cytoscape/Cytoscape";
+import { ElementDefinition, StylesheetCSS } from "cytoscape";
 
 const PetriNet: React.FC<{ ocpn: ObjectCentricPetriNet }> = ({ ocpn }) => {
   const { places, transitions, arcs } = ocpn.net;
 
+  // Assign unique colors to each object type
   const colorMap = useMemo(
     () =>
       assignUniqueColors(
@@ -16,54 +17,106 @@ const PetriNet: React.FC<{ ocpn: ObjectCentricPetriNet }> = ({ ocpn }) => {
     [places],
   );
 
-  const placeNodes: NodeComponents[] = places.map(({ id, object_type }) => ({
-    id,
-    data: {
-      type: "circle",
-      diameter: 40,
-      color: colorMap[object_type],
-    },
-  }));
-
-  const transitionNodes: NodeComponents[] = transitions.map(
-    ({ id, label }) => ({
-      id,
+  // Nodes
+  const nodes: ElementDefinition[] = [
+    ...places.map((place) => ({
       data: {
-        type: "rectangle",
-        ...(label
-          ? {
-              inner: (
-                <Text p={"md"} bd={"1px solid black"}>
-                  {label}
-                </Text>
-              ),
-              color: "white",
-            }
-          : { inner: <Box w={10} h={40}></Box>, color: "black" }),
+        id: place.id,
+        label: place.id,
+        type: "place",
+        objectType: place.object_type,
       },
-    }),
-  );
+    })),
+    ...transitions.map((transition) => ({
+      data: {
+        id: transition.id,
+        label: transition.label || "",
+        type: "transition",
+      },
+    })),
+  ];
+
+  // Edges
+  const edges: ElementDefinition[] = arcs.map((arc) => {
+    const objectType =
+      places.find((p) => p.id === arc.source || p.id === arc.target)
+        ?.object_type ?? "default";
+
+    return {
+      data: {
+        id: `${arc.source}->${arc.target}`,
+        source: arc.source,
+        target: arc.target,
+        color: colorMap[objectType],
+      },
+    };
+  });
+
+  // Layout
+  const layout = {
+    name: "elk",
+    elk: {
+      "elk.algorithm": "layered",
+      "elk.direction": "RIGHT",
+      "elk.layered.spacing.nodeNodeBetweenLayers": "50",
+      "elk.spacing.nodeNode": "30",
+      "elk.layered.edgeRouting": "ORTHOGONAL",
+      "elk.edgeRouting": "ORTHOGONAL",
+      "elk.layered.considerModelOrder.strategy": "NODES",
+      "elk.layered.crossingMinimization.strategy": "LAYER_SWEEP",
+    },
+    animate: true,
+  };
+
+  // Styles
+  const styles: StylesheetCSS[] = [
+    {
+      selector: "node[type='place']",
+      css: {
+        shape: "ellipse",
+        label: "data(label)",
+        "background-color": (node) => colorMap[node.data("objectType")],
+        "text-valign": "center",
+        "text-halign": "center",
+        "font-size": "12px",
+        width: 40,
+        height: 40,
+        "border-width": 2,
+        "border-color": "#000",
+      },
+    },
+    {
+      selector: "node[type='transition']",
+      css: {
+        shape: "rectangle",
+        label: "data(label)",
+        "background-color": "#fff",
+        "border-color": "#000",
+        "border-width": 2,
+        "text-valign": "center",
+        "text-halign": "center",
+        "font-size": "12px",
+        width: 12,
+        height: 40,
+      },
+    },
+    {
+      selector: "edge",
+      css: {
+        width: 2,
+        "line-color": "data(color)",
+        "target-arrow-shape": "triangle",
+        "target-arrow-color": "data(color)",
+        "curve-style": "bezier",
+      },
+    },
+  ];
 
   return (
-    <Graph
-      initialNodes={[...placeNodes, ...transitionNodes]}
-      initialEdges={arcs.map(({ source, target }) => {
-        const object_type = places.find(
-          ({ id }) => id === source || id === target,
-        )?.object_type;
-
-        return {
-          source,
-          target,
-          style: { strokeWidth: 3 },
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            ...(object_type && { color: colorMap[object_type] }),
-          },
-          ...(object_type && { style: { stroke: colorMap[object_type] } }),
-        };
-      })}
-      layoutOptions={{ type: "elk" }}
+    <CytoscapeGraph
+      elements={[...nodes, ...edges]}
+      styles={styles}
+      layout={layout}
     />
   );
 };

@@ -12,19 +12,15 @@ const AlternativeDFG: React.FC<{ ocdfg: Ocdfg }> = ({ ocdfg }) => {
     [ocdfg.object_types],
   );
 
-  const layout: CoseLayoutOptions = {
+  const layout = {
     name: "elk",
+    nodeDimensionsIncludeLabels: true,
     elk: {
-      spacing: 80, // general node spacing
-      "spacing.nodeNodeBetweenLayers": 100, // vertical distance between layers
-      "spacing.nodeNode": 60, // space between siblings
-      "spacing.edgeNode": 40, // edge-to-node padding
-      "layering.strategy": "LONGEST_PATH",
-      algorithm: "layered", // or 'mrtree', 'force', etc.
-      direction: "RIGHT", // also: DOWN, UP, LEFT
-      spacing: 50,
-      edgeRouting: "ORTHOGONAL",
-      nodePlacement: "LINEAR_SEGMENTS",
+      "elk.algorithm": "layered",
+      "elk.direction": "RIGHT",
+      spacingFactor: 1,
+      "spacing.portsSurrounding": 20,
+      "spacing.nodeNodeBetweenLayers": 100,
     },
 
     animate: true,
@@ -66,7 +62,6 @@ const AlternativeDFG: React.FC<{ ocdfg: Ocdfg }> = ({ ocdfg }) => {
             target: activity,
             id: `start_${objectType}->${activity}`,
             color: colorMap[objectType],
-            "elk.layerConstraint": "FIRST",
           },
           classes: "objectType",
         })),
@@ -79,7 +74,6 @@ const AlternativeDFG: React.FC<{ ocdfg: Ocdfg }> = ({ ocdfg }) => {
             target: `end_${objectType}`,
             id: `${activity}->end_${objectType}`,
             color: colorMap[objectType],
-            "elk.layerConstraint": "LAST",
           },
         })),
     ),
@@ -94,7 +88,7 @@ const AlternativeDFG: React.FC<{ ocdfg: Ocdfg }> = ({ ocdfg }) => {
         backgroundColor: "white",
         "text-valign": "center",
         "text-halign": "center",
-        "font-size": "12px",
+        "font-size": "16px",
         "text-wrap": "wrap",
         "border-width": "2px",
         width: "label",
@@ -106,7 +100,7 @@ const AlternativeDFG: React.FC<{ ocdfg: Ocdfg }> = ({ ocdfg }) => {
       css: {
         label: "data(label)",
         backgroundColor: (node) => colorMap[node.data("type")],
-        "font-size": "12px",
+        "font-size": "16px",
         "text-wrap": "wrap",
         "border-width": "2px",
         width: 10,
