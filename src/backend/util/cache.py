@@ -115,7 +115,6 @@ def key_decorator_add_func_name(func: Callable):
 def instance_lru_cache(
     key: Callable | None = None,
     make_hashable: bool = False,
-    ignore_task: bool = True,
     use_lock: bool = True,
 ):
     """Caches an instance method.
