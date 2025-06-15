@@ -27,6 +27,8 @@ from ocel.utils import add_object_order, filter_relations
 from util.cache import instance_lru_cache
 from util.pandas import mirror_dataframe, mmmm
 from util.types import PathLike
+import json
+import hashlib
 
 # from sklearn.cluster import KMeans
 
@@ -56,6 +58,9 @@ class OCELWrapper:
     @property
     def id(self) -> str:
         return self._id
+
+    def ocel_state_id(self) -> tuple[str, str]:
+        return (self.id, self.filter_hash)
 
     # ----- Pm4py Aliases ------------------------------------------------------------------------------------------
     # region
@@ -155,6 +160,14 @@ class OCELWrapper:
 
     def get_filters(self) -> list[FilterConfig]:
         return self._filters
+
+    @property
+    def filter_hash(self) -> str:
+        filters_serialized = json.dumps(
+            [f.model_dump() for f in self._filters],  # Pydantic-safe
+            sort_keys=True,
+        )
+        return hashlib.md5(filters_serialized.encode()).hexdigest()
 
     # endregion
     # ----- PROCESS DISCOVERY ------------------------------------------------------------------------------------------

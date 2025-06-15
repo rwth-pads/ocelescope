@@ -106,6 +106,17 @@ def key_decorator_add_func_name(func: Callable):
     return decorator
 
 
+def key_decorator_add_filter_hash(func: Callable):
+    def decorator(key):
+        def key_wrapper(self, *args, **kwargs):
+            filter_hash = getattr(self, "filter_hash", "no_filter")
+            return key(self, filter_hash, *args, **kwargs)
+
+        return key_wrapper
+
+    return decorator
+
+
 # from: https://cachetools.readthedocs.io/en/latest/#cachetools.cachedmethod
 # "The key function will be called as key(self, *args, **kwargs) to retrieve a suitable cache key.
 # Note that the default key function, cachetools.keys.methodkey(), ignores its first argument, i.e. self.
@@ -116,6 +127,7 @@ def instance_lru_cache(
     key: Callable | None = None,
     make_hashable: bool = False,
     use_lock: bool = True,
+    include_filter_hash: bool = True,
 ):
     """Caches an instance method.
 
@@ -132,7 +144,12 @@ def instance_lru_cache(
             make_hashable=make_hashable, func=func, ignore_first=True
         )(key)
         key2 = key_decorator_add_func_name(func=func)(key1)
-        _key = key2
+        key3 = (
+            key_decorator_add_filter_hash(func=func)(key2)
+            if include_filter_hash
+            else key2
+        )
+        _key = key3
 
         def lock_context(self):
             if use_lock:
