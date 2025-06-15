@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import platform
 import sys
+from uuid import uuid4
 import warnings
 from copy import deepcopy
 from datetime import datetime
@@ -19,7 +20,6 @@ from pm4py.objects.ocel.obj import OCEL
 from api.extensions import (
     OcelExtension,
     get_registered_extensions,
-    list_extension_metadata,
 )
 from api.logger import logger
 from lib.filters import FilterConfig, apply_filters
@@ -32,7 +32,9 @@ from util.types import PathLike
 
 
 class OCELWrapper:
-    def __init__(self, ocel: OCEL):
+    def __init__(self, ocel: OCEL, id: Optional[str] = None):
+        self._id = id if id is not None else str(uuid4())
+
         self._raw_ocel = ocel
         # Metadata, to be set manually after creating the instance
         self.meta: dict[str, Any] = {}
@@ -50,6 +52,10 @@ class OCELWrapper:
         # Instance-level cache object (using cachetools)
         self.cache = LRUCache(maxsize=128)
         self.cache_lock = Lock()
+
+    @property
+    def id(self) -> str:
+        return self._id
 
     # ----- Pm4py Aliases ------------------------------------------------------------------------------------------
     # region
@@ -106,7 +112,9 @@ class OCELWrapper:
 
     @property
     @instance_lru_cache()
-    def objects_with_otypes(self) -> pd.Series:
+    def objects_with_otypes(
+        self,
+    ) -> pd.Series:
         """pandas Series containing the object type of each object"""
         return self.ocel.objects[["ocel:oid", "ocel:type"]].set_index("ocel:oid")[  # type: ignore
             "ocel:type"
@@ -899,7 +907,7 @@ class OCELWrapper:
     def __deepcopy__(self, memo: dict[int, Any]):
         # TODO revisit this. Are the underlying DataFrames mutable? If not, might optimize this
         pm4py_ocel = deepcopy(self.ocel, memo)
-        ocel = OCELWrapper(pm4py_ocel)
+        ocel = OCELWrapper(ocel=pm4py_ocel, id=str(uuid4()))
         ocel.meta = deepcopy(self.meta, memo)
         return ocel
 

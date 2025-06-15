@@ -5,12 +5,10 @@ import uuid
 from typing import Any, Optional, Type, TypeVar, cast
 
 from api.exceptions import NotFound
-from api.logger import logger
 from api.model.cache import CachableObject
 from api.model.tasks import TaskSummary
 from ocel.ocel_wrapper import OCELWrapper
 from util.tasks import Task
-from util.types import PathLike
 
 
 T = TypeVar("T", bound=CachableObject)  # Constrain T to CachableObject
@@ -86,13 +84,12 @@ class Session:
         self.state = str(uuid.uuid4())
 
     def add_ocel(self, ocel: OCELWrapper) -> str:
-        id = str(uuid.uuid4())
-        self.ocels[id] = ocel
+        self.ocels[ocel.id] = ocel
 
         if not self.current_ocel_id:
             self.current_ocel_id = id
 
-        return id
+        return ocel.id
 
     def get_ocel(self, ocel_id: Optional[str] = None) -> OCELWrapper:
         id = ocel_id if ocel_id is not None else self.current_ocel_id
