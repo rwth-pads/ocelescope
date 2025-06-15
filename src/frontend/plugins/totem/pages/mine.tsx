@@ -64,7 +64,6 @@ const MinePage = () => {
       edges,
     };
   }, [result]);
-  console.log(edges, nodes);
 
   const { isTaskRunning } = useWaitForTask({
     taskId: result?.taskId ?? undefined,
@@ -74,7 +73,21 @@ const MinePage = () => {
   return (
     <Box pos={"relative"} w={"100%"} h={"100%"}>
       <LoadingOverlay visible={isTaskRunning} />
-      {result?.result && <Graph initialNodes={nodes} initialEdges={edges} />}
+      {result?.result && (
+        <Graph
+          initialNodes={nodes}
+          initialEdges={edges}
+          layoutOptions={{
+            type: "elk",
+            options: {
+              "elk.algorithm": "layered",
+              "elk.direction": "DOWN",
+              "elk.spacing.nodeNode": 50,
+              "elk.layered.spacing.nodeNodeBetweenLayers": 100,
+            },
+          }}
+        />
+      )}
     </Box>
   );
 };

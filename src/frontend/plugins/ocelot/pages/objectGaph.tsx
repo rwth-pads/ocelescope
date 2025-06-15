@@ -69,6 +69,15 @@ const ObjectGraph = () => {
             markerEnd: { type: MarkerType.Arrow },
             data: { mid: <Text size="xs">{freq}</Text> },
           }))}
+          layoutOptions={{
+            type: "elk",
+            options: {
+              "elk.algorithm": "layered",
+              "elk.direction": "DOWN",
+              "elk.spacing.nodeNode": 50,
+              "elk.layered.spacing.nodeNodeBetweenLayers": 100,
+            },
+          }}
         />
       )}
     </Box>
