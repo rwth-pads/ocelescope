@@ -1,4 +1,4 @@
-import React, { ComponentProps, useCallback, useEffect } from "react";
+import React, { ComponentProps, useCallback, useEffect, useState } from "react";
 import {
   ReactFlow,
   useNodesState,
@@ -11,6 +11,8 @@ import {
   Edge,
   ReactFlowProvider,
   Controls,
+  NodeChange,
+  applyNodeChanges,
 } from "@xyflow/react";
 
 import "@xyflow/react/dist/style.css";
@@ -71,7 +73,7 @@ const InnerFlow: React.FC<Props> = ({
   initialEdges,
   layoutOptions = { type: "dagre" },
 }) => {
-  const [nodes, _setNodes, onNodesChange] = useNodesState<Node>(
+  const [nodes, setNodes] = useState<Node[]>(
     initialNodes.map((node) => ({
       ...node,
       type: node.data.type,
@@ -81,7 +83,6 @@ const InnerFlow: React.FC<Props> = ({
       },
     })),
   );
-
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(
     initialEdges.map((edge, index) => ({
       ...edge,
@@ -90,26 +91,35 @@ const InnerFlow: React.FC<Props> = ({
     })),
   );
 
+  const onNodesChange = useCallback((changes: NodeChange[]) => {
+    const positionChange = changes.filter(
+      (change) => change.type === "position",
+    );
+    if (positionChange.length > 0) {
+      const movedNodes = positionChange.map((change) => change.id);
+      setEdges((edges) =>
+        edges.map((edge) => ({
+          ...edge,
+          data: {
+            ...edge.data,
+            position:
+              movedNodes.includes(edge.target) ||
+              movedNodes.includes(edge.source)
+                ? undefined
+                : edge.data!.position!,
+          },
+        })),
+      );
+    }
+
+    setNodes((nds) => applyNodeChanges(changes, nds));
+  }, []);
+
   const { layout } = layoutToHook[layoutOptions.type]();
 
   useEffect(() => {
     void layout(layoutOptions?.options);
   }, [initialNodes, initialEdges, nodes.some(({ measured }) => !!measured)]);
-
-  const onConnect: OnConnect = useCallback(
-    (params: Connection) =>
-      setEdges((eds) =>
-        addEdge(
-          {
-            ...params,
-            type: "floating",
-            markerEnd: { type: MarkerType.Arrow },
-          },
-          eds,
-        ),
-      ),
-    [setEdges],
-  );
 
   return (
     <>
@@ -119,7 +129,6 @@ const InnerFlow: React.FC<Props> = ({
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
         fitView
         edgeTypes={edgeTypes}
         nodeTypes={nodeTypes}

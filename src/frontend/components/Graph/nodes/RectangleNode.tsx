@@ -21,7 +21,6 @@ export default memo(
           <Box
             style={{
               backgroundColor: color,
-              borderRadius: 4,
               display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
