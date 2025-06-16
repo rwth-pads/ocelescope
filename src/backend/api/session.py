@@ -87,7 +87,7 @@ class Session:
         self.ocels[ocel.id] = ocel
 
         if not self.current_ocel_id:
-            self.current_ocel_id = id
+            self.current_ocel_id = ocel.id
 
         return ocel.id
 

@@ -59,7 +59,7 @@ class OCELWrapper:
     def id(self) -> str:
         return self._id
 
-    def ocel_state_id(self) -> tuple[str, str]:
+    def state_id(self) -> tuple[str, str]:
         return (self.id, self.filter_hash)
 
     # ----- Pm4py Aliases ------------------------------------------------------------------------------------------

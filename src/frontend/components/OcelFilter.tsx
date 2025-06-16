@@ -34,12 +34,14 @@ type FilterDefinition<K extends FilterTypes> = {
   renderInput: (props: {
     control: Control<FilterFormValues>;
     index: number;
+    exclude?: boolean;
   }) => React.ReactNode;
 };
 
 type ControlledInputProps<T> = {
   value: T;
   onChange: (value: T) => void;
+  exclude?: boolean;
 };
 
 const FilterController =
@@ -47,15 +49,21 @@ const FilterController =
   ({
     control,
     index,
+    exclude = false,
   }: {
     control: Control<FilterFormValues>;
     index: number;
+    exclude?: boolean;
   }) => (
     <Controller
       control={control}
       name={`filters.${index}.config` as const}
       render={({ field }) => (
-        <InputComponent value={field.value as T} onChange={field.onChange} />
+        <InputComponent
+          value={field.value as T}
+          onChange={field.onChange}
+          exclude={exclude}
+        />
       )}
     />
   );
@@ -65,10 +73,11 @@ const filterDefinitions: { [K in FilterTypes]: FilterDefinition<K> } = {
     label: "Event Type",
     defaultConfig: { event_types: [] },
     renderInput: FilterController<ConfigByType<"event_type">>(
-      ({ value: { event_types }, onChange }) => {
+      ({ value: { event_types }, onChange, exclude }) => {
         return (
           <EventTypeFilterInput
             value={event_types}
+            exclude={exclude}
             onChange={(newEvents) => onChange({ event_types: newEvents })}
           />
         );
@@ -185,6 +194,8 @@ export const FilterForm: React.FC<{
                   <Select
                     label="Filter Type"
                     value={field.value}
+                    searchable
+                    allowDeselect={false}
                     onChange={(val) => {
                       const def = filterDefinitions[val as FilterTypes];
                       update(index, {

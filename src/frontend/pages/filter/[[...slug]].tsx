@@ -18,7 +18,7 @@ const FilterPage = () => {
     },
   });
   return (
-    <Container>
+    <Container p="xl">
       <Title>Filters</Title>
       {filter && (
         <FilterForm
