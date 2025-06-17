@@ -59,6 +59,7 @@ class OCELWrapper:
     def id(self) -> str:
         return self._id
 
+    @property
     def state_id(self) -> tuple[str, str]:
         return (self.id, self.filter_hash)
 
