@@ -7,6 +7,7 @@ const CytoscapeSidebar: React.FC<{
 }> = ({ close, children }) => {
   return (
     <Paper
+      style={{ zIndex: 2 }}
       shadow="xs"
       p="xl"
       pos={"absolute"}

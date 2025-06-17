@@ -1,17 +1,23 @@
-import { useOcdfg } from "@/api/fastapi/berti/berti";
-import { useTaskModal } from "@/components/TaskModal/TaskModal";
+import { useOcdfg, useSaveOcdfg } from "@/api/fastapi/berti/berti";
 import { RouteDefinition } from "@/plugins/types";
-import { useEffect, useMemo, useState } from "react";
-import OCDFG from "../components/OCDFG";
+import { useMemo, useState } from "react";
 import ObjectTypeFilterInput from "@/components/OcelInputs/ObjectTypeFilter";
 import { useEventCounts, useObjectCount } from "@/api/fastapi/info/info";
-import { Divider, ScrollArea, Stack } from "@mantine/core";
+import { Divider, LoadingOverlay, ScrollArea, Stack } from "@mantine/core";
 import CytoscapeSidebar from "@/components/Cytoscape/components/SideBar";
-import { Ocdfg } from "@/api/fastapi-schemas";
 import EventTypeFilterInput from "@/components/OcelInputs/ActivityTypeFilter";
+import ActionButtons from "@/components/Cytoscape/components/ActionButtons";
+
+import Ocdfg from "@/components/Resource/Ocdfg";
+import useWaitForTask from "@/hooks/useTaskWaiter";
+import useInvalidateResources from "@/hooks/useInvalidateResources";
+import FloatingAnotation from "@/components/Cytoscape/components/FloatingLabel";
 
 const OCDFGPage = () => {
-  const { showTaskModal } = useTaskModal();
+  const invalidateResources = useInvalidateResources();
+  const { mutate } = useSaveOcdfg({
+    mutation: { onSuccess: invalidateResources },
+  });
   const { data: ocdfgResponse, refetch } = useOcdfg({});
   const [isOptionsOpen, setOptionsOpen] = useState(true);
 
@@ -32,83 +38,15 @@ const OCDFGPage = () => {
     );
   }, [disabledEventTypes, eventCount]);
 
-  const ocdfg: Ocdfg | undefined = useMemo(() => {
-    const result = ocdfgResponse?.result;
-    if (!result) {
-      return undefined;
-    }
-    const edges = result.edges.filter(
-      ({ object_type, source, target }) =>
-        !disabledObjectTypes.includes(object_type) &&
-        !disabledEventTypes.includes(source) &&
-        !disabledEventTypes.includes(target),
-    );
+  useWaitForTask({
+    taskId: ocdfgResponse?.taskId ?? undefined,
+    onSuccess: refetch,
+  });
 
-    const end_activities = Object.fromEntries(
-      Object.entries(result.end_activities)
-        .filter(
-          ([objectType, _start_activities]) =>
-            !disabledObjectTypes.includes(objectType),
-        )
-        .map(([objectType, endActivities]) => [
-          objectType,
-          endActivities.filter(
-            (activity) => !disabledEventTypes.includes(activity),
-          ),
-        ]),
-    );
-    const start_activities = Object.fromEntries(
-      Object.entries(result.start_activities)
-        .filter(
-          ([objectType, _end_activities]) =>
-            !disabledObjectTypes.includes(objectType),
-        )
-        .map(([objectType, startActivities]) => [
-          objectType,
-          startActivities.filter(
-            (activity) => !disabledEventTypes.includes(activity),
-          ),
-        ]),
-    );
-
-    const activities = result.activities.filter(
-      (activity) =>
-        !disabledEventTypes.includes(activity) &&
-        (edges.some(
-          ({ source, target }) => source === activity || target === activity,
-        ) ||
-          Object.values(end_activities).some((endActivities) =>
-            endActivities.includes(activity),
-          ) ||
-          Object.values(end_activities).some((endActivities) =>
-            endActivities.includes(activity),
-          )),
-    );
-
-    return {
-      object_types: result.object_types.filter(
-        (objectType) => !disabledObjectTypes.includes(objectType),
-      ),
-      edges,
-      activities,
-      end_activities,
-      start_activities,
-    } satisfies Ocdfg;
-  }, [ocdfgResponse?.result, disabledEventTypes, disabledObjectTypes]);
-
-  useEffect(() => {
-    if (ocdfgResponse?.taskId && ocdfgResponse.status !== "SUCCESS") {
-      showTaskModal({
-        taskId: ocdfgResponse.taskId,
-        onSuccess: () => {
-          refetch();
-        },
-      });
-    }
-  }, [ocdfgResponse?.taskId]);
+  const toggleOptions = () => setOptionsOpen((prevIsOpen) => !prevIsOpen);
 
   return (
-    <OCDFG ocdfg={ocdfg} toggleOptions={() => setOptionsOpen((prev) => !prev)}>
+    <Ocdfg ocdfg={ocdfgResponse?.result ?? undefined}>
       {isOptionsOpen && (
         <CytoscapeSidebar close={() => setOptionsOpen((prev) => !prev)}>
           <ScrollArea h={"100%"}>
@@ -138,7 +76,13 @@ const OCDFGPage = () => {
           </ScrollArea>
         </CytoscapeSidebar>
       )}
-    </OCDFG>
+      <ActionButtons
+        toggleOptions={toggleOptions}
+        onSave={ocdfgResponse?.result ? () => mutate({}) : undefined}
+      />
+      <LoadingOverlay zIndex={1} visible={!ocdfgResponse?.result} />
+      <FloatingAnotation>St</FloatingAnotation>
+    </Ocdfg>
   );
 };
 

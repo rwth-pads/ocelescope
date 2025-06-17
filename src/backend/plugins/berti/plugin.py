@@ -6,11 +6,12 @@ from fastapi import APIRouter
 from fastapi.params import Depends
 
 from api.dependencies import ApiOcel, ApiSession
+from api.exceptions import NotFound
 from api.model.cache import CachableObject
-from api.model.process_models import OCDFG
 from api.model.tasks import TaskResponse
 from api.session import Session
 from plugins.berti.util import compute_ocdfg, convert_flat_pm4py_to_ocpn
+from resources.ocdfg import ObjectCentricDirectlyFollowsGraph
 from resources.ocpn import ObjectCentricPetriNet
 from util.tasks import TaskState, task
 
@@ -21,7 +22,7 @@ class State(CachableObject):
     def __init__(self):
         super().__init__()
         self.petri_nets: dict[tuple[str, str], ObjectCentricPetriNet] = {}
-        self.ocdfgs: dict[tuple[str, str], OCDFG] = {}
+        self.ocdfgs: dict[tuple[str, str], ObjectCentricDirectlyFollowsGraph] = {}
 
 
 def get_state(session: ApiSession):
@@ -73,7 +74,7 @@ def get_ocdfg(
     session: ApiSession,
     state: StateDep,
     ocel: ApiOcel,
-) -> TaskResponse[OCDFG]:
+) -> TaskResponse[ObjectCentricDirectlyFollowsGraph]:
     if ocel.state_id in state.ocdfgs:
         return TaskResponse(
             status=TaskState.SUCCESS, result=state.ocdfgs[ocel.state_id]
@@ -82,6 +83,36 @@ def get_ocdfg(
     test = mine_ocdfg(session=session, ocel_id=ocel.id)
 
     return TaskResponse(status=TaskState.STARTED, taskId=test)
+
+
+@router.post("/ocdfg", operation_id="saveOcdfg")
+def save_ocdfg(
+    session: ApiSession,
+    state: StateDep,
+    ocel: ApiOcel,
+) -> str:
+    if ocel.state_id not in state.ocdfgs:
+        raise NotFound("Process model not discovered")
+
+    resource = session.add_resource(
+        source="berti", resource=state.ocdfgs[ocel.state_id]
+    )
+    return resource.id
+
+
+@router.post("/pnet", operation_id="savePnet")
+def save_pnet(
+    session: ApiSession,
+    state: StateDep,
+    ocel: ApiOcel,
+) -> str:
+    if ocel.state_id not in state.petri_nets:
+        raise NotFound("Process model not discovered")
+
+    resource = session.add_resource(
+        source="berti", resource=state.petri_nets[ocel.state_id]
+    )
+    return resource.id
 
 
 @task(dedupe=True)

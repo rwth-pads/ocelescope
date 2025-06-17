@@ -1,5 +1,5 @@
-from dataclasses import dataclass, field
-from typing import ClassVar, Literal, Optional
+from dataclasses import dataclass
+from typing import Literal, Optional
 
 from resources.base import AnnotatedClass, Resource
 

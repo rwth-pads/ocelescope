@@ -24,9 +24,9 @@ def convert_flat_pm4py_to_ocpn(flat_nets: dict[str, PMNet]) -> ObjectCentricPetr
                     Place(
                         id=qualified_id,
                         place_type="source"
-                        if place == "source"
+                        if place.name == "source"
                         else "sink"
-                        if place == "sink"
+                        if place.name == "sink"
                         else None,
                         object_type=object_type,
                         annotation={},
@@ -81,12 +81,32 @@ def convert_flat_pm4py_to_ocpn(flat_nets: dict[str, PMNet]) -> ObjectCentricPetr
 def compute_ocdfg(ocel: OCEL) -> ObjectCentricDirectlyFollowsGraph:
     ocdfg = pm4py.discover_ocdfg(ocel)
 
+    edge_count_dict = {}
+    for object_type, values in ocdfg["edges"]["event_couples"].items():
+        for key, events in values.items():
+            edge_count_dict[(object_type, key)] = len(events)
+
+    start_edge_count = {}
+    for object_type, values in ocdfg["start_activities"]["events"].items():
+        for key, events in values.items():
+            start_edge_count[(object_type, key)] = len(events)
+
+    end_edge_count = {}
+    for object_type, values in ocdfg["end_activities"]["events"].items():
+        for key, events in values.items():
+            end_edge_count[(object_type, key)] = len(events)
+
     edges = []
     for object_type, raw_edges in ocdfg["edges"]["event_couples"].items():
         edges = edges + (
             [
                 Edge(
-                    object_type=object_type, source=source, target=target, annotation={}
+                    object_type=object_type,
+                    source=source,
+                    target=target,
+                    annotation={
+                        "label": edge_count_dict[(object_type, (source, target))]
+                    },
                 )
                 for source, target in raw_edges
             ]
@@ -109,5 +129,5 @@ def compute_ocdfg(ocel: OCEL) -> ObjectCentricDirectlyFollowsGraph:
         object_types=ocdfg["object_types"],
         end_activities=end_activities,
         start_activities=start_activities,
-        annotation={},
+        annotation={"start_count": start_activities, "end_count": end_activities},
     )

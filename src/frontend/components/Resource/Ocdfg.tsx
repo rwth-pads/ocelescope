@@ -1,9 +1,10 @@
 // components/AlternativeDFG.tsx
-import { Ocdfg } from "@/api/fastapi-schemas";
-import assignUniqueColors from "../util";
+import { ObjectCentricDirectlyFollowsGraph } from "@/api/fastapi-schemas";
 import { useMemo } from "react";
 import { ElementDefinition, StylesheetCSS } from "cytoscape";
 import dynamic from "next/dynamic";
+import assignUniqueColors from "@/util/colors";
+import { ocdfg } from "@/api/fastapi/berti/berti";
 
 const layout = {
   name: "elk",
@@ -23,11 +24,10 @@ const layout = {
   },
 };
 
-const DFG: React.FC<{
-  ocdfg?: Ocdfg;
+const Ocdfg: React.FC<{
+  ocdfg?: ObjectCentricDirectlyFollowsGraph;
   children?: React.ReactNode;
-  toggleOptions?: () => void;
-}> = ({ ocdfg, children, toggleOptions }) => {
+}> = ({ ocdfg, children }) => {
   const CytoscapeGraph = dynamic(
     () => import("@/components/Cytoscape/Cytoscape"),
     {
@@ -77,6 +77,7 @@ const DFG: React.FC<{
           target: edge.target,
           objectType: edge.object_type,
           color: colorMap[edge.object_type],
+          label: edge.annotation?.["label"] ?? undefined,
         },
       })),
 
@@ -98,7 +99,6 @@ const DFG: React.FC<{
             data: {
               source: activity,
               target: `end_${objectType}`,
-              label: "test",
               id: `${activity}->end_${objectType}`,
               color: colorMap[objectType],
             },
@@ -140,12 +140,18 @@ const DFG: React.FC<{
         selector: "edge",
         css: {
           width: 2,
+          label: "data(label)",
           "target-arrow-shape": "triangle",
           "target-arrow-color": "data(color)",
           "line-color": "data(color)",
-          "font-size": "10px",
-          "text-margin-y": -10,
+          "font-size": "16px",
           "curve-style": "bezier",
+          "text-rotation": "autorotate",
+          "text-margin-y": 0,
+          "text-background-color": "#ffffff",
+          "text-background-opacity": 1,
+          "text-background-shape": "roundrectangle",
+          "text-background-padding": "3px",
         },
       },
 
@@ -166,7 +172,6 @@ const DFG: React.FC<{
       elements={elements}
       styles={styles}
       layout={layout}
-      toggleOptions={toggleOptions}
       isLoading={!!ocdfg}
     >
       {children}
@@ -174,4 +179,4 @@ const DFG: React.FC<{
   );
 };
 
-export default DFG;
+export default Ocdfg;

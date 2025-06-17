@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 import json
 import uuid
 from typing import Any, Optional, Type, TypeVar, cast
@@ -8,6 +9,7 @@ from api.exceptions import NotFound
 from api.model.cache import CachableObject
 from api.model.tasks import TaskSummary
 from ocel.ocel_wrapper import OCELWrapper
+from resources import Resource, ResourceUnion
 from util.tasks import Task
 
 
@@ -30,6 +32,9 @@ class Session:
 
         # Plugins
         self._plugin_states: dict[str, CachableObject] = {}
+
+        # Resources
+        self._resources: dict[str, Resource] = {}
 
         # OCELS
         self.ocels: dict[str, OCELWrapper] = {}
@@ -117,6 +122,40 @@ class Session:
         self.ocels.pop(ocel_id, None)
 
         self.invalidate_plugin_states()
+
+    # Resources
+    def get_resource(self, resource_id: str) -> Resource:
+        resource = self._resources.get(resource_id)
+        if resource is None:
+            raise NotFound(f"Resource with id {resource_id} not found")
+
+        return resource
+
+    def add_resource(
+        self,
+        resource: ResourceUnion,
+        source: str,
+        name: Optional[str] = None,
+        meta_data: Optional[dict[str, Any]] = None,
+    ) -> Resource:
+        new_resource = Resource(
+            id=str(uuid.uuid4()),
+            source=source,
+            resource=resource,
+            created_at=datetime.now().isoformat(),
+            meta_data=meta_data if meta_data is not None else {},
+            name=name if name is not None else resource.type,
+        )
+
+        self._resources[new_resource.id] = new_resource
+
+        return new_resource
+
+    def delete_resource(self, resource_id: str):
+        self._resources.pop(resource_id)
+
+    def list_resources(self) -> list[Resource]:
+        return list(self._resources.values())
 
     def invalidate_plugin_states(self):
         for plugin_state in self._plugin_states.values():

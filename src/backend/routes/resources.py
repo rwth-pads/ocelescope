@@ -7,7 +7,7 @@ from pydantic.main import BaseModel
 
 from api.dependencies import ApiSession
 from api.model.ocel import OCEL_Metadata, Uploading_OCEL_Metadata
-from resources import ResourceUnion
+from resources import Resource
 
 
 resourceRouter = APIRouter(prefix="/resource", tags=["resource"])
@@ -19,8 +19,18 @@ class GetOcelResponse(BaseModel):
     uploading_ocels: list[Uploading_OCEL_Metadata]
 
 
-@resourceRouter.post(
+@resourceRouter.get(
     "/", summary="Returns all available resources", operation_id="getResources"
 )
-def getResources(session: ApiSession) -> list[ResourceUnion]:
-    return []
+def getResources(session: ApiSession) -> list[Resource]:
+    return session.list_resources()
+
+
+@resourceRouter.get("/{resource_id}")
+def getResource(resource_id: str, session: ApiSession) -> Resource:
+    return session.get_resource(resource_id)
+
+
+@resourceRouter.delete("/{resource_id}", operation_id="deleteResource")
+def deleteResource(resource_id: str, session: ApiSession):
+    session.delete_resource(resource_id)

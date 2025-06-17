@@ -1,26 +1,30 @@
-import { usePetriNet } from "@/api/fastapi/berti/berti";
+import { usePetriNet, useSavePnet } from "@/api/fastapi/berti/berti";
 import { RouteDefinition } from "@/plugins/types";
-import PetriNet from "../components/PetriNet";
-import { useTaskModal } from "@/components/TaskModal/TaskModal";
-import { useEffect } from "react";
 import useWaitForTask from "@/hooks/useTaskWaiter";
-import { Box, LoadingOverlay } from "@mantine/core";
+import { Box } from "@mantine/core";
+import PetriNet from "@/components/Resource/Ocpn";
+import ActionButtons from "@/components/Cytoscape/components/ActionButtons";
+import useInvalidateResources from "@/hooks/useInvalidateResources";
 
 const PetriNetPage = () => {
   const { data: pnet, refetch } = usePetriNet({});
-  const { isTaskRunning } = useWaitForTask({
+
+  const invalidateResources = useInvalidateResources();
+  const { mutate } = useSavePnet({
+    mutation: { onSuccess: invalidateResources },
+  });
+
+  useWaitForTask({
     taskId: pnet?.taskId ?? undefined,
     onSuccess: refetch,
   });
 
   return (
-    <>
-      <Box pos={"relative"} w={"100%"} h={"100%"}>
-        <LoadingOverlay visible={isTaskRunning} />
-        {pnet?.result && <PetriNet ocpn={pnet.result} />}
-      </Box>
-      <LoadingOverlay />
-    </>
+    <Box pos={"relative"} w={"100%"} h={"100%"}>
+      <PetriNet ocpn={pnet?.result ?? undefined}>
+        <ActionButtons onSave={pnet?.result ? () => mutate({}) : undefined} />
+      </PetriNet>
+    </Box>
   );
 };
 
