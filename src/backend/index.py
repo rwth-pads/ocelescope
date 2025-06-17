@@ -3,7 +3,6 @@ from __future__ import annotations
 import datetime
 import shutil
 from pathlib import Path
-import sqlite3
 from tempfile import NamedTemporaryFile
 from typing import Annotated, Literal, Optional
 
@@ -33,6 +32,7 @@ from routes.filter import filterRouter
 from routes.info import infoRouter
 from routes.session import sessionRouter
 from routes.tasks import taskRouter
+from routes.resources import resourceRouter
 from tasks.ocel import import_ocel_task
 from util.constants import SUPPORTED_FILE_TYPES
 from util.misc import export_example_settings_as_dotenv
@@ -72,6 +72,7 @@ app.include_router(infoRouter)
 app.include_router(filterRouter)
 app.include_router(sessionRouter)
 app.include_router(taskRouter)
+app.include_router(resourceRouter)
 init_custom_docs(app)
 
 

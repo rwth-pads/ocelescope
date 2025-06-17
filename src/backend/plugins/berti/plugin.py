@@ -7,10 +7,11 @@ from fastapi.params import Depends
 
 from api.dependencies import ApiOcel, ApiSession
 from api.model.cache import CachableObject
-from api.model.process_models import OCDFG, ObjectCentricPetriNet
+from api.model.process_models import OCDFG
 from api.model.tasks import TaskResponse
 from api.session import Session
 from plugins.berti.util import compute_ocdfg, convert_flat_pm4py_to_ocpn
+from resources.ocpn import ObjectCentricPetriNet
 from util.tasks import TaskState, task
 
 router = APIRouter()

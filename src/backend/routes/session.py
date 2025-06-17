@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from os import SEEK_CUR
 from typing import Optional
 
 from fastapi.routing import APIRouter
