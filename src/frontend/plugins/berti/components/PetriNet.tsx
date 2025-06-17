@@ -2,13 +2,21 @@
 import { ObjectCentricPetriNet } from "@/api/fastapi-schemas";
 import assignUniqueColors from "../util";
 import { useMemo } from "react";
-import CytoscapeGraph from "@/components/Cytoscape/Cytoscape";
 import { ElementDefinition, StylesheetCSS } from "cytoscape";
+import dynamic from "next/dynamic";
 
 const PetriNet: React.FC<{ ocpn: ObjectCentricPetriNet }> = ({ ocpn }) => {
-  const { places, transitions, arcs } = ocpn.net;
+  const { places, transitions, arcs } = ocpn;
+
+  const CytoscapeGraph = dynamic(
+    () => import("@/components/Cytoscape/Cytoscape"),
+    {
+      ssr: false,
+    },
+  );
 
   // Assign unique colors to each object type
+
   const colorMap = useMemo(
     () =>
       assignUniqueColors(
