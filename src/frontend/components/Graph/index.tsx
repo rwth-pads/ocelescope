@@ -15,9 +15,6 @@ import {
   applyNodeChanges,
 } from "@xyflow/react";
 
-import "@xyflow/react/dist/style.css";
-import "./floating-flow.css";
-
 import CircleNode, {
   CircleNodeType,
 } from "@/components/Graph/nodes/CircleNode";
