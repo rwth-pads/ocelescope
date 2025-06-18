@@ -11,6 +11,7 @@ from api.model.cache import CachableObject
 from api.model.tasks import TaskResponse
 from api.session import Session
 from plugins.berti.util import compute_ocdfg, convert_flat_pm4py_to_ocpn
+from resources import Resource
 from resources.ocdfg import ObjectCentricDirectlyFollowsGraph
 from resources.ocpn import ObjectCentricPetriNet
 from util.tasks import TaskState, task
@@ -90,14 +91,14 @@ def save_ocdfg(
     session: ApiSession,
     state: StateDep,
     ocel: ApiOcel,
-) -> str:
+) -> Resource:
     if ocel.state_id not in state.ocdfgs:
         raise NotFound("Process model not discovered")
 
     resource = session.add_resource(
         source="berti", resource=state.ocdfgs[ocel.state_id]
     )
-    return resource.id
+    return resource
 
 
 @router.post("/pnet", operation_id="savePnet")
@@ -105,14 +106,14 @@ def save_pnet(
     session: ApiSession,
     state: StateDep,
     ocel: ApiOcel,
-) -> str:
+) -> Resource:
     if ocel.state_id not in state.petri_nets:
         raise NotFound("Process model not discovered")
 
     resource = session.add_resource(
         source="berti", resource=state.petri_nets[ocel.state_id]
     )
-    return resource.id
+    return resource
 
 
 @task(dedupe=True)
