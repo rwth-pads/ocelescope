@@ -5,13 +5,22 @@ import { Box } from "@mantine/core";
 import PetriNet from "@/components/Resource/Ocpn";
 import ActionButtons from "@/components/Cytoscape/components/ActionButtons";
 import useInvalidateResources from "@/hooks/useInvalidateResources";
+import { showNotification } from "@mantine/notifications";
 
 const PetriNetPage = () => {
   const { data: pnet, refetch } = usePetriNet({});
 
   const invalidateResources = useInvalidateResources();
   const { mutate } = useSavePnet({
-    mutation: { onSuccess: invalidateResources },
+    mutation: {
+      onSuccess: async (addedResource) => {
+        showNotification({
+          title: "Resource Saved",
+          message: addedResource.name,
+        });
+        await invalidateResources();
+      },
+    },
   });
 
   useWaitForTask({

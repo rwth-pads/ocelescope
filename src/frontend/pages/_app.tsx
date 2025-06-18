@@ -1,6 +1,13 @@
 import "@mantine/core/styles.css";
+import "@mantine/dates/styles.css";
+import "@mantine/charts/styles.css";
+import "@mantine/notifications/styles.css";
+import "@mantine/dropzone/styles.css";
+import "@mantine/notifications/styles.css";
+import { Notifications } from "@mantine/notifications";
+
 import Head from "next/head";
-import { MantineProvider } from "@mantine/core";
+import { MantineProvider, Notification } from "@mantine/core";
 import { theme } from "../theme";
 import { useState } from "react";
 
@@ -10,10 +17,7 @@ import {
   QueryClientProvider,
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import "@mantine/dropzone/styles.css";
 import AppShell from "@/components/AppShell/AppShell";
-import "@mantine/dates/styles.css";
-import "@mantine/charts/styles.css";
 
 export default function App({ Component, pageProps }: any) {
   const [QueryClienty] = useState(() => new QueryClient());
@@ -22,6 +26,7 @@ export default function App({ Component, pageProps }: any) {
     <QueryClientProvider client={QueryClienty}>
       <HydrationBoundary>
         <MantineProvider theme={theme}>
+          <Notifications />
           <Head>
             <title>Ocelescope</title>
             <meta

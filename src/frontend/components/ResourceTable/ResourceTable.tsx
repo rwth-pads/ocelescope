@@ -1,8 +1,10 @@
+import { GetResources200Item, Resource } from "@/api/fastapi-schemas";
 import {
   useDeleteResource,
   useGetResources,
 } from "@/api/fastapi/resource/resource";
 import {
+  Box,
   Button,
   LoadingOverlay,
   Menu,
@@ -14,6 +16,7 @@ import {
 } from "@mantine/core";
 import { Download, EllipsisVerticalIcon, Trash } from "lucide-react";
 import { useState } from "react";
+import ResourceView from "../Resource";
 
 const ResourceTable = () => {
   const { data: resources = [], refetch: refetchResources } = useGetResources();
@@ -21,7 +24,7 @@ const ResourceTable = () => {
     mutation: { onSuccess: async () => await refetchResources() },
   });
 
-  const [openedResource, setOpenedResource] = useState<string | undefined>(
+  const [openedResource, setOpenedResource] = useState<Resource | undefined>(
     undefined,
   );
 
@@ -30,11 +33,14 @@ const ResourceTable = () => {
       <Modal
         opened={!!openedResource}
         onClose={() => setOpenedResource(undefined)}
-        title={
-          resources.find((resource) => resource.id === openedResource)?.name
-        }
+        title={openedResource?.name}
+        size={"auto"}
       >
-        Test
+        <Box w={700} h={700}>
+          {openedResource && (
+            <ResourceView resource={openedResource.resource} />
+          )}
+        </Box>
       </Modal>
       <Stack gap={0}>
         <Title size={"h2"}>Resources</Title>
@@ -51,11 +57,7 @@ const ResourceTable = () => {
             {resources.map((resource) => (
               <Table.Tr
                 key={resource.id}
-                onClick={() =>
-                  setOpenedResource(
-                    openedResource === resource.id ? undefined : resource.id,
-                  )
-                }
+                onClick={() => setOpenedResource(resource)}
               >
                 <Table.Td>{resource.name}</Table.Td>
                 <Table.Td>{resource.resource.type}</Table.Td>
