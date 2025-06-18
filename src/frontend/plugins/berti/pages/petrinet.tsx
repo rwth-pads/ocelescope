@@ -1,7 +1,7 @@
 import { usePetriNet, useSavePnet } from "@/api/fastapi/berti/berti";
 import { RouteDefinition } from "@/plugins/types";
 import useWaitForTask from "@/hooks/useTaskWaiter";
-import { Box } from "@mantine/core";
+import { Box, LoadingOverlay } from "@mantine/core";
 import PetriNet from "@/components/Resource/Ocpn";
 import ActionButtons from "@/components/Cytoscape/components/ActionButtons";
 import useInvalidateResources from "@/hooks/useInvalidateResources";
@@ -31,6 +31,7 @@ const PetriNetPage = () => {
   return (
     <Box pos={"relative"} w={"100%"} h={"100%"}>
       <PetriNet ocpn={pnet?.result ?? undefined}>
+        <LoadingOverlay zIndex={1} visible={!pnet?.result} />
         <ActionButtons onSave={pnet?.result ? () => mutate({}) : undefined} />
       </PetriNet>
     </Box>
