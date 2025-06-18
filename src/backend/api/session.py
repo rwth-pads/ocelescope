@@ -138,13 +138,14 @@ class Session:
         name: Optional[str] = None,
         meta_data: Optional[dict[str, Any]] = None,
     ) -> Resource:
+        created_at = datetime.now().isoformat()
         new_resource = Resource(
             id=str(uuid.uuid4()),
             source=source,
             resource=resource,
-            created_at=datetime.now().isoformat(),
+            created_at=created_at,
             meta_data=meta_data if meta_data is not None else {},
-            name=name if name is not None else resource.type,
+            name=name if name is not None else f"{source}_{resource.type}_{created_at}",
         )
 
         self._resources[new_resource.id] = new_resource
