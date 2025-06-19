@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 import platform
 import sys
 from uuid import uuid4
@@ -16,6 +17,7 @@ import pandas as pd
 import pm4py
 from cachetools import LRUCache
 from pm4py.objects.ocel.obj import OCEL
+from pm4py.write import write_ocel2_json
 
 from api.extensions import (
     OcelExtension,
@@ -37,13 +39,13 @@ class OCELWrapper:
     def __init__(self, ocel: OCEL, id: Optional[str] = None):
         self._id = id if id is not None else str(uuid4())
 
-        self._raw_ocel = ocel
+        self.ocel = ocel
         # Metadata, to be set manually after creating the instance
         self.meta: dict[str, Any] = {}
         self._cache_info = {}
 
-        # applied filters
-        self._filters: list[FilterConfig] = []
+        # Used to distinguish multiple ocels with the same id but one is filtered form
+        self.state_id = str(uuid4())
 
         # extensions
         self._extensions: dict[str, OcelExtension] = {}
@@ -58,10 +60,6 @@ class OCELWrapper:
     @property
     def id(self) -> str:
         return self._id
-
-    @property
-    def state_id(self) -> tuple[str, str]:
-        return (self.id, self.filter_hash)
 
     # ----- Pm4py Aliases ------------------------------------------------------------------------------------------
     # region
@@ -85,11 +83,6 @@ class OCELWrapper:
     # endregion
     # ----- BASIC PROPERTIES / STATS ------------------------------------------------------------------------------------------
     # region
-
-    @property
-    @instance_lru_cache()
-    def ocel(self) -> OCEL:
-        return apply_filters(self._raw_ocel, self._filters)
 
     @property
     @instance_lru_cache()
@@ -155,20 +148,14 @@ class OCELWrapper:
     # ----- Filtering ------------------------------------------------------------------------------------------
     # region
 
-    def set_filters(self, filters: list[FilterConfig]):
-        self._filters = filters
-        self._init_cache()
-
-    def get_filters(self) -> list[FilterConfig]:
-        return self._filters
-
-    @property
-    def filter_hash(self) -> str:
-        filters_serialized = json.dumps(
-            [f.model_dump() for f in self._filters],  # Pydantic-safe
-            sort_keys=True,
+    def apply_filter(self, filters: list[FilterConfig]) -> OCELWrapper:
+        filtered_ocel = OCELWrapper(
+            apply_filters(self.ocel, filters=filters),
+            id=self.id,
         )
-        return hashlib.md5(filters_serialized.encode()).hexdigest()
+        filtered_ocel.meta = self.meta
+
+        return filtered_ocel
 
     # endregion
     # ----- PROCESS DISCOVERY ------------------------------------------------------------------------------------------
@@ -1068,3 +1055,10 @@ class OCELWrapper:
     #
     def rename(self, new_name: str):
         self.meta["fileName"] = new_name
+
+
+@dataclass
+class Filtered_Ocel:
+    original: OCELWrapper
+    filter: Optional[list[FilterConfig]] = None
+    filtered: Optional[OCELWrapper] = None

@@ -8,7 +8,8 @@ from typing import Any, Optional, Type, TypeVar, cast
 from api.exceptions import NotFound
 from api.model.cache import CachableObject
 from api.model.tasks import TaskSummary
-from ocel.ocel_wrapper import OCELWrapper
+from lib.filters import FilterConfig
+from ocel.ocel_wrapper import Filtered_Ocel, OCELWrapper
 from resources import Resource, ResourceUnion
 from util.tasks import Task
 
@@ -37,7 +38,7 @@ class Session:
         self._resources: dict[str, Resource] = {}
 
         # OCELS
-        self.ocels: dict[str, OCELWrapper] = {}
+        self.ocels: dict[str, Filtered_Ocel] = {}
         self.current_ocel_id = None
 
         self.response_cache: dict[str, Any] = {}
@@ -89,20 +90,27 @@ class Session:
         self.state = str(uuid.uuid4())
 
     def add_ocel(self, ocel: OCELWrapper) -> str:
-        self.ocels[ocel.id] = ocel
+        self.ocels[ocel.id] = Filtered_Ocel(ocel)
 
         if not self.current_ocel_id:
             self.current_ocel_id = ocel.id
 
         return ocel.id
 
-    def get_ocel(self, ocel_id: Optional[str] = None) -> OCELWrapper:
+    def get_ocel(
+        self, ocel_id: Optional[str] = None, use_original: bool = False
+    ) -> OCELWrapper:
         id = ocel_id if ocel_id is not None else self.current_ocel_id
 
         if id not in self.ocels:
             raise NotFound(f"OCEL with id {ocel_id} not found")
+        ocel = self.ocels[id]
 
-        return self.ocels[id]
+        return (
+            ocel.filtered
+            if (ocel.filtered is not None and not use_original)
+            else ocel.original
+        )
 
     def set_current_ocel(self, ocel_id: str):
         if ocel_id not in self.ocels:
@@ -122,6 +130,24 @@ class Session:
         self.ocels.pop(ocel_id, None)
 
         self.invalidate_plugin_states()
+
+    def get_ocel_filters(self, ocel_id: str) -> list[FilterConfig]:
+        if ocel_id not in self.ocels:
+            raise NotFound(f"OCEL with id {ocel_id} not found")
+
+        return self.ocels[ocel_id].filter or []
+
+    def filter_ocel(self, ocel_id: str, filters: list[FilterConfig]):
+        if ocel_id not in self.ocels:
+            raise NotFound(f"OCEL with id {ocel_id} not found")
+
+        current_ocel = self.ocels[ocel_id]
+        if len(filters) == 0:
+            current_ocel.filtered = None
+            current_ocel.filter = None
+
+        current_ocel.filtered = current_ocel.original.apply_filter(filters)
+        current_ocel.filter = filters
 
     # Resources
     def get_resource(self, resource_id: str) -> Resource:

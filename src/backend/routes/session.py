@@ -48,11 +48,11 @@ def getOcels(session: ApiSession) -> GetOcelResponse:
         current_ocel_id=session.current_ocel_id,
         ocels=[
             OCEL_Metadata(
-                created_at=value.meta["uploadDate"],
+                created_at=value.original.meta["uploadDate"],
                 id=key,
-                name=value.meta["fileName"],
+                name=value.original.meta["fileName"],
                 extensions=[
-                    extension.name for extension in value.get_extensions_list()
+                    extension.name for extension in value.original.get_extensions_list()
                 ],
             )
             for key, value in session.ocels.items()

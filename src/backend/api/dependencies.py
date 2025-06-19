@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Annotated
+from typing import Annotated, Literal, Optional
 
 from fastapi import Depends
 
@@ -22,9 +22,15 @@ def get_session(request: Request) -> Session:
 ApiSession = Annotated[Session, Depends(get_session)]
 
 
-def get_ocel(session: ApiSession, ocel_id: str | None = None):
+def get_ocel(
+    session: ApiSession,
+    ocel_id: str | None = None,
+    ocel_version: Literal["original", "filtered"] | None = "filtered",
+):
     try:
-        return session.get_ocel(ocel_id)
+        return session.get_ocel(
+            ocel_id, use_original=False if ocel_version != "original" else True
+        )
     except NotFound:
         raise HTTPException(status_code=404, detail="OCEL not found")
 
