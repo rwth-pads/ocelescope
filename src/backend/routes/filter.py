@@ -2,7 +2,7 @@ from fastapi.routing import APIRouter
 from pydantic.main import BaseModel
 
 from api.dependencies import ApiOcel, ApiSession
-from lib.filters import FilterConfig
+from filters import FilterConfig
 
 filterRouter = APIRouter(prefix="/filter", tags=["filter"])
 

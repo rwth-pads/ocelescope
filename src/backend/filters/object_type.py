@@ -2,7 +2,7 @@ from typing import Literal, cast
 
 from pm4py.objects.ocel.obj import OCEL
 
-from lib.filters import BaseFilterConfig, FilterResult, register_filter
+from filters import BaseFilterConfig, FilterResult, register_filter
 import pandas as pd
 
 

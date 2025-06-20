@@ -1,5 +1,4 @@
 from typing import Optional, cast
-from pandas.core.series import Series
 import pm4py
 from pm4py.objects.ocel.obj import OCEL
 import pandas as pd
