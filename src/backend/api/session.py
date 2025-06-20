@@ -8,7 +8,7 @@ from typing import Any, Optional, Type, TypeVar, cast
 from api.exceptions import NotFound
 from api.model.cache import CachableObject
 from api.model.tasks import TaskSummary
-from lib.filters import FilterConfig
+from filters.config_union import FilterConfig
 from ocel.ocel_wrapper import Filtered_Ocel, OCELWrapper
 from resources import Resource, ResourceUnion
 from util.tasks import Task

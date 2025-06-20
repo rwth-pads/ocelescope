@@ -17,21 +17,18 @@ import pandas as pd
 import pm4py
 from cachetools import LRUCache
 from pm4py.objects.ocel.obj import OCEL
-from pm4py.write import write_ocel2_json
 
 from api.extensions import (
     OcelExtension,
     get_registered_extensions,
 )
 from api.logger import logger
-from lib.filters import FilterConfig, apply_filters
 from ocel.utils import add_object_order, filter_relations
 from util.cache import instance_lru_cache
 from util.pandas import mirror_dataframe, mmmm
 from util.types import PathLike
-import json
-import hashlib
 
+from filters import FilterConfig, apply_filters
 # from sklearn.cluster import KMeans
 
 
