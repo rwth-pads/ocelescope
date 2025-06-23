@@ -1,3 +1,4 @@
+from typing import Literal, Optional
 from fastapi.routing import APIRouter
 
 from api.dependencies import ApiOcel
@@ -8,10 +9,9 @@ from lib.atttributes import (
     summarize_object_attributes,
 )
 from lib.relations import (
-    O2ORelation,
     RelationCountSummary,
-    get_e2o_summary,
-    get_o2o_relations,
+    summarize_e2o_counts,
+    summarize_o2o_counts,
 )
 
 infoRouter = APIRouter(prefix="/info", tags=["info"])
@@ -106,28 +106,17 @@ def get_object_counts(
     operation_id="e2o",
 )
 def get_e2o(
-    ocel: ApiOcel,
+    ocel: ApiOcel, direction: Optional[Literal["events", "objects"]] = "events"
 ) -> list[RelationCountSummary]:
-    return get_e2o_summary(ocel.ocel)
-
-
-@infoRouter.get(
-    "/relations/e2o",
-    response_model=list[RelationCountSummary],
-    operation_id="o2e",
-)
-def get_o2e(
-    ocel: ApiOcel,
-) -> list[RelationCountSummary]:
-    return get_e2o_summary(ocel.ocel, direction="object")
+    return summarize_e2o_counts(ocel.ocel, direction)
 
 
 @infoRouter.get(
     "/relations/o2o",
-    response_model=list[O2ORelation],
+    response_model=list[RelationCountSummary],
     operation_id="o2o",
 )
 def get_object_relations(
-    ocel: ApiOcel,
-) -> list[O2ORelation]:
-    return get_o2o_relations(ocel)
+    ocel: ApiOcel, direction: Optional[Literal["source", "target"]] = "target"
+) -> list[RelationCountSummary]:
+    return summarize_o2o_counts(ocel.ocel, direction=direction)

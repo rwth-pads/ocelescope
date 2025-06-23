@@ -7,23 +7,29 @@ from filters.base import BaseFilterConfig, FilterResult, register_filter
 
 class E2OCountFilterConfig(BaseFilterConfig):
     type: Literal["e2o_count"]
-    object_type: str
-    event_type: str
+    source: str
+    target: str
     min: int
     max: Optional[int] = None
+    direction: Literal["source", "target"] = "source"
 
 
 @register_filter(E2OCountFilterConfig)
-def filter_by_e2o_counts(ocel: OCEL, config: E2OCountFilterConfig, target="event"):
-    target_id = ocel.event_id_column if target == "event" else ocel.object_id_column
+def filter_by_relation_count(
+    ocel: OCEL,
+    config: E2OCountFilterConfig,
+):
+    target_id = (
+        ocel.event_id_column if config.direction == "source" else ocel.object_id_column
+    )
     target_type_column = (
-        ocel.event_activity if target == "event" else ocel.object_type_column
+        ocel.event_activity if config.direction == "source" else ocel.object_type_column
     )
 
-    target_df = ocel.events if target == "event" else ocel.objects
+    target_df = ocel.events if config.direction == "source" else ocel.objects
 
-    mask = (ocel.relations[ocel.event_activity] == config.event_type) & (
-        ocel.relations[ocel.object_type_column] == config.object_type
+    mask = (ocel.relations[ocel.event_activity] == config.source) & (
+        ocel.relations[ocel.object_type_column] == config.target
     )
 
     filtered_relations = ocel.relations[mask]
@@ -41,7 +47,7 @@ def filter_by_e2o_counts(ocel: OCEL, config: E2OCountFilterConfig, target="event
         entity_counts = entity_counts[entity_counts["entity_count"] >= config.min]
 
     is_not_target_type = target_df[target_type_column] != (
-        config.event_type if target == "event" else config.object_type
+        config.source if config.direction == "source" else config.target
     )
 
     is_in_filtered_ids = target_df[target_id].isin(
@@ -53,7 +59,7 @@ def filter_by_e2o_counts(ocel: OCEL, config: E2OCountFilterConfig, target="event
 
     final_mask = is_not_target_type | is_in_filtered_ids
 
-    if target == "event":
+    if config.direction == "source":
         return FilterResult(events=final_mask)
 
     return FilterResult(objects=final_mask)

@@ -3,35 +3,65 @@ from typing import Literal, Optional, cast
 from pm4py.objects.ocel.obj import OCEL
 from pydantic.main import BaseModel
 
-from api.dependencies import ApiOcel
+import pandas as pd
 
 
 class RelationCountSummary(BaseModel):
     qualifier: str
-    activity: str
-    object_type: str
+    source: str
+    target: str
     min_count: int
     max_count: int
     sum: int
 
 
-def get_e2o_summary(
-    ocel: OCEL, direction: Optional[Literal["event", "object"]] = "event"
-):
-    qualifier_col = ocel.qualifier
-    activity_col = ocel.event_activity
-    object_type_col = ocel.object_type_column
-    event_id_col = ocel.event_id_column
-    object_id_col = ocel.object_id_column
+def getO2OWithTypes(ocel):
+    o2o_with_types = pd.merge(
+        ocel.o2o,
+        ocel.objects[[ocel.object_id_column, ocel.object_type_column]],
+        how="left",
+    )
+    o2o_with_types = pd.merge(
+        o2o_with_types,
+        ocel.objects[[ocel.object_id_column, ocel.object_type_column]],
+        how="left",
+        left_on=f"{ocel.object_id_column}_2",
+        right_on=ocel.object_id_column,
+        suffixes=["", "_new"],  # type:ignore
+    )
+    o2o_with_types = o2o_with_types[
+        [
+            ocel.object_id_column,
+            f"{ocel.object_id_column}_2",
+            ocel.qualifier,
+            ocel.object_type_column,
+            f"{ocel.object_type_column}_new",
+        ]
+    ]
+    rename_map = {
+        ocel.object_id_column: "source",
+        f"{ocel.object_id_column}_2": "target",
+        ocel.qualifier: "qualifier",
+        ocel.object_type_column: "source_type",
+        f"{ocel.object_type_column}_new": "target_type",
+    }
+    return o2o_with_types.rename(columns=rename_map)  # type:ignore
+
+
+def summarize_relation_counts(
+    relation_table: pd.DataFrame,
+    qualifier_col: str,
+    source_type_col: str,
+    target_type_col: str,
+    source_id_col: str,
+    target_id_col: str,
+    direction: Literal["source", "target"],
+) -> list[RelationCountSummary]:
+    group_key = source_id_col if direction == "source" else target_id_col
 
     grouped_relations = (
-        ocel.relations.groupby(
-            [
-                event_id_col if direction == "event" else object_id_col,
-                qualifier_col,
-                activity_col,
-                object_type_col,
-            ]
+        relation_table.groupby(
+            [group_key, qualifier_col, source_type_col, target_type_col]
         )
         .size()
         .reset_index()
@@ -39,7 +69,7 @@ def get_e2o_summary(
     )
 
     summary = (
-        grouped_relations.groupby([qualifier_col, activity_col, object_type_col])[
+        grouped_relations.groupby([qualifier_col, source_type_col, target_type_col])[
             "count"
         ]
         .agg(["min", "max", "sum"])
@@ -50,34 +80,42 @@ def get_e2o_summary(
     summaries = [
         RelationCountSummary(
             qualifier=cast(str, row[qualifier_col]),
-            activity=cast(str, row[activity_col]),
-            object_type=cast(str, row[object_type_col]),
+            source=cast(str, row[source_type_col]),
+            target=cast(str, row[target_type_col]),
             min_count=cast(int, row["min_count"]),
             max_count=cast(int, row["max_count"]),
             sum=cast(int, row["sum"]),
         )
         for _, row in summary.iterrows()
     ]
+
     return summaries
 
 
-class O2ORelation(BaseModel):
-    src: str
-    target: str
-    qualifier: str
-    freq: int
+def summarize_e2o_counts(
+    ocel: OCEL, direction: Optional[Literal["events", "objects"]] = "events"
+) -> list[RelationCountSummary]:
+    return summarize_relation_counts(
+        relation_table=ocel.relations,
+        direction="source" if direction == "events" else "target",
+        qualifier_col=ocel.qualifier,
+        source_type_col=ocel.event_activity,
+        target_type_col=ocel.object_type_column,
+        source_id_col=ocel.event_id_column,
+        target_id_col=ocel.object_id_column,
+    )
 
 
-def get_o2o_relations(ocel: ApiOcel) -> list[O2ORelation]:
-    o2oRelations: list[O2ORelation] = [
-        O2ORelation(**row.to_dict())
-        for _, row in ocel.o2o_type_frequencies.rename(
-            columns={
-                "ocel:type_1": "src",
-                "ocel:type_2": "target",
-                "ocel:qualifier": "qualifier",
-            }
-        ).iterrows()
-    ]
-
-    return o2oRelations
+def summarize_o2o_counts(
+    ocel: OCEL, direction: Optional[Literal["source", "target"]] = "source"
+):
+    o2o = getO2OWithTypes(ocel)
+    return summarize_relation_counts(
+        relation_table=o2o,
+        qualifier_col="qualifier",
+        source_type_col="source_type",
+        target_type_col="target_type",
+        source_id_col="source",
+        target_id_col="target",
+        direction="target" if direction == "target" else "source",
+    )
