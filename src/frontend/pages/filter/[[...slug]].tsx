@@ -1,6 +1,6 @@
 import { useGetFilters, useSetFilters } from "@/api/fastapi/filter/filter";
-import { FilterForm } from "@/components/OcelFilter";
-import { Button, Container, Title } from "@mantine/core";
+import FilterPipelineForm from "@/components/Filters";
+import { Button, Container, LoadingOverlay, Title } from "@mantine/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 
@@ -9,27 +9,27 @@ const FilterPage = () => {
     query: { slug },
   } = useRouter();
   const queryClient = useQueryClient();
-  const { data: filter } = useGetFilters({});
-  const { mutate } = useSetFilters({
+  const { data: filter, isLoading } = useGetFilters({ ocel_id: slug?.[0] });
+  const { mutate, isPending } = useSetFilters({
     mutation: {
       onSuccess: () => {
-        queryClient.invalidateQueries();
+        queryClient.invalidateQueries({ refetchType: "all" });
       },
     },
   });
   return (
-    <Container p="xl">
-      <Title>Filters</Title>
+    <>
+      <LoadingOverlay visible={isLoading || isPending} />
       {filter && (
-        <FilterForm
-          onSubmit={(pipeline) => {
-            mutate({ params: { ocel_id: slug?.[0] }, data: { pipeline } });
-          }}
-          initialFilter={filter.pipeline}
+        <FilterPipelineForm
+          filter={filter}
+          submit={(filter) =>
+            mutate({ data: filter, params: { ocel_id: slug?.[0] } })
+          }
+          ocel_id={slug?.[0]}
         />
       )}
-    </Container>
+    </>
   );
 };
-
 export default FilterPage;

@@ -209,7 +209,6 @@ const OcelTable = () => {
 
                           <Menu.Dropdown>
                             <Menu.Item
-                              disabled
                               onClick={(e) => {
                                 e.stopPropagation();
                                 router.push(`/filter/${id}`);

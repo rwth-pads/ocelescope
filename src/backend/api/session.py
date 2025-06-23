@@ -148,6 +148,7 @@ class Session:
 
         current_ocel.filtered = current_ocel.original.apply_filter(filters)
         current_ocel.filter = filters
+        self.invalidate_plugin_states()
 
     # Resources
     def get_resource(self, resource_id: str) -> Resource:

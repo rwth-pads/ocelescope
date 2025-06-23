@@ -20,7 +20,14 @@ class FilterResult:
 
     def and_merge(self, other: "FilterResult") -> "FilterResult":
         def _and(a, b):
-            return a & b if a is not None and b is not None else a or b
+            if a is not None and b is not None:
+                return a & b
+            elif a is not None:
+                return a
+            elif b is not None:
+                return b
+            else:
+                return None
 
         return FilterResult(
             events=_and(self.events, other.events),

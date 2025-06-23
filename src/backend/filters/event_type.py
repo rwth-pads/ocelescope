@@ -1,5 +1,4 @@
 from typing import Literal, cast
-from pydantic import Field
 from pm4py.objects.ocel.obj import OCEL
 from .base import BaseFilterConfig, FilterResult, register_filter
 import pandas as pd
@@ -7,7 +6,7 @@ import pandas as pd
 
 class EventTypeFilterConfig(BaseFilterConfig):
     type: Literal["event_type"]
-    event_types: list[str] = Field(default_factory=list)
+    event_types: list[str]
 
 
 @register_filter(EventTypeFilterConfig)

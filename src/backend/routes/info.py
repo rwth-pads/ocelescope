@@ -1,7 +1,7 @@
 from fastapi.routing import APIRouter
 
 from api.dependencies import ApiOcel
-from api.model.events import EventTimeInfo
+from api.model.events import Date_Distribution_Item, Entity_Time_Info
 from lib.atttributes import (
     AttributeSummary,
     summarize_event_attributes,
@@ -52,19 +52,40 @@ def get_event_counts(
 
 @infoRouter.get(
     "/events/time",
-    response_model=EventTimeInfo,
+    response_model=Entity_Time_Info,
     operation_id="timeInfo",
 )
 def get_time_info(
     ocel: ApiOcel,
-) -> EventTimeInfo:
-    return EventTimeInfo(
-        start_time=ocel.events[ocel.ocel.event_timestamp]
-        .min()
-        .isoformat(timespec="microseconds"),
-        end_time=ocel.events[ocel.ocel.event_timestamp]
-        .max()
-        .isoformat(timespec="microseconds"),
+) -> Entity_Time_Info:
+    events = ocel.events
+    timestamp_column_name = ocel.ocel.event_timestamp
+    activity_column_name = ocel.ocel.event_activity
+
+    # Group by date and activity, then count
+    time_frame_count = (  # type:ignore
+        events.groupby([events[timestamp_column_name].dt.date, activity_column_name])
+        .size()
+        .reset_index(name="count")
+    )
+
+    # Build distribution per date
+    date_distribution = []
+    for date, group in time_frame_count.groupby(timestamp_column_name):
+        row = {
+            "date": str(date),
+            "entity_count": dict(zip(group[activity_column_name], group["count"])),
+        }
+        date_distribution.append(Date_Distribution_Item(**row))
+
+    # Get start and end time of events
+    start_time = events[timestamp_column_name].min().isoformat(timespec="microseconds")
+    end_time = events[timestamp_column_name].max().isoformat(timespec="microseconds")
+
+    return Entity_Time_Info(
+        end_time=end_time,
+        start_time=start_time,
+        date_distribution=date_distribution,
     )
 
 

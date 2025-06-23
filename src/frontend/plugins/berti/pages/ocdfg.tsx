@@ -61,29 +61,7 @@ const OCDFGPage = () => {
       {isOptionsOpen && (
         <CytoscapeSidebar close={() => setOptionsOpen((prev) => !prev)}>
           <ScrollArea h={"100%"}>
-            <Stack>
-              <ObjectTypeFilterInput
-                value={enabledObjectTypes}
-                onChange={(newEnabledObjects) => {
-                  setDisabledObjectTypes(
-                    Object.keys(objectCount).filter(
-                      (objectName) => !newEnabledObjects.includes(objectName),
-                    ),
-                  );
-                }}
-              />
-              <Divider />
-              <EventTypeFilterInput
-                value={enabledEventTypes}
-                onChange={(newEnabledEvents) => {
-                  setDisabledEventTypes(
-                    Object.keys(eventCount).filter(
-                      (eventName) => !newEnabledEvents.includes(eventName),
-                    ),
-                  );
-                }}
-              />
-            </Stack>
+            <Stack></Stack>
           </ScrollArea>
         </CytoscapeSidebar>
       )}
