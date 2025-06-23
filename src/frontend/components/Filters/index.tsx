@@ -148,7 +148,6 @@ const FilterPipelineForm: React.FC<
   const { fields, append, remove } = useFieldArray({
     name: "pipeline",
     control,
-    shouldUnregister: true,
   });
 
   const [nextFilterType, setNextFilterType] =
