@@ -39,7 +39,7 @@ const ObjectGraph = () => {
   const nodes = useMemo(() => {
     if (!o2o || !objectAttributes) return [];
     const objectTypeNames = Array.from(
-      new Set(o2o.flatMap(({ target, src }) => [target, src])),
+      new Set(o2o.flatMap(({ target, source }) => [target, source])),
     );
     return objectTypeNames.map(
       (objectName) =>
@@ -63,11 +63,11 @@ const ObjectGraph = () => {
       {o2o && objectAttributes && (
         <Graph
           initialNodes={nodes}
-          initialEdges={o2o.map(({ src, target, freq }) => ({
-            source: src,
+          initialEdges={o2o.map(({ source, target, sum }) => ({
+            source: source,
             target,
             markerEnd: { type: MarkerType.Arrow },
-            data: { mid: <Text size="xs">{freq}</Text> },
+            data: { mid: <Text size="xs">{sum}</Text> },
           }))}
           layoutOptions={{
             type: "elk",

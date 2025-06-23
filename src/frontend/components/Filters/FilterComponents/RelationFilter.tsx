@@ -1,46 +1,51 @@
-import { useO2e } from "@/api/fastapi/info/info";
 import { ConfigByType } from "../types";
 import { Box, Grid, LoadingOverlay, RangeSlider, Select } from "@mantine/core";
 import { memo, useMemo } from "react";
 import { ArrowRight } from "lucide-react";
 import { OcelInputType } from "@/types/ocel";
 import { E2OCountFilterConfigMode } from "@/api/fastapi-schemas";
+import { TypeFormProps } from "..";
+import { useE2o } from "@/api/fastapi/info/info";
+import { Controller, EventType, useWatch } from "react-hook-form";
 
-type RelationFilterProps = {
-  value: ConfigByType<"e2o_count">;
-  onChange: (newValue: ConfigByType<"e2o_count">) => void;
-} & OcelInputType;
-const RelationFilter: React.FC<RelationFilterProps> = memo(
-  ({ value, onChange, ...ocelParams }) => {
-    const { data: e2o, isLoading } = useO2e({ ...ocelParams });
+const RelationFilter: React.FC<TypeFormProps> = memo(
+  ({ control, index, ...ocelParams }) => {
+    const field = useWatch({
+      control: control,
+      name: `pipeline.${index}`,
+    }) as ConfigByType<"e2o_count">;
 
-    const relevantRelations = useMemo(() => {
-      return e2o?.filter(({ max_count, min_count }) => min_count < max_count);
-    }, [e2o]);
+    const { data: e2o, isLoading } = useE2o({
+      ...ocelParams,
+      direction: field.direction === "source" ? "events" : "objects",
+    });
 
-    const { objectTypeNames, activitNames, min, max } = useMemo(() => {
+    const { sourceNames, targetNames, min, max } = useMemo(() => {
+      const fieldValue = field as
+        | ConfigByType<"e2o_count">
+        | ConfigByType<"o2o_count">;
+
       if (!e2o) {
         return {
-          activitNames: [],
-          objectTypeNames: [],
-          filteredRelations: [],
+          sourceNames: [],
+          targetNames: [],
           min: 0,
           max: 0,
         };
       }
       const filteredRelations = e2o.filter(
-        ({ max_count, min_count, activity, object_type }) =>
+        ({ max_count, min_count, source, target }) =>
           min_count < max_count &&
-          (value.event_type === "" || value.event_type === activity) &&
-          (value.object_type === "" || value.object_type === object_type),
+          (fieldValue.source === "" || fieldValue.source === source) &&
+          (fieldValue.target === "" || fieldValue.target === target),
       );
 
-      const activitNames = Array.from(
-        new Set(filteredRelations.map(({ activity }) => activity)),
+      const sourceNames = Array.from(
+        new Set(filteredRelations.map(({ source }) => source)),
       );
 
-      const objectTypeNames = Array.from(
-        new Set(filteredRelations.map(({ object_type }) => object_type)),
+      const targetNames = Array.from(
+        new Set(filteredRelations.map(({ target }) => target)),
       );
 
       const min = Math.min(
@@ -51,39 +56,45 @@ const RelationFilter: React.FC<RelationFilterProps> = memo(
         ...filteredRelations.map(({ max_count }) => max_count),
       );
 
-      return { filteredRelations, activitNames, objectTypeNames, min, max };
-    }, [e2o, value]);
+      return { filteredRelations, sourceNames, targetNames, min, max };
+    }, [field, e2o]);
 
     return (
       <Box w={"100%"} h={"100%"} pos={"relative"}>
         <LoadingOverlay visible={isLoading} />
         <Grid align="center" gutter={"md"}>
           <Grid.Col span={3} offset={9}>
-            <Select
-              data={[
-                { value: "include", label: "Include" },
-                { value: "exlude", label: "Exlude" },
-              ]}
-              allowDeselect={false}
-              label={"Mode"}
-              value={value.mode ?? "include"}
-              onChange={(newMode) =>
-                onChange({
-                  ...value,
-                  mode: (newMode as E2OCountFilterConfigMode) ?? undefined,
-                })
-              }
-            ></Select>
+            <Controller
+              control={control}
+              name={`pipeline.${index}.mode`}
+              render={({ field }) => (
+                <Select
+                  data={[
+                    { value: "include", label: "Include" },
+                    { value: "exlude", label: "Exlude" },
+                  ]}
+                  allowDeselect={false}
+                  label={"Mode"}
+                  value={field.value ?? "include"}
+                  onChange={field.onChange}
+                />
+              )}
+            />
           </Grid.Col>
+
           <Grid.Col span={4}>
-            <Select
-              label={"Activity Type"}
-              value={value.event_type ?? undefined}
-              data={activitNames}
-              allowDeselect
-              onChange={(newActivity) =>
-                onChange({ ...value, event_type: newActivity ?? "" })
-              }
+            <Controller
+              control={control}
+              name={`pipeline.${index}.source`}
+              render={({ field }) => (
+                <Select
+                  data={sourceNames}
+                  allowDeselect={false}
+                  label={"Source"}
+                  value={field.value ?? ""}
+                  onChange={field.onChange}
+                />
+              )}
             />
           </Grid.Col>
           <Grid.Col
@@ -94,34 +105,23 @@ const RelationFilter: React.FC<RelationFilterProps> = memo(
             <ArrowRight height={36} />
           </Grid.Col>
           <Grid.Col span={4}>
-            <Select
-              label={"Object Type"}
-              value={value.object_type ?? undefined}
-              data={objectTypeNames}
-              allowDeselect
-              onChange={(newObjectType) =>
-                onChange({ ...value, object_type: newObjectType ?? "" })
-              }
+            <Controller
+              control={control}
+              name={`pipeline.${index}.target`}
+              render={({ field }) => (
+                <Select
+                  data={targetNames}
+                  allowDeselect={false}
+                  label={"Target"}
+                  value={field.value ?? ""}
+                  onChange={field.onChange}
+                />
+              )}
             />
           </Grid.Col>
         </Grid>
 
-        {value.event_type !== "" && value.object_type !== "" && (
-          <RangeSlider
-            py={"md"}
-            minRange={0}
-            value={[value.min ?? min, value.max ?? max]}
-            max={max}
-            min={min}
-            onChange={(newRange) =>
-              onChange({
-                ...value,
-                min: newRange[0],
-                max: newRange[1],
-              })
-            }
-          />
-        )}
+        {false && <RangeSlider py={"md"} minRange={0} max={max} min={min} />}
       </Box>
     );
   },

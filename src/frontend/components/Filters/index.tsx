@@ -24,38 +24,48 @@ import {
 } from "./FilterComponents/EntityTypeFilter";
 import { useMemo, useState } from "react";
 import { ConfigByType, FilterConfig, FilterType } from "./types";
-import { Check, Plus, RefreshCw, RefreshCwIcon, X } from "lucide-react";
+import { Check, Plus, RefreshCw, X } from "lucide-react";
 import TimeFrameFilter from "./FilterComponents/TimeFrameFilter";
 import RelationFilter from "./FilterComponents/RelationFilter";
 import { FilterPipeLine } from "@/api/fastapi-schemas";
 import { OcelInputType } from "@/types/ocel";
 
-type FilterFormValues = {
+export type FilterFormValues = {
   pipeline: FilterConfig[];
 };
 
+export type TypeFormProps = {
+  control: Control<FilterFormValues>;
+  index: number;
+} & OcelInputType;
+
 type FilterConfigDefinition<K extends FilterType> = {
   defaultValue: ConfigByType<K>;
-  typeForm: (
-    props: {
-      value: ConfigByType<K>;
-      onChange: (newValue: ConfigByType<K>) => void;
-    } & Pick<OcelInputType, "ocel_id">,
-  ) => React.ReactNode;
+  typeForm: (props: TypeFormProps) => React.ReactNode;
 };
 
 const filterTypes: { [K in FilterType]: FilterConfigDefinition<K> } = {
   e2o_count: {
     defaultValue: {
       type: "e2o_count",
-      event_type: "",
+      source: "",
       min: 0,
       max: 0,
-      object_type: "",
+      target: "",
     },
     typeForm: (props) => (
       <RelationFilter ocel_version={"original"} {...props} />
     ),
+  },
+  o2o_count: {
+    defaultValue: {
+      type: "o2o_count",
+      source: "",
+      min: 0,
+      max: 0,
+      target: "",
+    },
+    typeForm: (props) => <></>,
   },
   event_type: {
     defaultValue: { type: "event_type", event_types: [] },
@@ -110,21 +120,11 @@ const FilterItem: React.FC<
         </Button>
       </Group>
       <Divider />
-      <Controller
-        control={control}
-        name={`pipeline.${index}`}
-        render={({ field }) => {
-          return (
-            <>
-              {a.typeForm({
-                onChange: field.onChange,
-                value: field.value,
-                ocel_id,
-              })}
-            </>
-          );
-        }}
-      />
+      {a.typeForm({
+        control,
+        index,
+        ocel_id,
+      })}
     </Paper>
   );
 };
@@ -208,7 +208,6 @@ const FilterPipelineForm: React.FC<
               index={index}
               ocel_id={ocel_id}
               remove={() => {
-                console.log(index);
                 remove(index);
               }}
             />
