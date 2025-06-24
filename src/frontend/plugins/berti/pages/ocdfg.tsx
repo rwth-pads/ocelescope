@@ -48,28 +48,6 @@ const OCDFGPage = () => {
         onSave={ocdfgResponse?.result ? () => mutate({}) : undefined}
       />
       <LoadingOverlay zIndex={1} visible={!ocdfgResponse?.result} />
-      <FloatingAnotation
-        trigger={{ action: "hover", target: "node" }}
-        content={(e) => {
-          const name = e.target._private.data.label;
-          return <>Hoverd over {name}</>;
-        }}
-      />
-      <FloatingAnotation
-        trigger={{ action: "rightClick", target: "edge" }}
-        content={(e) => {
-          console.log(e.target._private);
-          const name = e.target._private.data.id;
-          return <>Clicked on {name}</>;
-        }}
-      />
-      <FloatingAnotation
-        trigger={{ action: "leftClick", target: "edge" }}
-        content={(e) => {
-          const name = e.target._private.data.id;
-          return <>Right click on {name}</>;
-        }}
-      />
     </Ocdfg>
   );
 };
