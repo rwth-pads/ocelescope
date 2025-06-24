@@ -13,20 +13,28 @@ const layout = {
   name: "elk",
   nodeDimensionsIncludeLabels: true,
   elk: {
-    "org.eclipse.elk.randomSeed": 2,
-    "elk.direction": "RIGHT",
+    "org.eclipse.elk.randomSeed": 3,
     "elk.algorithm": "layered",
-    "elk.spacing.edgeNode": 30.0,
-    "elk.spacing.edgeEdge": 30.0,
-    "elk.spacing.nodeNode": "100",
-    "elk.spacing.componentComponent": 75,
+    "elk.direction": "RIGHT",
+
+    // Increase spacing between nodes and edges
+    "elk.spacing.nodeNode": 100,
+    "elk.spacing.edgeNode": 50,
+    "elk.spacing.edgeEdge": 40,
+    "elk.spacing.componentComponent": 100,
+
+    // Layer spacing
+    "elk.layered.spacing.baseValue": 50,
+    "elk.layered.spacing.nodeNodeBetweenLayers": 150,
+
+    // Better edge routing for visual clarity
     "elk.edgeRouting": "ORTHOGONAL",
-    "elk.layered.spacing.baseValue": 3.0,
+
+    // Node placement and layering strategies
     "elk.layered.nodePlacement.strategy": "NETWORK_SIMPLEX",
     "elk.layered.layering.strategy": "NETWORK_SIMPLEX",
   },
 };
-
 const Totem: React.FC<{
   totem?: Resource;
   children?: React.ReactNode;
@@ -43,47 +51,50 @@ const Totem: React.FC<{
       return { styles: [], elements: [] };
     }
 
-    const colorMap = assignUniqueColors(
-      Array.from(new Set(totem.object_types)),
-    );
+    const colorMap = assignUniqueColors([...new Set(totem.object_types)]);
 
-    const elements: ElementDefinition[] = [
-      ...totem.object_types.map<ElementDefinition>((objectType) => ({
+    const nodes: ElementDefinition[] = totem.object_types.map((objectType) => ({
+      data: {
+        id: objectType,
+        label: objectType,
+        type: objectType,
+        color: colorMap[objectType],
+      },
+      classes: "object",
+    }));
+
+    const edges: ElementDefinition[] = totem.edges.map((edge, i) => {
+      const { source, target, annotation, tr, tr_inverse } = edge;
+
+      const classes: string[] = [];
+
+      if (tr === "P" && tr_inverse === "P") {
+        classes.push("arrow-p-both");
+      } else if (tr === "P") {
+        classes.push("arrow-p");
+      }
+
+      if (tr_inverse === "P" && tr !== "P") {
+        classes.push("arrow-p-inverse");
+      }
+
+      if (tr === "D") classes.push("arrow-d");
+      if (tr === "Di") classes.push("arrow-di");
+      if (tr === "I") classes.push("arrow-i");
+
+      return {
         data: {
-          id: objectType,
-          label: objectType,
-          type: objectType,
-          color: colorMap[objectType],
+          id: `${source}->${target}`,
+          source,
+          target,
+          label: annotation?.label ?? "",
+          color: colorMap[source] ?? "#888",
         },
-        classes: `object`,
-      })),
-      ...totem.edges.map<ElementDefinition>(
-        ({ source, target, annotation, tr, tr_inverse }) => ({
-          data: {
-            id: `${source}->${target}`,
-            source: source,
-            target: target,
-            label: annotation?.["label"] ?? undefined,
-            markerEnd:
-              tr === "P"
-                ? "triangle-tee"
-                : tr === "D"
-                  ? "tee"
-                  : tr === "I"
-                    ? "circle"
-                    : undefined,
-            markerStart:
-              tr === "P" || tr_inverse == "P"
-                ? "triangle-tree"
-                : tr === "Di"
-                  ? "tee"
-                  : undefined,
-          },
-        }),
-      ),
-    ];
-    console.log(elements);
-    const styles = [
+        classes: classes.join(" "),
+      };
+    });
+
+    const styles: StylesheetCSS[] = [
       {
         selector: ".object",
         css: {
@@ -104,30 +115,67 @@ const Totem: React.FC<{
         css: {
           width: 2,
           label: "data(label)",
-          "target-arrow-shape": "data(markerEnd)",
-          "source-arrow-shape": "data(markerStart)",
-          "line-color": "data(color)",
           "font-size": "16px",
           "curve-style": "bezier",
           "text-rotation": "autorotate",
-          "text-margin-y": 0,
           "text-background-color": "#ffffff",
           "text-background-opacity": 1,
           "text-background-shape": "roundrectangle",
           "text-background-padding": "3px",
         },
       },
-
       {
         selector: "edge[label]",
         css: {
           label: "data(label)",
           width: 3,
+          "curve-style": "bezier",
         },
       },
-    ] as StylesheetCSS[];
+      // Arrow shape styles
+      {
+        selector: ".arrow-p",
+        css: {
+          "target-arrow-shape": "triangle",
+        },
+      },
+      {
+        selector: ".arrow-p-inverse",
+        css: {
+          "source-arrow-shape": "triangle",
+        },
+      },
+      {
+        selector: ".arrow-p-both",
+        css: {
+          "target-arrow-shape": "triangle",
+          "source-arrow-shape": "triangle",
+        },
+      },
+      {
+        selector: ".arrow-d",
+        css: {
+          "target-arrow-shape": "tee",
+        },
+      },
+      {
+        selector: ".arrow-di",
+        css: {
+          "source-arrow-shape": "tee",
+        },
+      },
+      {
+        selector: ".arrow-i",
+        css: {
+          "target-arrow-shape": "circle",
+        },
+      },
+    ];
 
-    return { styles, elements };
+    return {
+      elements: [...nodes, ...edges],
+      styles,
+    };
   }, [totem]);
 
   return (

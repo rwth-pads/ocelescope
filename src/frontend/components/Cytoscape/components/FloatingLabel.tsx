@@ -100,7 +100,7 @@ const FloatingAnotation: React.FC<{
 
   return (
     <Affix ref={ref} position={{ top: position.y, left: position.x }}>
-      <Paper w={200} h={200} shadow="xs" p="xl">
+      <Paper shadow="xs" p="md">
         {content(position.event)}
       </Paper>
     </Affix>

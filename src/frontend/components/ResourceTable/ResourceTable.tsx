@@ -1,4 +1,4 @@
-import { GetResources200Item, Resource } from "@/api/fastapi-schemas";
+import { Resource } from "@/api/fastapi-schemas";
 import {
   useDeleteResource,
   useGetResources,

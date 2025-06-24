@@ -2,7 +2,7 @@ import { Box, Button, Paper } from "@mantine/core";
 import { X } from "lucide-react";
 
 const CytoscapeSidebar: React.FC<{
-  children: React.ReactNode;
+  children?: React.ReactNode;
   close: () => void;
 }> = ({ close, children }) => {
   return (
