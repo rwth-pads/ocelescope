@@ -11,8 +11,7 @@ class O2OCountFilterConfig(BaseFilterConfig):
     type: Literal["o2o_count"]
     source: str
     target: str
-    min: int
-    max: Optional[int] = None
+    range: tuple[Optional[int], Optional[int]]
     direction: Literal["source", "target"] = "source"
 
 
@@ -41,14 +40,15 @@ def filter_objects_by_relation_counts(
         name="entity_count"
     )
 
+    min_count, max_count = config.range
     # Filter based on count thresholds
-    if config.max is not None:
+    if max_count is not None:
         entity_counts = entity_counts[
-            (entity_counts["entity_count"] >= config.min)
-            & (entity_counts["entity_count"] <= config.max)
+            (entity_counts["entity_count"] >= min_count or 0)
+            & (entity_counts["entity_count"] <= max_count)
         ]
     else:
-        entity_counts = entity_counts[entity_counts["entity_count"] >= config.min]
+        entity_counts = entity_counts[entity_counts["entity_count"] >= min_count or 0]
 
     # Mask for non-target-type objects (always kept)
     is_not_target_type = ocel.objects[ocel.object_type_column] != config.target

@@ -106,7 +106,7 @@ def get_object_counts(
     operation_id="e2o",
 )
 def get_e2o(
-    ocel: ApiOcel, direction: Optional[Literal["events", "objects"]] = "events"
+    ocel: ApiOcel, direction: Optional[Literal["source", "target"]] = "source"
 ) -> list[RelationCountSummary]:
     return summarize_e2o_counts(ocel.ocel, direction)
 

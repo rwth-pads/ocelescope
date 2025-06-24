@@ -9,8 +9,7 @@ class E2OCountFilterConfig(BaseFilterConfig):
     type: Literal["e2o_count"]
     source: str
     target: str
-    min: int
-    max: Optional[int] = None
+    range: tuple[Optional[int], Optional[int]]
     direction: Literal["source", "target"] = "source"
 
 
@@ -38,13 +37,16 @@ def filter_by_relation_count(
         Series, filtered_relations.groupby(target_id).size()
     ).reset_index(name="entity_count")
 
-    if config.max is not None:
+    min_count, max_count = config.range
+    min_count = min_count if min_count is not None else 0
+
+    if max_count is not None:
         entity_counts = entity_counts[
-            (entity_counts["entity_count"] >= config.min)
-            & (entity_counts["entity_count"] <= config.max)
+            (entity_counts["entity_count"] >= min_count)
+            & (entity_counts["entity_count"] <= max_count)
         ]
     else:
-        entity_counts = entity_counts[entity_counts["entity_count"] >= config.min]
+        entity_counts = entity_counts[entity_counts["entity_count"] >= min_count]
 
     is_not_target_type = target_df[target_type_column] != (
         config.source if config.direction == "source" else config.target

@@ -7,8 +7,7 @@ import pandas as pd
 
 class TimeFrameFilterConfig(BaseFilterConfig):
     type: Literal["time_frame"]
-    start_time: Optional[str] = None
-    end_time: Optional[str] = None
+    time_range: tuple[Optional[str], Optional[str]]
 
 
 @register_filter(TimeFrameFilterConfig)
@@ -16,8 +15,7 @@ def filter_by_time_range(
     ocel: OCEL,
     config: TimeFrameFilterConfig,
 ):
-    start_time = config.start_time
-    end_time = config.end_time
+    start_time, end_time = config.time_range
 
     if start_time is not None:
         start_time = pd.Timestamp(start_time, tz="UTC")

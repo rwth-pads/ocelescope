@@ -26,7 +26,10 @@ import { useMemo, useState } from "react";
 import { ConfigByType, FilterConfig, FilterType } from "./types";
 import { Check, Plus, RefreshCw, X } from "lucide-react";
 import TimeFrameFilter from "./FilterComponents/TimeFrameFilter";
-import RelationFilter from "./FilterComponents/RelationFilter";
+import {
+  E2OCountFilterInput,
+  O2OCountFilterInput,
+} from "./FilterComponents/RelationFilter";
 import { FilterPipeLine } from "@/api/fastapi-schemas";
 import { OcelInputType } from "@/types/ocel";
 
@@ -49,23 +52,23 @@ const filterTypes: { [K in FilterType]: FilterConfigDefinition<K> } = {
     defaultValue: {
       type: "e2o_count",
       source: "",
-      min: 0,
-      max: 0,
+      range: [null, null],
       target: "",
     },
     typeForm: (props) => (
-      <RelationFilter ocel_version={"original"} {...props} />
+      <E2OCountFilterInput ocel_version={"original"} {...props} />
     ),
   },
   o2o_count: {
     defaultValue: {
       type: "o2o_count",
       source: "",
-      min: 0,
-      max: 0,
+      range: [null, null],
       target: "",
     },
-    typeForm: (props) => <></>,
+    typeForm: (props) => (
+      <O2OCountFilterInput ocel_version={"original"} {...props} />
+    ),
   },
   event_type: {
     defaultValue: { type: "event_type", event_types: [] },
@@ -80,7 +83,7 @@ const filterTypes: { [K in FilterType]: FilterConfigDefinition<K> } = {
     ),
   },
   time_frame: {
-    defaultValue: { type: "time_frame" },
+    defaultValue: { type: "time_frame", time_range: [null, null] },
     typeForm: (props) => (
       <TimeFrameFilter ocel_version={"original"} {...props} />
     ),

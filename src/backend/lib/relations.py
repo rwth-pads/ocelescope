@@ -93,11 +93,11 @@ def summarize_relation_counts(
 
 
 def summarize_e2o_counts(
-    ocel: OCEL, direction: Optional[Literal["events", "objects"]] = "events"
+    ocel: OCEL, direction: Optional[Literal["source", "target"]] = "source"
 ) -> list[RelationCountSummary]:
     return summarize_relation_counts(
         relation_table=ocel.relations,
-        direction="source" if direction == "events" else "target",
+        direction="target" if direction == "target" else "source",
         qualifier_col=ocel.qualifier,
         source_type_col=ocel.event_activity,
         target_type_col=ocel.object_type_column,

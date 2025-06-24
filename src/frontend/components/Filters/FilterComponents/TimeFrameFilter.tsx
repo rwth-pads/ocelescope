@@ -1,20 +1,12 @@
 import { useEventCounts, useTimeInfo } from "@/api/fastapi/info/info";
 import { Box, Grid, LoadingOverlay, RangeSlider } from "@mantine/core";
 import { memo, useMemo } from "react";
-import { ConfigByType, FilterType } from "../types";
-import assignUniqueColors from "@/util/colors";
-import { BarChart, BarChartSeries } from "@mantine/charts";
+import { BarChart } from "@mantine/charts";
 import { DateTimePicker } from "@mantine/dates";
 import dayjs from "dayjs";
-import { OcelInputType } from "@/types/ocel";
 import { EntityTimeInfo } from "@/api/fastapi-schemas";
-import { useDebouncedValue } from "@mantine/hooks";
-
-type TimeFrameFilterProps<K extends FilterType> = {
-  value: ConfigByType<K>;
-  onChange: (value: ConfigByType<K>) => void;
-  showGraph?: boolean;
-} & OcelInputType;
+import { TypeFormProps } from "..";
+import { Controller, useWatch } from "react-hook-form";
 
 const TimeGraph: React.FC<{
   timeInfo: EntityTimeInfo;
@@ -72,13 +64,18 @@ const TimeGraph: React.FC<{
   );
 });
 
-const TimeFrameFilter: React.FC<TimeFrameFilterProps<"time_frame">> = memo(
-  ({ value, onChange, showGraph = true, ocel_id, ocel_version }) => {
+const TimeFrameFilter: React.FC<TypeFormProps> = memo(
+  ({ control, index, ...ocelParams }) => {
     const { data: timeInfo, isLoading } = useTimeInfo({
-      ocel_id,
-      ocel_version,
+      ...ocelParams,
     });
-    const { data: eventCount } = useEventCounts({ ocel_id, ocel_version });
+
+    const { data: eventCount } = useEventCounts({ ...ocelParams });
+
+    const value = useWatch({
+      control,
+      name: `pipeline.${index}.time_range`,
+    });
 
     const { amountOfDays } = useMemo(() => {
       if (!timeInfo || !eventCount) {
@@ -96,12 +93,12 @@ const TimeFrameFilter: React.FC<TimeFrameFilterProps<"time_frame">> = memo(
     const sliderValue: [number, number] = useMemo(() => {
       if (!timeInfo) return [0, 0];
 
-      const startDiff = value.start_time
-        ? dayjs(value.start_time).diff(dayjs(timeInfo.start_time), "day")
+      const startDiff = value[0]
+        ? dayjs(value[0]).diff(dayjs(timeInfo.start_time), "day")
         : 0;
 
-      const endDiff = value.end_time
-        ? dayjs(value.end_time).diff(dayjs(timeInfo.start_time), "day")
+      const endDiff = value[1]
+        ? dayjs(value[1]).diff(dayjs(timeInfo.start_time), "day")
         : amountOfDays;
 
       return [startDiff, endDiff];
@@ -113,53 +110,74 @@ const TimeFrameFilter: React.FC<TimeFrameFilterProps<"time_frame">> = memo(
         {timeInfo && (
           <Grid justify="center" align="center">
             <Grid.Col span={3}>
-              <DateTimePicker
-                minDate={timeInfo.start_time}
-                maxDate={value.end_time ?? timeInfo.end_time}
-                value={value.start_time ?? timeInfo.start_time}
-                onChange={(newStartDate) =>
-                  onChange({
-                    ...value,
-                    start_time: dayjs(newStartDate).toISOString(),
-                  })
-                }
+              <Controller
+                control={control}
+                name={`pipeline.${index}.time_range.0`}
+                render={({ field }) => (
+                  <DateTimePicker
+                    minDate={timeInfo.start_time}
+                    maxDate={value[1] ?? timeInfo.end_time}
+                    value={field.value ?? timeInfo.start_time}
+                    onChange={(newStartDate) =>
+                      field.onChange(dayjs(newStartDate).toISOString())
+                    }
+                  />
+                )}
               />
             </Grid.Col>
             <Grid.Col span={6}>
-              <RangeSlider
-                minRange={0}
-                min={0}
-                max={amountOfDays}
-                value={sliderValue}
-                label={(value) => {
-                  return dayjs(timeInfo.start_time)
-                    .add(value, "day")
-                    .format("YYYY-MM-DD");
-                }}
-                onChange={([startDiff, endDiff]) => {
-                  onChange({
-                    ...value,
-                    start_time: dayjs(timeInfo.start_time)
-                      .add(startDiff, "days")
-                      .toISOString(),
-                    end_time: dayjs(timeInfo.start_time)
-                      .add(endDiff, "days")
-                      .toISOString(),
-                  });
-                }}
+              <Controller
+                control={control}
+                name={`pipeline.${index}.time_range.0`}
+                render={({ field: startField }) => (
+                  <Controller
+                    control={control}
+                    name={`pipeline.${index}.time_range.1`}
+                    render={({ field: endField }) => (
+                      <RangeSlider
+                        minRange={0}
+                        min={0}
+                        max={amountOfDays}
+                        value={sliderValue}
+                        label={(value) => {
+                          return dayjs(timeInfo.start_time)
+                            .add(value, "day")
+                            .format("YYYY-MM-DD");
+                        }}
+                        onChange={([startDiff, endDiff]) => {
+                          startField.onChange(
+                            dayjs(timeInfo.start_time)
+                              .add(startDiff, "days")
+                              .toISOString(),
+                          );
+                          endField.onChange(
+                            dayjs(timeInfo.start_time)
+                              .add(endDiff, "days")
+                              .toISOString(),
+                          );
+                        }}
+                      />
+                    )}
+                  />
+                )}
               />
             </Grid.Col>
             <Grid.Col span={3}>
-              <DateTimePicker
-                minDate={value.start_time ?? timeInfo.start_time}
-                maxDate={timeInfo.end_time}
-                value={value.end_time ?? timeInfo.end_time}
-                onChange={(newEndDate) =>
-                  onChange({
-                    ...value,
-                    end_time: dayjs(newEndDate).toISOString(),
-                  })
-                }
+              <Controller
+                control={control}
+                name={`pipeline.${index}.time_range.${1}`}
+                render={({ field }) => {
+                  return (
+                    <DateTimePicker
+                      minDate={value[0] ?? timeInfo.start_time}
+                      maxDate={timeInfo.end_time}
+                      value={field.value ?? timeInfo.end_time}
+                      onChange={(newEndDate) =>
+                        field.onChange(dayjs(newEndDate).toISOString())
+                      }
+                    />
+                  );
+                }}
               />
             </Grid.Col>
           </Grid>
