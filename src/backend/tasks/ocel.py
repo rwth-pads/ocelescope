@@ -1,9 +1,6 @@
 from datetime import datetime
 from pathlib import Path
-import shutil
-from tempfile import NamedTemporaryFile
 
-from fastapi.datastructures import UploadFile
 from api.session import Session
 from ocel.ocel_wrapper import OCELWrapper
 from util.tasks import task

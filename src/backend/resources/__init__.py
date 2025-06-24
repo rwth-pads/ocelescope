@@ -2,6 +2,7 @@
 
 from .ocdfg import ObjectCentricDirectlyFollowsGraph
 from .ocpn import ObjectCentricPetriNet
+from .totem import Totem
 
 from dataclasses import dataclass
 from typing import Annotated, Any, Union
@@ -10,11 +11,12 @@ from pydantic import Field
 __all__ = [
     "ObjectCentricDirectlyFollowsGraph",
     "ObjectCentricPetriNet",
+    "Totem",
     "ResourceUnion",
 ]
 
 ResourceUnion = Annotated[
-    Union[ObjectCentricDirectlyFollowsGraph, ObjectCentricPetriNet],
+    Union[ObjectCentricDirectlyFollowsGraph, ObjectCentricPetriNet, Totem],
     Field(discriminator="type"),
 ]
 

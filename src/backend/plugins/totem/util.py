@@ -6,8 +6,9 @@ from pm4py.objects.ocel.obj import OCEL
 import pandas as pd
 
 import networkx as nx
+from resources.totem import Totem, TotemEdge
 
-from plugins.totem.models import TotemRelation, TotemResult
+from plugins.totem.models import TotemRelation
 
 
 def o2o_tuples(ocel: OCEL):
@@ -90,9 +91,6 @@ def compute_process_executions_connected_components(ocel: OCEL):
 def get_object_types(ocel: OCEL):
     return pm4py.ocel_get_object_types(ocel)
 
-
-from datetime import datetime
-import math
 
 # temporal relation constants (constants serving as a representation that is easier to understand than just the numbers)
 TR_TOTAL = "total"
@@ -233,7 +231,7 @@ def get_most_precise_tr(directed_type_tuple, tau, temporal_relation):
     return "None"
 
 
-def mine_totem(ocel, tau: float = 1) -> TotemResult:
+def mine_totem(ocel, tau: float = 1) -> Totem:
     # temporal relations results
     h_temporal_relations: dict[tuple[str, str], dict[str, int]] = (
         dict()
@@ -258,12 +256,8 @@ def mine_totem(ocel, tau: float = 1) -> TotemResult:
 
     # get a list of all object types (or variable that is filled while passing through the process executions)
     type_relations: set[set[str, str]] = set()  # stores all connected types
-
-    o2o_o2o: dict[str, dict[str, set[str]]] = (
-        dict()
-    )  # dict that describes which objects are connected to which types and for each type which object
+    # dict that describes which objects are connected to which types and for each type which object
     # o2o[obj1][type3] = [obj5, obj6]
-    o2o_e2o: dict[str, dict[str, set[str]]] = dict()
     o2o: dict[str, dict[str, set[str]]] = dict()
 
     # a mapping from type to its objects
@@ -385,7 +379,7 @@ def mine_totem(ocel, tau: float = 1) -> TotemResult:
             if target_o in type_to_object[type]:
                 type_of_target_o = type
                 break
-        if type_of_target_o == None:
+        if type_of_target_o is None:
             continue
         o2o.setdefault(source_o, dict())
         o2o[source_o].setdefault(type_of_target_o, set())
@@ -541,8 +535,19 @@ def mine_totem(ocel, tau: float = 1) -> TotemResult:
             )
             result.append(relation)
 
-    result = [
-        rel
+    # Filter and convert to TotemEdge instances
+    edges: list[TotemEdge] = [
+        TotemEdge(
+            source=rel.source,
+            target=rel.target,
+            lc=rel.lc,  # type:ignore
+            lc_inverse=rel.lc_inverse,  # type:ignore
+            ec=rel.ec,  # type:ignore
+            ec_inverse=rel.ec_inverse,  # type:ignore
+            tr=rel.tr,  # type:ignore
+            tr_inverse=rel.tr_inverse,  # type:ignore
+            annotation={},
+        )
         for rel in result
         if all(
             value != "ERROR 0"
@@ -556,12 +561,8 @@ def mine_totem(ocel, tau: float = 1) -> TotemResult:
             ]
         )
     ]
-    unique_relations = {}
-    for rel in result:
-        key = (rel.source, rel.target)
-        if key not in unique_relations:
-            unique_relations[key] = rel
 
-    result = list(unique_relations.values())
-
-    return TotemResult(relations=result)
+    # Create final Totem object
+    return Totem(
+        object_types=sorted(object_types), edges=edges, type="totem", annotation={}
+    )

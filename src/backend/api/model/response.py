@@ -2,8 +2,6 @@ from tempfile import NamedTemporaryFile
 
 from fastapi.responses import FileResponse
 
-from api.model.base import ApiBaseModel
-
 
 class TempFileResponse(FileResponse):
     def __init__(

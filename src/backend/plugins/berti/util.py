@@ -15,7 +15,7 @@ def convert_flat_pm4py_to_ocpn(flat_nets: dict[str, PMNet]) -> ObjectCentricPetr
     seen_places: set[str] = set()
 
     for object_type, pm_net in flat_nets.items():
-        pm_net = pm_net[0]
+        pm_net = pm_net[0]  # type:ignore
 
         for place in pm_net.places:
             qualified_id = f"{object_type}:{place.name}"
