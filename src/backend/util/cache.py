@@ -109,7 +109,7 @@ def key_decorator_add_func_name(func: Callable):
 def key_decorator_add_filter_hash(func: Callable):
     def decorator(key):
         def key_wrapper(self, *args, **kwargs):
-            filter_hash = getattr(self, "filter_hash", "no_filter")
+            filter_hash = getattr(self, "state_id", "")
             return key(self, filter_hash, *args, **kwargs)
 
         return key_wrapper
