@@ -1,0 +1,44 @@
+services:
+  backend:
+    # Build the image from the Dockerfile in the current directory
+    build:
+      context: ./src/backend/
+      dockerfile: dev.Dockerfile
+    # Host the FastAPI application on port 8000
+    ports:
+      - "8000:8000"
+    develop:
+      # Create a `watch` configuration to update the app
+      # https://docs.docker.com/compose/file-watch/#compose-watch-versus-bind-mounts
+      watch:
+        # Sync the working directory with the `/app` directory in the container
+        - action: sync+restart
+          path: ./src/backend
+          target: /app
+          # Exclude the project virtual environment — it could be for a
+          # different platform in the container
+          ignore:
+            - .venv/
+
+        # Rebuild the image if dependencies change by checking uv.lock
+        - action: rebuild
+          path:  ./src/backend/uv.lock
+  frontend:
+      build:
+        context: ./src/frontend
+        dockerfile: dev.Dockerfile  # Optional: or default to Dockerfile
+      ports:
+        - "3000:3000"
+      environment:
+        - NODE_ENV=development
+      develop:
+        watch:
+          - action: sync
+            path: ./src/frontend
+            target: /app
+            ignore:
+              - node_modules/
+              - .next/
+          - action: rebuild
+            path: ./src/frontend/package-lock.json
+
