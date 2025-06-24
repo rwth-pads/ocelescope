@@ -11,10 +11,16 @@ class Edge(AnnotatedClass):
 
 
 @dataclass
+class ObjectActivityEdge(AnnotatedClass):
+    object_type: str
+    activity: str
+
+
+@dataclass
 class ObjectCentricDirectlyFollowsGraph(Resource):
     object_types: list[str]
     activities: list[str]
     edges: list[Edge]
-    start_activities: dict[str, list[str]]
-    end_activities: dict[str, list[str]]
+    start_activities: list[ObjectActivityEdge]
+    end_activities: list[ObjectActivityEdge]
     type: Literal["ocdfg"] = "ocdfg"

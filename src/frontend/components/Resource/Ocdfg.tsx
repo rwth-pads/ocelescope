@@ -81,29 +81,27 @@ const Ocdfg: React.FC<{
         },
       })),
 
-      ...Object.entries(ocdfg.start_activities).flatMap(
-        ([objectType, startActivities]) =>
-          startActivities.map<ElementDefinition>((activity) => ({
-            data: {
-              source: `start_${objectType}`,
-              target: activity,
-              id: `start_${objectType}->${activity}`,
-              color: colorMap[objectType],
-            },
-            classes: "objectType",
-          })),
+      ...ocdfg.start_activities.map(
+        ({ object_type, activity, annotation }) => ({
+          data: {
+            source: `start_${object_type}`,
+            target: activity,
+            id: `start_${object_type}->${activity}`,
+            color: colorMap[object_type],
+            label: annotation?.["label"] ?? undefined,
+          },
+          classes: "objectType",
+        }),
       ),
-      ...Object.entries(ocdfg.end_activities).flatMap(
-        ([objectType, endActivities]) =>
-          endActivities.map<ElementDefinition>((activity) => ({
-            data: {
-              source: activity,
-              target: `end_${objectType}`,
-              id: `${activity}->end_${objectType}`,
-              color: colorMap[objectType],
-            },
-          })),
-      ),
+      ...ocdfg.end_activities.map(({ object_type, activity, annotation }) => ({
+        data: {
+          source: activity,
+          target: `end_${object_type}`,
+          id: `${activity}->end_${object_type}`,
+          color: colorMap[object_type],
+          label: annotation?.["label"] ?? undefined,
+        },
+      })),
     ];
     const styles: StylesheetCSS[] = [
       {

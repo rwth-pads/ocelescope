@@ -3,7 +3,7 @@ from pm4py.objects.ocel.obj import OCEL
 
 from pm4py.objects.petri_net.obj import PetriNet as PMNet
 
-from resources.ocdfg import Edge, ObjectCentricDirectlyFollowsGraph
+from resources.ocdfg import Edge, ObjectActivityEdge, ObjectCentricDirectlyFollowsGraph
 from resources.ocpn import Arc, ObjectCentricPetriNet, Place, Transition
 
 
@@ -86,16 +86,15 @@ def compute_ocdfg(ocel: OCEL) -> ObjectCentricDirectlyFollowsGraph:
         for key, events in values.items():
             edge_count_dict[(object_type, key)] = len(events)
 
-    start_edge_count = {}
-    for object_type, values in ocdfg["start_activities"]["events"].items():
-        for key, events in values.items():
-            start_edge_count[(object_type, key)] = len(events)
+    start_edge_count = {
+        object_type: {activity: len(events) for activity, events in activities.items()}
+        for object_type, activities in ocdfg["start_activities"]["events"].items()
+    }
 
-    end_edge_count = {}
-    for object_type, values in ocdfg["end_activities"]["events"].items():
-        for key, events in values.items():
-            end_edge_count[(object_type, key)] = len(events)
-
+    end_edge_count = {
+        object_type: {activity: len(events) for activity, events in activities.items()}
+        for object_type, activities in ocdfg["end_activities"]["events"].items()
+    }
     edges = []
     for object_type, raw_edges in ocdfg["edges"]["event_couples"].items():
         edges = edges + (
@@ -112,22 +111,31 @@ def compute_ocdfg(ocel: OCEL) -> ObjectCentricDirectlyFollowsGraph:
             ]
         )
 
-    start_activities = {
-        object_type: list(raw_start_activities)
-        for object_type, raw_start_activities in ocdfg["start_activities"][
-            "events"
-        ].items()
-    }
-    end_activities = {
-        object_type: list(raw_end_activities)
-        for object_type, raw_end_activities in ocdfg["end_activities"]["events"].items()
-    }
+    start_activity_edges = [
+        ObjectActivityEdge(
+            object_type=object_type,
+            activity=activity,
+            annotation={"label": start_edge_count[object_type][activity]},
+        )
+        for object_type, activities in ocdfg["start_activities"]["events"].items()
+        for activity in activities.keys()
+    ]
+
+    end_activity_edges = [
+        ObjectActivityEdge(
+            object_type=object_type,
+            activity=activity,
+            annotation={"label": end_edge_count[object_type][activity]},
+        )
+        for object_type, activities in ocdfg["end_activities"]["events"].items()
+        for activity in activities.keys()
+    ]
 
     return ObjectCentricDirectlyFollowsGraph(
         activities=ocdfg["activities"],
         edges=edges,
         object_types=ocdfg["object_types"],
-        end_activities=end_activities,
-        start_activities=start_activities,
-        annotation={"start_count": start_activities, "end_count": end_activities},
+        end_activities=start_activity_edges,
+        start_activities=end_activity_edges,
+        annotation={"start_count": start_edge_count, "end_count": end_edge_count},
     )

@@ -22,8 +22,8 @@ router = APIRouter()
 class State(CachableObject):
     def __init__(self):
         super().__init__()
-        self.petri_nets: dict[tuple[str, str], ObjectCentricPetriNet] = {}
-        self.ocdfgs: dict[tuple[str, str], ObjectCentricDirectlyFollowsGraph] = {}
+        self.petri_nets: dict[str, ObjectCentricPetriNet] = {}
+        self.ocdfgs: dict[str, ObjectCentricDirectlyFollowsGraph] = {}
 
 
 def get_state(session: ApiSession):
@@ -52,14 +52,17 @@ def get_petri_net(
             status=TaskState.SUCCESS, result=state.petri_nets[ocel.state_id]
         )
 
-    test = mine_petri_net(session=session, ocel_id=ocel.id)
+    test = mine_petri_net(session=session, ocel_id=ocel.id, field=ocel.state_id)
 
     return TaskResponse(status=TaskState.STARTED, taskId=test)
 
 
 @task(dedupe=True)
 def mine_petri_net(
-    session: Session, ocel_id: str, stop_event: Optional[threading.Event] = None
+    session: Session,
+    ocel_id: str,
+    field: str,
+    stop_event: Optional[threading.Event] = None,
 ):
     ocel = session.get_ocel(ocel_id)
     petri_net = pm4py.discover_oc_petri_net(ocel.ocel)
@@ -67,7 +70,7 @@ def mine_petri_net(
 
     if stop_event is not None and not stop_event.is_set():
         plugin_state = session.get_plugin_state("berti", State)
-        plugin_state.petri_nets[ocel.state_id] = petri_net
+        plugin_state.petri_nets[field] = petri_net
 
 
 @router.get("/ocdfg", operation_id="ocdfg")
@@ -81,7 +84,7 @@ def get_ocdfg(
             status=TaskState.SUCCESS, result=state.ocdfgs[ocel.state_id]
         )
 
-    test = mine_ocdfg(session=session, ocel_id=ocel.id)
+    test = mine_ocdfg(session=session, ocel_id=ocel.id, field=ocel.state_id)
 
     return TaskResponse(status=TaskState.STARTED, taskId=test)
 
@@ -118,11 +121,14 @@ def save_pnet(
 
 @task(dedupe=True)
 def mine_ocdfg(
-    session: Session, ocel_id: str, stop_event: Optional[threading.Event] = None
+    session: Session,
+    ocel_id: str,
+    field: str,
+    stop_event: Optional[threading.Event] = None,
 ):
     ocel = session.get_ocel(ocel_id)
     ocdfg = compute_ocdfg(ocel.ocel)
 
     if stop_event is not None and not stop_event.is_set():
         plugin_state = session.get_plugin_state("berti", State)
-        plugin_state.ocdfgs[ocel.state_id] = ocdfg
+        plugin_state.ocdfgs[field] = ocdfg
