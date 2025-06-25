@@ -135,7 +135,7 @@ def compute_ocdfg(ocel: OCEL) -> ObjectCentricDirectlyFollowsGraph:
         activities=ocdfg["activities"],
         edges=edges,
         object_types=ocdfg["object_types"],
-        end_activities=start_activity_edges,
-        start_activities=end_activity_edges,
+        end_activities=end_activity_edges,
+        start_activities=start_activity_edges,
         annotation={"start_count": start_edge_count, "end_count": end_edge_count},
     )
