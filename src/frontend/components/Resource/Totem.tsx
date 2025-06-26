@@ -2,6 +2,7 @@
 import {
   ObjectCentricDirectlyFollowsGraph,
   Totem as Resource,
+  TotemEdgeTr,
 } from "@/api/fastapi-schemas";
 import { useMemo } from "react";
 import { ElementDefinition, StylesheetCSS } from "cytoscape";
@@ -35,6 +36,7 @@ const layout = {
     "elk.layered.layering.strategy": "NETWORK_SIMPLEX",
   },
 };
+
 const Totem: React.FC<{
   totem?: Resource;
   children?: React.ReactNode;
@@ -66,21 +68,12 @@ const Totem: React.FC<{
     const edges: ElementDefinition[] = totem.edges.map((edge, i) => {
       const { source, target, annotation, tr, tr_inverse } = edge;
 
-      const classes: string[] = [];
-
-      if (tr === "P" && tr_inverse === "P") {
-        classes.push("arrow-p-both");
-      } else if (tr === "P") {
-        classes.push("arrow-p");
-      }
-
-      if (tr_inverse === "P" && tr !== "P") {
-        classes.push("arrow-p-inverse");
-      }
-
-      if (tr === "D") classes.push("arrow-d");
-      if (tr === "Di") classes.push("arrow-di");
-      if (tr === "I") classes.push("arrow-i");
+      const targetArrow = ["Ii", "Di"].includes(tr)
+        ? undefined
+        : `target-arrow-${tr.toLowerCase()}`;
+      const sourceArrow = ["Ii", "Di"].includes(tr_inverse)
+        ? undefined
+        : `source-arrow-${tr_inverse.toLowerCase()}`;
 
       return {
         data: {
@@ -90,7 +83,7 @@ const Totem: React.FC<{
           label: annotation?.label ?? "",
           color: colorMap[source] ?? "#888",
         },
-        classes: classes.join(" "),
+        classes: [targetArrow, sourceArrow].join(" "),
       };
     });
 
@@ -113,7 +106,7 @@ const Totem: React.FC<{
       {
         selector: "edge",
         css: {
-          width: 2,
+          width: 3,
           label: "data(label)",
           "font-size": "16px",
           "curve-style": "bezier",
@@ -124,50 +117,41 @@ const Totem: React.FC<{
           "text-background-padding": "3px",
         },
       },
-      {
-        selector: "edge[label]",
-        css: {
-          label: "data(label)",
-          width: 3,
-          "curve-style": "bezier",
-        },
-      },
       // Arrow shape styles
       {
-        selector: ".arrow-p",
+        selector: ".target-arrow-p",
         css: {
           "target-arrow-shape": "triangle",
         },
       },
       {
-        selector: ".arrow-p-inverse",
-        css: {
-          "source-arrow-shape": "triangle",
-        },
-      },
-      {
-        selector: ".arrow-p-both",
-        css: {
-          "target-arrow-shape": "triangle",
-          "source-arrow-shape": "triangle",
-        },
-      },
-      {
-        selector: ".arrow-d",
+        selector: ".target-arrow-d",
         css: {
           "target-arrow-shape": "tee",
         },
       },
       {
-        selector: ".arrow-di",
+        selector: ".target-arrow-i",
+        css: {
+          "target-arrow-shape": "circle",
+        },
+      },
+      {
+        selector: ".source-arrow-p",
+        css: {
+          "source-arrow-shape": "triangle",
+        },
+      },
+      {
+        selector: ".source-arrow-d",
         css: {
           "source-arrow-shape": "tee",
         },
       },
       {
-        selector: ".arrow-i",
+        selector: ".source-arrow-i",
         css: {
-          "target-arrow-shape": "circle",
+          "source-arrow-shape": "circle",
         },
       },
     ];
