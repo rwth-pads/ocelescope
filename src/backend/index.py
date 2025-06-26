@@ -203,7 +203,7 @@ def download_ocel(
     )
     print(file_response.tmp_path)
 
-    ocel.write_ocel2_sqlite(file_response.tmp_path, ext)
+    ocel.write_ocel(file_response.tmp_path, ext)
 
     return file_response
 

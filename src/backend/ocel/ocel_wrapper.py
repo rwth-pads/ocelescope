@@ -1049,7 +1049,7 @@ class OCELWrapper:
 
         return ocel
 
-    def write_ocel2_sqlite(
+    def write_ocel(
         self,
         file_path: PathLike,
         ext: Optional[Literal[".json", ".xml", ".sqlite"]],
