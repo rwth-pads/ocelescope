@@ -23,6 +23,11 @@ from api.extensions import (
     get_registered_extensions,
 )
 from api.logger import logger
+from lib.attributes import (
+    AttributeSummary,
+    summarize_event_attributes,
+    summarize_object_attributes,
+)
 from ocel.utils import add_object_order, filter_relations
 from util.cache import instance_lru_cache
 from util.pandas import mirror_dataframe, mmmm
@@ -614,6 +619,16 @@ class OCELWrapper:
     @property
     def oattr_names(self) -> list[str]:
         return sorted(set(self.oattr_names_static + self.oattr_names_dynamic))
+
+    @property
+    @instance_lru_cache()
+    def object_attribute_summary(self) -> dict[str, list[AttributeSummary]]:
+        return summarize_object_attributes(self.ocel)
+
+    @property
+    @instance_lru_cache()
+    def event_attribute_summary(self) -> dict[str, list[AttributeSummary]]:
+        return summarize_event_attributes(self.ocel)
 
     # endregion
 

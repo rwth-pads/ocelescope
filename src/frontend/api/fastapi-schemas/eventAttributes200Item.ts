@@ -4,7 +4,10 @@
  * OCEAn
  * OpenAPI spec version: 0.9.12
  */
-import type { NumericalAttribute } from './numericalAttribute';
+import type { IntegerAttribute } from './integerAttribute';
+import type { FloatAttribute } from './floatAttribute';
+import type { BooleanAttribute } from './booleanAttribute';
+import type { DateAttribute } from './dateAttribute';
 import type { NominalAttribute } from './nominalAttribute';
 
-export type EventAttributes200Item = NumericalAttribute | NominalAttribute;
+export type EventAttributes200Item = IntegerAttribute | FloatAttribute | BooleanAttribute | DateAttribute | NominalAttribute;

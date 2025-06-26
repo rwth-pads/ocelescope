@@ -5,8 +5,9 @@
  * OpenAPI spec version: 0.9.12
  */
 
-export interface NominalAttribute {
+export interface FloatAttribute {
   attribute: string;
-  type: 'nominal';
-  num_unique: number;
+  type: 'float';
+  min: number;
+  max: number;
 }

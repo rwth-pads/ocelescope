@@ -5,8 +5,9 @@
  * OpenAPI spec version: 0.9.12
  */
 
-export interface NominalAttribute {
+export interface BooleanAttribute {
   attribute: string;
-  type: 'nominal';
-  num_unique: number;
+  type: 'boolean';
+  true_count: number;
+  false_count: number;
 }

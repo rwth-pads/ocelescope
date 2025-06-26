@@ -3,10 +3,8 @@ from fastapi.routing import APIRouter
 
 from api.dependencies import ApiOcel
 from api.model.events import Date_Distribution_Item, Entity_Time_Info
-from lib.atttributes import (
+from lib.attributes import (
     AttributeSummary,
-    summarize_event_attributes,
-    summarize_object_attributes,
 )
 from lib.relations import (
     RelationCountSummary,
@@ -25,7 +23,7 @@ infoRouter = APIRouter(prefix="/info", tags=["info"])
 def get_object_attributes(
     ocel: ApiOcel,
 ):
-    return summarize_object_attributes(ocel.ocel)
+    return ocel.object_attribute_summary
 
 
 @infoRouter.get(
@@ -36,7 +34,7 @@ def get_object_attributes(
 def get_event_attributes(
     ocel: ApiOcel,
 ):
-    return summarize_event_attributes(ocel.ocel)
+    return ocel.event_attribute_summary
 
 
 @infoRouter.get(

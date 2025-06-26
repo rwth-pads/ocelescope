@@ -5,8 +5,9 @@
  * OpenAPI spec version: 0.9.12
  */
 
-export interface NominalAttribute {
+export interface IntegerAttribute {
   attribute: string;
-  type: 'nominal';
-  num_unique: number;
+  type: 'integer';
+  min: number;
+  max: number;
 }
