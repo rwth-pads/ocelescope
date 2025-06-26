@@ -127,7 +127,7 @@ def import_ocel(
     finally:
         file.file.close()
 
-    task_id = import_ocel_task(
+    import_ocel_task(
         session=session,
         path=tmp_path,
         upload_date=upload_date,
