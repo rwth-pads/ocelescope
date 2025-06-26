@@ -8,12 +8,15 @@ import berti_petrinet, {
   config as berti_petrinet_config,
 } from "@/plugins/berti/pages/petrinet";
 // Plugin: ocelot
+import ocelot_eventOverview, {
+  config as ocelot_eventOverview_config,
+} from "@/plugins/ocelot/pages/eventOverview";
 import ocelot_events, {
   config as ocelot_events_config,
 } from "@/plugins/ocelot/pages/events";
-import ocelot_objectGaph, {
-  config as ocelot_objectGaph_config,
-} from "@/plugins/ocelot/pages/objectGaph";
+import ocelot_objectOverview, {
+  config as ocelot_objectOverview_config,
+} from "@/plugins/ocelot/pages/objectOverview";
 import ocelot_objects, {
   config as ocelot_objects_config,
 } from "@/plugins/ocelot/pages/objects";
@@ -42,14 +45,19 @@ export const pluginComponentMap = {
     label: "Ocelot",
     routes: [
       {
+        name: ocelot_eventOverview_config.name,
+        path: "eventOverview",
+        component: ocelot_eventOverview,
+      },
+      {
         name: ocelot_events_config.name,
         path: "events",
         component: ocelot_events,
       },
       {
-        name: ocelot_objectGaph_config.name,
-        path: "objectGaph",
-        component: ocelot_objectGaph,
+        name: ocelot_objectOverview_config.name,
+        path: "objectOverview",
+        component: ocelot_objectOverview,
       },
       {
         name: ocelot_objects_config.name,

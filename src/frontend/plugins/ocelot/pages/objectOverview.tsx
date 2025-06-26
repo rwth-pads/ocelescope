@@ -86,4 +86,4 @@ const ObjectGraph = () => {
 
 export default ObjectGraph;
 
-export const config: RouteDefinition = { name: "Object Graph" };
+export const config: RouteDefinition = { name: "Object Overview" };
