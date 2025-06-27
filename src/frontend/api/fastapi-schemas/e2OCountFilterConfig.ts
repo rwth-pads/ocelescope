@@ -7,6 +7,7 @@
 import type { E2OCountFilterConfigMode } from './e2OCountFilterConfigMode';
 import type { E2OCountFilterConfigRangeItem0 } from './e2OCountFilterConfigRangeItem0';
 import type { E2OCountFilterConfigRangeItem1 } from './e2OCountFilterConfigRangeItem1';
+import type { E2OCountFilterConfigQualifier } from './e2OCountFilterConfigQualifier';
 import type { E2OCountFilterConfigDirection } from './e2OCountFilterConfigDirection';
 
 export interface E2OCountFilterConfig {
@@ -19,5 +20,6 @@ export interface E2OCountFilterConfig {
    * @maxItems 2
    */
   range: [E2OCountFilterConfigRangeItem0, E2OCountFilterConfigRangeItem1];
+  qualifier?: E2OCountFilterConfigQualifier;
   direction?: E2OCountFilterConfigDirection;
 }

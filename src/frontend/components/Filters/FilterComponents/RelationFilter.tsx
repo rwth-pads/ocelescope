@@ -5,21 +5,17 @@ import { RelationCountSummary } from "@/api/fastapi-schemas";
 import { TypeFormProps } from "..";
 import { useE2o, useO2o } from "@/api/fastapi/info/info";
 import { Controller, EventType, useWatch } from "react-hook-form";
+import { ConfigByType } from "../types";
 
 const RelationFilter: React.FC<
   TypeFormProps & { relations?: RelationCountSummary[] }
 > = memo(({ control, index, relations }) => {
-  const watchedSource = useWatch({
+  const relationConfig = useWatch({
     control: control,
-    name: `pipeline.${index}.source`,
-  });
+    name: `pipeline.${index}`,
+  }) as ConfigByType<"e2o_count"> | ConfigByType<"o2o_count">;
 
-  const watchedTarget = useWatch({
-    control: control,
-    name: `pipeline.${index}.target`,
-  });
-
-  const { sourceNames, targetNames, min, max } = useMemo(() => {
+  const { qualifierNames, sourceNames, targetNames, min, max } = useMemo(() => {
     if (!relations) {
       return {
         sourceNames: [],
@@ -29,45 +25,42 @@ const RelationFilter: React.FC<
       };
     }
     const filteredRelations = relations.filter(
-      ({ max_count, min_count }) => min_count < max_count,
+      ({ source, target, qualifier, max_count, min_count }) =>
+        min_count < max_count &&
+        (relationConfig.source == "" || relationConfig.source == source) &&
+        (!relationConfig.qualifier || relationConfig.qualifier == qualifier) &&
+        (relationConfig.target == "" || relationConfig.target == target),
     );
 
     const sourceNames = Array.from(
-      new Set(
-        filteredRelations
-          .filter(({ target }) => !watchedTarget || watchedTarget === target)
-          .map(({ source }) => source),
-      ),
+      new Set(filteredRelations.map(({ source }) => source)),
     );
 
     const targetNames = Array.from(
-      new Set(
-        filteredRelations
-          .filter(({ source }) => !watchedSource || watchedSource === source)
-          .map(({ target }) => target),
-      ),
+      new Set(filteredRelations.map(({ target }) => target)),
+    );
+    const qualifierNames = Array.from(
+      filteredRelations.map(({ qualifier }) => qualifier),
     );
 
-    const min = Math.min(
-      ...filteredRelations
-        .filter(
-          ({ source, target }) =>
-            source === watchedSource && target === watchedTarget,
-        )
-        .map(({ min_count }) => min_count),
+    const min = filteredRelations.reduce(
+      (acc, curr) => acc + curr.min_count,
+      0,
+    );
+    const max = filteredRelations.reduce(
+      (acc, curr) => acc + curr.max_count,
+      0,
     );
 
-    const max = Math.max(
-      ...filteredRelations
-        .filter(
-          ({ source, target }) =>
-            source === watchedSource && target === watchedTarget,
-        )
-        .map(({ max_count }) => max_count),
-    );
-
-    return { filteredRelations, sourceNames, targetNames, min, max };
-  }, [watchedSource, watchedTarget, relations]);
+    return {
+      filteredRelations,
+      sourceNames,
+      targetNames,
+      min,
+      max,
+      qualifierNames,
+    };
+  }, [relationConfig, relations]);
 
   return (
     <Box w={"100%"} h={"100%"} pos={"relative"}>
@@ -127,7 +120,18 @@ const RelationFilter: React.FC<
           display={"flex"}
           style={{ justifyContent: "center" }}
         >
-          <ArrowRight height={36} />
+          <Controller
+            control={control}
+            name={`pipeline.${index}.qualifier`}
+            render={({ field }) => (
+              <Select
+                data={qualifierNames}
+                label={"Qualifier"}
+                value={field.value ?? ""}
+                onChange={(newValue) => field.onChange(newValue ?? "")}
+              />
+            )}
+          />
         </Grid.Col>
         <Grid.Col span={4}>
           <Controller
@@ -145,7 +149,7 @@ const RelationFilter: React.FC<
         </Grid.Col>
       </Grid>
 
-      {watchedSource && watchedTarget && (
+      {relationConfig.source && relationConfig.target && (
         <Controller
           control={control}
           name={`pipeline.${index}.range`}

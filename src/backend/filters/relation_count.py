@@ -94,6 +94,7 @@ class E2OCountFilterConfig(BaseFilterConfig):
     source: str
     target: str
     range: tuple[Optional[int], Optional[int]]
+    qualifier: Optional[str] = None
     direction: Literal["source", "target"] = "source"
 
 
@@ -135,6 +136,7 @@ class O2OCountFilterConfig(BaseFilterConfig):
     source: str
     target: str
     range: tuple[Optional[int], Optional[int]]
+    qualifier: Optional[str] = None
     direction: Literal["source", "target"] = "source"
 
 
