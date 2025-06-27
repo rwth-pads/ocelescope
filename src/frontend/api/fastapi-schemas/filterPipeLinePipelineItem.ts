@@ -5,9 +5,9 @@
  * OpenAPI spec version: 0.9.12
  */
 import type { TimeFrameFilterConfig } from './timeFrameFilterConfig';
-import type { O2OCountFilterConfig } from './o2OCountFilterConfig';
-import type { E2OCountFilterConfig } from './e2OCountFilterConfig';
-import type { ObjectTypeFilterConfig } from './objectTypeFilterConfig';
 import type { EventTypeFilterConfig } from './eventTypeFilterConfig';
+import type { ObjectTypeFilterConfig } from './objectTypeFilterConfig';
+import type { E2OCountFilterConfig } from './e2OCountFilterConfig';
+import type { O2OCountFilterConfig } from './o2OCountFilterConfig';
 
-export type FilterPipeLinePipelineItem = TimeFrameFilterConfig | O2OCountFilterConfig | E2OCountFilterConfig | ObjectTypeFilterConfig | EventTypeFilterConfig;
+export type FilterPipeLinePipelineItem = TimeFrameFilterConfig | EventTypeFilterConfig | ObjectTypeFilterConfig | E2OCountFilterConfig | O2OCountFilterConfig;

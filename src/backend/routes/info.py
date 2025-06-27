@@ -113,6 +113,6 @@ def get_e2o(
     operation_id="o2o",
 )
 def get_object_relations(
-    ocel: ApiOcel, direction: Optional[Literal["source", "target"]] = "target"
+    ocel: ApiOcel, direction: Optional[Literal["source", "target"]] = "source"
 ) -> list[RelationCountSummary]:
     return ocel.o2o_summary(direction=direction)

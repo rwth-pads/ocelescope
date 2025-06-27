@@ -2,18 +2,18 @@ from typing import Union, Annotated
 from pydantic import Field
 
 from .time_range import TimeFrameFilterConfig
-from .o2o_count import O2OCountFilterConfig
-from .e2o_count import E2OCountFilterConfig
-from .object_type import ObjectTypeFilterConfig
 from .event_type import EventTypeFilterConfig
+from .object_type import ObjectTypeFilterConfig
+from .relation_count import E2OCountFilterConfig
+from .relation_count import O2OCountFilterConfig
 
 FilterConfig = Annotated[
     Union[
         TimeFrameFilterConfig,
-        O2OCountFilterConfig,
-        E2OCountFilterConfig,
-        ObjectTypeFilterConfig,
         EventTypeFilterConfig,
+        ObjectTypeFilterConfig,
+        E2OCountFilterConfig,
+        O2OCountFilterConfig,
     ],
     Field(discriminator="type"),
 ]
