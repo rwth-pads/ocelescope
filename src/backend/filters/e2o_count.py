@@ -1,5 +1,6 @@
 from typing import Literal, Optional, cast
 
+import pandas as pd
 from pandas.core.series import Series
 from pm4py.objects.ocel.obj import OCEL
 from filters.base import BaseFilterConfig, FilterResult, register_filter
@@ -52,9 +53,30 @@ def filter_by_relation_count(
         config.source if config.direction == "source" else config.target
     )
 
-    is_in_filtered_ids = target_df[target_id].isin(
-        cast(Series, entity_counts[target_id])
-    )
+    entity_ids = cast(Series, entity_counts[target_id])
+
+    if min_count == 0:
+        merged = cast(
+            Series,
+            pd.merge(
+                target_df[target_df[target_type_column] == config.source],
+                ocel.relations[
+                    (ocel.relations[ocel.event_activity] == config.source)
+                    & (ocel.relations[ocel.object_type_column] == config.target)
+                ],
+                on=target_id,
+                how="left",
+                indicator=True,
+            ),
+        )
+
+        entity_with_zero_relations = merged.loc[
+            merged["_merge"] == "left_only", target_id
+        ]
+
+        entity_ids = pd.concat([entity_ids, entity_with_zero_relations])
+
+    is_in_filtered_ids = target_df[target_id].isin(entity_ids)
 
     if config.mode == "exclude":
         is_in_filtered_ids = ~is_in_filtered_ids
