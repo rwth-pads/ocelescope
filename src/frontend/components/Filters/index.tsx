@@ -1,7 +1,6 @@
 import {
   Button,
   ButtonGroup,
-  Container,
   Divider,
   Flex,
   Group,
@@ -13,7 +12,6 @@ import {
 } from "@mantine/core";
 import {
   Control,
-  Controller,
   FieldArrayWithId,
   useFieldArray,
   useForm,
@@ -188,7 +186,10 @@ const FilterPipelineForm: React.FC<
         </Group>
 
         <ButtonGroup>
-          <Button color={"red"} onClick={() => setValue("pipeline", [])}>
+          <Button
+            color={"red"}
+            onClick={() => setValue("pipeline", [], { shouldDirty: true })}
+          >
             <X />
           </Button>
           <Button disabled={!isDirty} color={"yellow"} onClick={() => reset()}>
