@@ -8,8 +8,6 @@ from lib.attributes import (
 )
 from lib.relations import (
     RelationCountSummary,
-    summarize_e2o_counts,
-    summarize_o2o_counts,
 )
 
 infoRouter = APIRouter(prefix="/info", tags=["info"])
@@ -106,7 +104,7 @@ def get_object_counts(
 def get_e2o(
     ocel: ApiOcel, direction: Optional[Literal["source", "target"]] = "source"
 ) -> list[RelationCountSummary]:
-    return summarize_e2o_counts(ocel.ocel, direction)
+    return ocel.e2o_summary(direction=direction)
 
 
 @infoRouter.get(
@@ -117,4 +115,4 @@ def get_e2o(
 def get_object_relations(
     ocel: ApiOcel, direction: Optional[Literal["source", "target"]] = "target"
 ) -> list[RelationCountSummary]:
-    return summarize_o2o_counts(ocel.ocel, direction=direction)
+    return ocel.o2o_summary(direction=direction)

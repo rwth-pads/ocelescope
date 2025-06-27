@@ -28,6 +28,7 @@ from lib.attributes import (
     summarize_event_attributes,
     summarize_object_attributes,
 )
+from lib.relations import summarize_e2o_counts, summarize_o2o_counts
 from ocel.utils import add_object_order, filter_relations
 from util.cache import instance_lru_cache
 from util.pandas import mirror_dataframe, mmmm
@@ -572,20 +573,19 @@ class OCELWrapper:
             self.ocel.o2o.rename(columns={"ocel:oid": "ocel:oid_1"})
         )
 
-    @property
     @instance_lru_cache()
-    def o2o_type_frequencies(self):
-        return (
-            self.o2o.groupby(["ocel:type_1", "ocel:qualifier", "ocel:type_2"])[
-                "ocel:oid_1"
-            ]
-            .count()
-            .rename("freq")
-            .reset_index()
-        )
+    def o2o_summary(self, direction: Optional[Literal["source", "target"]] = "source"):
+        return summarize_o2o_counts(self.ocel, direction=direction)
 
     # endregion
+    # ----- E2O RELATIONS ------------------------------------------------------------------------------------------
+    # region
 
+    @instance_lru_cache()
+    def e2o_summary(self, direction: Optional[Literal["source", "target"]] = "source"):
+        return summarize_e2o_counts(self.ocel, direction=direction)
+
+    # endregion
     # ----- ATTRIBUTES ------------------------------------------------------------------------------------------
     # region
     @property
