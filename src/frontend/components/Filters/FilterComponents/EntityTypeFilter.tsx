@@ -11,7 +11,6 @@ const EntityTypeFilterInput: React.FC<{
   onChange: (values: string[]) => void;
   showGraph?: boolean;
 }> = ({ value, onChange, showGraph = true, data }) => {
-  console.log(value);
   return (
     <Stack pos={"relative"}>
       <>
