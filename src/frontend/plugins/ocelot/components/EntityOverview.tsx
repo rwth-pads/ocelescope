@@ -27,13 +27,14 @@ const EntityOverview: React.FC<EntityOverviewProps> = ({
       (relationMap, currentRelation) => {
         if (currentRelation.source in relationMap)
           relationMap[currentRelation.source].push(currentRelation);
-        else relationMap[currentRelation.source] = [];
+        else relationMap[currentRelation.source] = [currentRelation];
         return relationMap;
       },
       {},
     );
   }, [relations]);
 
+  console.log({ relationMap });
   const filteredEvents = useMemo(() => {
     const toSearch = search.toLowerCase();
     return Object.entries(entityCounts).filter(
@@ -52,15 +53,18 @@ const EntityOverview: React.FC<EntityOverviewProps> = ({
 
   return (
     <SimpleGrid cols={{ base: 1, sm: 2, lg: 5 }}>
-      {filteredEvents.map(([name, count]) => (
-        <EntityCard
-          key={name}
-          count={count}
-          name={name}
-          attributeSummaries={attributes[name]}
-          relationSummaries={relationMap[name]}
-        />
-      ))}
+      {filteredEvents.map(([name, count]) => {
+        console.log(name, relationMap[name]);
+        return (
+          <EntityCard
+            key={name}
+            count={count}
+            name={name}
+            attributeSummaries={attributes[name]}
+            relationSummaries={relationMap[name]}
+          />
+        );
+      })}
     </SimpleGrid>
   );
 };
