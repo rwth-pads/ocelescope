@@ -3,11 +3,8 @@ import {
   useEventAttributes,
   useEventCounts,
 } from "@/api/fastapi/info/info";
-import { Group, Input, LoadingOverlay, SimpleGrid, Stack } from "@mantine/core";
-import EntityCard from "../components/EntityCard";
+import { Input, LoadingOverlay, Stack } from "@mantine/core";
 import { RouteDefinition } from "@/plugins/types";
-import { useMemo } from "react";
-import { RelationCountSummary } from "@/api/fastapi-schemas";
 import { SearchIcon } from "lucide-react";
 import { useDebouncedState } from "@mantine/hooks";
 import EntityOverview from "../components/EntityOverview";

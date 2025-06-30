@@ -1,66 +1,72 @@
 import { RouteDefinition } from "@/plugins/types";
-import { useO2o, useObjectAttributes } from "@/api/fastapi/info/info";
+import {
+  useO2o,
+  useObjectAttributes,
+  useObjectCount,
+} from "@/api/fastapi/info/info";
 import Graph, { NodeComponents } from "@/components/Graph";
-import { Box, Divider, Table, Text } from "@mantine/core";
-import { ObjectAttributes200Item } from "@/api/fastapi-schemas";
-import { useMemo } from "react";
+import { Group, Input, SegmentedControl, Stack, Text } from "@mantine/core";
+import { useMemo, useState } from "react";
 import { MarkerType } from "@xyflow/react";
-
-const AttributeTable: React.FC<{
-  name: string;
-  attributes?: ObjectAttributes200Item[];
-}> = ({ name, attributes }) => {
-  return (
-    <Box w="100%" bd={"1px solid black"} bg={"white"} miw={200} mih={100}>
-      <Text fw={700} size="sm" ta="center" py={"4"}>
-        {name}
-      </Text>
-      <Divider c={"black"} />
-      {attributes && attributes.length !== 0 && (
-        <Table withRowBorders={false}>
-          <Table.Thead>
-            {attributes.map((attribute) => (
-              <Table.Tr>
-                <Table.Td> {attribute.attribute}</Table.Td>
-                <Table.Td ta={"end"}>{attribute.type}</Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Thead>
-        </Table>
-      )}
-    </Box>
-  );
-};
+import EntityCard from "../components/EntityCard";
+import EntityOverview from "../components/EntityOverview";
+import { SearchIcon } from "lucide-react";
+import { useDebouncedState } from "@mantine/hooks";
 
 const ObjectGraph = () => {
   const { data: o2o } = useO2o();
   const { data: objectAttributes } = useObjectAttributes();
+  const { data: objectCounts } = useObjectCount();
+
+  const [searchValue, setSearchValue] = useDebouncedState("", 200);
+  const [vizualization, setVizualization] = useState<"graph" | "cards">(
+    "graph",
+  );
 
   const nodes = useMemo(() => {
-    if (!o2o || !objectAttributes) return [];
-    const objectTypeNames = Array.from(
-      new Set(o2o.flatMap(({ target, source }) => [target, source])),
-    );
-    return objectTypeNames.map(
-      (objectName) =>
+    if (!objectCounts || !objectAttributes) return [];
+
+    return Object.entries(objectCounts).map(
+      ([objectName, count]) =>
         ({
           id: objectName,
           data: {
             type: "rectangle",
             inner: (
-              <AttributeTable
+              <EntityCard
+                key={objectName}
+                count={count}
                 name={objectName}
-                attributes={objectAttributes[objectName]}
+                attributeSummaries={objectAttributes[objectName]}
               />
             ),
           },
         }) satisfies NodeComponents,
     );
-  }, [o2o, objectAttributes]);
+  }, [objectCounts, objectAttributes]);
 
   return (
-    <Box w={"100%"} h={"100%"}>
-      {o2o && objectAttributes && (
+    <Stack w={"100%"} h={"100%"}>
+      <Group justify="end">
+        {vizualization === "cards" && (
+          <Input
+            leftSection={<SearchIcon />}
+            defaultValue={searchValue}
+            onChange={(newSearch) => setSearchValue(newSearch.target.value)}
+          />
+        )}
+        <SegmentedControl
+          onChange={(newViz) =>
+            setVizualization(newViz as typeof vizualization)
+          }
+          value={vizualization}
+          data={[
+            { label: "Graph", value: "graph" },
+            { label: "Cards", value: "cards" },
+          ]}
+        />
+      </Group>
+      {vizualization === "graph" && o2o && objectAttributes && (
         <Graph
           initialNodes={nodes}
           initialEdges={o2o.map(({ source, target, sum }) => ({
@@ -80,7 +86,15 @@ const ObjectGraph = () => {
           }}
         />
       )}
-    </Box>
+      {vizualization === "cards" && objectCounts && (
+        <EntityOverview
+          entityCounts={objectCounts}
+          attributes={objectAttributes ?? {}}
+          relations={o2o ?? []}
+          search={searchValue}
+        />
+      )}
+    </Stack>
   );
 };
 
