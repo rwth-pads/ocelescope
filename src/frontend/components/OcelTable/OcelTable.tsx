@@ -95,7 +95,8 @@ const OcelTable = () => {
       </Modal>
       <Stack gap={0}>
         <Title size={"h2"}>OCELS</Title>
-        {ocels && ocels.ocels.length > 0 ? (
+        {ocels &&
+        (ocels.ocels.length > 0 || ocels.uploading_ocels.length > 0) ? (
           <Table.ScrollContainer minWidth={800}>
             <Table verticalSpacing="sm" highlightOnHover>
               <Table.Thead>
@@ -287,7 +288,11 @@ const OcelTable = () => {
             </Modal>
           </Table.ScrollContainer>
         ) : (
-          <OcelUpload onUpload={() => queryClient.invalidateQueries()} />
+          <OcelUpload
+            onUpload={async () =>
+              queryClient.invalidateQueries({ refetchType: "all" })
+            }
+          />
         )}
       </Stack>
     </>
