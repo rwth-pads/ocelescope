@@ -1,13 +1,22 @@
-import { useEventCounts, useObjectCount } from "@/api/fastapi/info/info";
+import {
+  useE2o,
+  useEventAttributes,
+  useEventCounts,
+  useO2o,
+  useObjectAttributes,
+  useObjectCount,
+} from "@/api/fastapi/info/info";
 import {
   usePaginatedEvents,
   usePaginatedObjects,
 } from "@/api/fastapi/ocelot/ocelot";
-import EntityTable from "@/components/EntityTable/EntityTable";
 import SingleLineTabs from "@/components/SingleLineTabs/SingleLineTabs";
 import { keepPreviousData } from "@tanstack/react-query";
 
 import { useEffect, useMemo, useState } from "react";
+import EntityTable from "./EntityTable";
+import { Flex } from "@mantine/core";
+import { DataTableSortStatus } from "mantine-datatable";
 
 const EntityPage: React.FC<{ type: "events" | "objects" }> = ({ type }) => {
   const { data: eventCounts } = useEventCounts(undefined, {
@@ -17,9 +26,20 @@ const EntityPage: React.FC<{ type: "events" | "objects" }> = ({ type }) => {
     query: { enabled: type === "objects" },
   });
 
+  const { data: eventAttributes } = useEventAttributes(undefined, {
+    query: { enabled: type === "events" },
+  });
+  const { data: objectAttributes } = useObjectAttributes(undefined, {
+    query: { enabled: type === "objects" },
+  });
+
+  const attributes = type === "events" ? eventAttributes : objectAttributes;
+
   const [currentTab, setCurrentTab] = useState("");
   const [page, setPage] = useState(1);
-  const [sort, setSort] = useState<{ sortBy: string; ascending: boolean }>();
+  const [sort, setSort] = useState<DataTableSortStatus | undefined>(undefined);
+
+  const [pageSize, setPageSize] = useState(20);
 
   const entityCounts = type === "events" ? eventCounts : objectCounts;
 
@@ -28,12 +48,24 @@ const EntityPage: React.FC<{ type: "events" | "objects" }> = ({ type }) => {
     [eventCounts, objectCounts],
   );
 
+  const { data: o2o } = useO2o();
+  const { data: e2o } = useE2o();
+
+  const relations = useMemo(() => {
+    const relations = (type === "events" ? e2o : o2o) ?? [];
+
+    return relations.filter(({ source }) => source === currentTab);
+  }, [e2o, o2o, currentTab]);
+
   const { data: eventEntities } = usePaginatedEvents(
     {
       activity: currentTab,
-      page_size: 20,
+      page_size: pageSize,
       page,
-      ...(sort && { sort_by: sort.sortBy, ascending: sort.ascending }),
+      ...(sort && {
+        sort_by: sort.columnAccessor,
+        ascending: sort.direction === "asc",
+      }),
     },
     {
       query: {
@@ -46,9 +78,12 @@ const EntityPage: React.FC<{ type: "events" | "objects" }> = ({ type }) => {
   const { data: objectEntities } = usePaginatedObjects(
     {
       object_type: currentTab,
-      page_size: 20,
+      page_size: pageSize,
       page,
-      ...(sort && { sort_by: sort.sortBy, ascending: sort.ascending }),
+      ...(sort && {
+        sort_by: sort.columnAccessor,
+        ascending: sort.direction === "asc",
+      }),
     },
     {
       query: {
@@ -70,7 +105,7 @@ const EntityPage: React.FC<{ type: "events" | "objects" }> = ({ type }) => {
   if (entityNames.length === 0) return null;
 
   return (
-    <>
+    <Flex direction={"column"} h={"100%"}>
       <SingleLineTabs
         tabs={Object.entries(entityCounts ?? {}).map(([entityName, count]) => ({
           value: entityName,
@@ -85,13 +120,17 @@ const EntityPage: React.FC<{ type: "events" | "objects" }> = ({ type }) => {
       />
       {entities && (
         <EntityTable
-          paginatedEntities={entities}
-          onPageChange={setPage}
-          onSort={setSort}
-          sorted={sort}
+          entities={entities}
+          attributes={attributes?.[currentTab ?? entityNames[0]]}
+          withTimestamp={type === "events"}
+          onPageChange={(newPage) => setPage(newPage)}
+          onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
+          relations={relations}
+          sortStatus={sort}
+          onStartStatusChange={(sortStatus) => setSort(sortStatus)}
         />
       )}
-    </>
+    </Flex>
   );
 };
 
