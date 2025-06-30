@@ -3,17 +3,21 @@ import {
   useEventAttributes,
   useEventCounts,
 } from "@/api/fastapi/info/info";
-import { LoadingOverlay, SimpleGrid } from "@mantine/core";
+import { Group, Input, LoadingOverlay, SimpleGrid, Stack } from "@mantine/core";
 import EntityCard from "../components/EntityCard";
 import { RouteDefinition } from "@/plugins/types";
 import { useMemo } from "react";
 import { RelationCountSummary } from "@/api/fastapi-schemas";
+import { SearchIcon } from "lucide-react";
+import { useDebouncedState } from "@mantine/hooks";
 
 const EventOverview = () => {
-  const { data: eventsSummary = {} } = useEventAttributes();
+  const { data: eventsAttributes = {} } = useEventAttributes();
   const { data: e2o } = useE2o();
   const { data: eventCounts, isLoading: isEventCountsLoading } =
     useEventCounts();
+
+  const [searchValue, setSearchValue] = useDebouncedState("", 200);
 
   const relationMap = useMemo(() => {
     if (!e2o) return {};
@@ -29,24 +33,45 @@ const EventOverview = () => {
     );
   }, [e2o]);
 
-  console.log(relationMap);
+  const filteredEvents = useMemo(() => {
+    const toSearch = searchValue.toLowerCase();
+    return Object.entries(eventCounts ?? {}).filter(
+      ([event, _]) =>
+        event.toLowerCase().includes(searchValue.toLowerCase()) ||
+        relationMap[event].some(
+          ({ target, qualifier }) =>
+            target.toLowerCase().includes(toSearch) ||
+            qualifier.toLowerCase().includes(toSearch),
+        ) ||
+        eventsAttributes[event].some(({ attribute }) =>
+          attribute.toLowerCase().includes(toSearch),
+        ),
+    );
+  }, [searchValue, relationMap, eventCounts, eventsAttributes]);
 
   return (
     <>
       <LoadingOverlay visible={isEventCountsLoading} />
-      {eventCounts && (
-        <SimpleGrid cols={4}>
-          {Object.entries(eventCounts).map(([name, count]) => (
-            <EntityCard
-              key={name}
-              count={count}
-              name={name}
-              attributeSummaries={eventsSummary[name]}
-              relationSummaries={relationMap[name]}
-            />
-          ))}
-        </SimpleGrid>
-      )}
+      <Stack>
+        <Input
+          leftSection={<SearchIcon />}
+          defaultValue={searchValue}
+          onChange={(newSearch) => setSearchValue(newSearch.target.value)}
+        />
+        {eventCounts && (
+          <SimpleGrid cols={{ base: 1, sm: 2, lg: 5 }}>
+            {filteredEvents.map(([name, count]) => (
+              <EntityCard
+                key={name}
+                count={count}
+                name={name}
+                attributeSummaries={eventsAttributes[name]}
+                relationSummaries={relationMap[name]}
+              />
+            ))}
+          </SimpleGrid>
+        )}
+      </Stack>
     </>
   );
 };

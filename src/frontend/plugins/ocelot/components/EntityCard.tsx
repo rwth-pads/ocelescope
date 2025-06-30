@@ -3,7 +3,7 @@ import {
   ObjectAttributes200Item,
   RelationCountSummary,
 } from "@/api/fastapi-schemas";
-import { Box, Divider, Table, Text } from "@mantine/core";
+import { Box, Divider, Flex, Table, Text } from "@mantine/core";
 
 type EntityCardProps = {
   name: string;
@@ -19,13 +19,21 @@ const EntityCard: React.FC<EntityCardProps> = ({
   relationSummaries = [],
 }) => {
   return (
-    <Box w="100%" bd={"1px solid black"} bg={"white"} miw={200} mih={100}>
+    <Flex
+      w="100%"
+      bd={"1px solid black"}
+      bg={"white"}
+      miw={200}
+      mih={100}
+      direction={"column"}
+    >
       <Text fw={700} size="sm" ta="center" py={"4"}>
         {`${name} (${count})`}
       </Text>
       <Divider c={"black"} size={"md"} />
       {attributeSummaries.length !== 0 && (
-        <Table withRowBorders={false}>
+        <Table withRowBorders={false} captionSide="top">
+          <Table.Caption>Attributes</Table.Caption>
           <Table.Tbody>
             {attributeSummaries.map((attribute) => (
               <Table.Tr>
@@ -36,10 +44,10 @@ const EntityCard: React.FC<EntityCardProps> = ({
           </Table.Tbody>
         </Table>
       )}
-      <Divider label={"O2O Relations"} />
       {relationSummaries.length !== 0 && (
         <>
-          <Table>
+          <Table withRowBorders={false} captionSide="top">
+            <Table.Caption>Relations</Table.Caption>
             <Table.Tbody>
               {relationSummaries.map(
                 ({ target, qualifier, min_count, max_count }) => (
@@ -58,7 +66,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
           </Table>
         </>
       )}
-    </Box>
+    </Flex>
   );
 };
 
