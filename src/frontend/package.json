@@ -31,7 +31,7 @@
     "dayjs": "^1.11.13",
     "elkjs": "^0.10.0",
     "lucide-react": "^0.511.0",
-    "mantine-datatable": "^8.1.1",
+    "mantine-datatable": "^8.1.2",
     "next": "15.3.2",
     "react": "^19.0.0",
     "react-cytoscapejs": "^2.0.0",
