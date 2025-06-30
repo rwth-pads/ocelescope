@@ -118,8 +118,6 @@ class Session:
 
         self.current_ocel_id = ocel_id
 
-        self.invalidate_plugin_states()
-
     def delete_ocel(self, ocel_id: str):
         if ocel_id not in self.ocels:
             return
@@ -128,8 +126,6 @@ class Session:
             self.current_ocel_id = None
 
         self.ocels.pop(ocel_id, None)
-
-        self.invalidate_plugin_states()
 
     def get_ocel_filters(self, ocel_id: str) -> list[FilterConfig]:
         if ocel_id not in self.ocels:
@@ -148,7 +144,6 @@ class Session:
 
         current_ocel.filtered = current_ocel.original.apply_filter(filters)
         current_ocel.filter = filters
-        self.invalidate_plugin_states()
 
     # Resources
     def get_resource(self, resource_id: str) -> Resource:

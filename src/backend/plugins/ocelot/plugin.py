@@ -3,6 +3,7 @@ from typing import Annotated, List, Literal, Optional, Tuple
 from fastapi import APIRouter
 from fastapi.params import Depends, Query
 from pandas.core.frame import DataFrame
+from pydantic_core.core_schema import none_schema
 
 from api.dependencies import ApiOcel, ApiSession
 from api.model.cache import CachableObject
@@ -21,7 +22,8 @@ class State(CachableObject):
         key=lambda _,
         method_name,
         *args,
-        **kwargs: f"{method_name}_{kwargs.get('activity', '')}_{kwargs.get('sort_by', '')}"
+        **kwargs: f"{method_name}_{kwargs.get('activity', '')}_{kwargs.get('sort_by', '')}",
+        include_ocel_state=True,
     )
     def get_sorted_events(
         self,
@@ -29,6 +31,9 @@ class State(CachableObject):
         activity: str,
         sort_by: Optional[Tuple[str, Literal["asc", "desc"]]] = None,
     ) -> DataFrame:
+        if sort_by is None:
+            sort_by = (ocel.ocel.event_id_column, "asc")
+
         return get_sorted_table(
             dataframe=ocel.ocel.events,
             type_field=ocel.ocel.event_activity,
@@ -40,7 +45,8 @@ class State(CachableObject):
         key=lambda _, method_name, *args, **kwargs: (
             f"{method_name}_{kwargs.get('activity', '')}_{kwargs.get('sort_by', '')}_"
             f"{kwargs.get('page', 1)}_{kwargs.get('page_size', 10)}"
-        )
+        ),
+        include_ocel_state=True,
     )
     def get_paginated_event_table(
         self,
@@ -78,7 +84,8 @@ class State(CachableObject):
         key=lambda _,
         method_name,
         *args,
-        **kwargs: f"{method_name}_{kwargs.get('object_type', '')}_{kwargs.get('sort_by', '')}"
+        **kwargs: f"{method_name}_{kwargs.get('object_type', '')}_{kwargs.get('sort_by', '')}",
+        include_ocel_state=True,
     )
     def get_sorted_objects(
         self,
@@ -88,6 +95,9 @@ class State(CachableObject):
     ) -> DataFrame:
         if sort_by is not None and sort_by[0] == "id":
             sort_by = (ocel.ocel.object_id_column, sort_by[1])
+
+        if sort_by is None:
+            sort_by = (ocel.ocel.object_id_column, "asc")
 
         return get_sorted_table(
             dataframe=ocel.ocel.objects,
@@ -100,7 +110,8 @@ class State(CachableObject):
         key=lambda _, method_name, *args, **kwargs: (
             f"{method_name}_{kwargs.get('object_type', '')}_{kwargs.get('sort_by', '')}_"
             f"{kwargs.get('page', 1)}_{kwargs.get('page_size', 10)}"
-        )
+        ),
+        include_ocel_state=True,
     )
     def get_paginated_object_table(
         self,

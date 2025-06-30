@@ -106,11 +106,24 @@ def key_decorator_add_func_name(func: Callable):
     return decorator
 
 
-def key_decorator_add_filter_hash(func: Callable):
+def key_decorator_add_ocelwrapper_state_id():
+    """Adds `stateId` of the first OcelWrapper argument to the cache key."""
+
     def decorator(key):
         def key_wrapper(self, *args, **kwargs):
-            filter_hash = getattr(self, "state_id", "")
-            return key(self, filter_hash, *args, **kwargs)
+            from ocel.ocel_wrapper import OCELWrapper
+
+            value = ""
+            for arg in args:
+                if isinstance(arg, OCELWrapper):
+                    value = getattr(arg, "state_id", "")
+                    break
+            if not value:
+                for v in kwargs.values():
+                    if isinstance(v, OCELWrapper):
+                        value = getattr(v, "state_id", "")
+                        break
+            return key(self, value, *args, **kwargs)
 
         return key_wrapper
 
@@ -127,7 +140,7 @@ def instance_lru_cache(
     key: Callable | None = None,
     make_hashable: bool = False,
     use_lock: bool = True,
-    include_filter_hash: bool = True,
+    include_ocel_state: bool = False,
 ):
     """Caches an instance method.
 
@@ -145,8 +158,8 @@ def instance_lru_cache(
         )(key)
         key2 = key_decorator_add_func_name(func=func)(key1)
         key3 = (
-            key_decorator_add_filter_hash(func=func)(key2)
-            if include_filter_hash
+            key_decorator_add_ocelwrapper_state_id()(key2)
+            if include_ocel_state
             else key2
         )
         _key = key3
