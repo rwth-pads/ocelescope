@@ -19,20 +19,6 @@ type Props = {
   children?: React.ReactNode;
 };
 
-const FloatingAnotation: React.FC<{
-  position: { x: number; y: number } | undefined;
-  resetPosition: () => void;
-}> = ({ position, resetPosition }) => {
-  const ref = useClickOutside(resetPosition);
-
-  if (!position) return null;
-  return (
-    <Affix position={{ top: position.y, left: position.x }}>
-      <Paper w={200} h={200} ref={ref} shadow="xs" p="xl"></Paper>
-    </Affix>
-  );
-};
-
 const CytoscapeGraph: React.FC<Props> = ({
   elements,
   layout,

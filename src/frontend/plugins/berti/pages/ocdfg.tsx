@@ -25,26 +25,15 @@ const OCDFGPage = () => {
     },
   });
   const { data: ocdfgResponse, refetch } = useOcdfg({});
-  const [isOptionsOpen, setOptionsOpen] = useState(true);
 
   useWaitForTask({
     taskId: ocdfgResponse?.taskId ?? undefined,
     onSuccess: refetch,
   });
 
-  const toggleOptions = () => setOptionsOpen((prevIsOpen) => !prevIsOpen);
-
   return (
     <Ocdfg ocdfg={ocdfgResponse?.result ?? undefined}>
-      {isOptionsOpen && (
-        <CytoscapeSidebar close={() => setOptionsOpen((prev) => !prev)}>
-          <ScrollArea h={"100%"}>
-            <Stack></Stack>
-          </ScrollArea>
-        </CytoscapeSidebar>
-      )}
       <ActionButtons
-        toggleOptions={toggleOptions}
         onSave={ocdfgResponse?.result ? () => mutate({}) : undefined}
       />
       <LoadingOverlay zIndex={1} visible={!ocdfgResponse?.result} />
