@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import { ElementDefinition, StylesheetCSS } from "cytoscape";
 import dynamic from "next/dynamic";
 import assignUniqueColors from "@/util/colors";
-import { ocdfg } from "@/api/fastapi/berti/berti";
 
 const layout = {
   name: "elk",
@@ -153,6 +152,13 @@ const Ocdfg: React.FC<{
         },
       },
 
+      {
+        selector: "edge[source = target]", // self-loop detection
+        css: {
+          "loop-direction": "-45deg", // or try 0deg, 90deg, etc.
+          "loop-sweep": "60deg",
+        },
+      },
       {
         selector: "edge[label]",
         css: {
