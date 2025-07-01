@@ -30,7 +30,10 @@ import {
 } from "./FilterComponents/RelationFilter";
 import { FilterPipeLine } from "@/api/fastapi-schemas";
 import { OcelInputType } from "@/types/ocel";
-import { EventAttributeFilter } from "./FilterComponents/AttributeFilter";
+import {
+  EventAttributeFilter,
+  ObjectAttributeFilter,
+} from "./FilterComponents/AttributeFilter";
 
 export type FilterFormValues = {
   pipeline: FilterConfig[];
@@ -96,7 +99,7 @@ const filterTypes: { [K in FilterType]: FilterConfigDefinition<K> } = {
   object_attribute: {
     defaultValue: { type: "object_attribute", attribute: "", target_type: "" },
     typeForm: (props) => (
-      <EventAttributeFilter ocel_version={"original"} {...props} />
+      <ObjectAttributeFilter ocel_version={"original"} {...props} />
     ),
   },
 };
