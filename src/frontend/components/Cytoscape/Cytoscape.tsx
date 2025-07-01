@@ -6,10 +6,12 @@ import { Affix, Box, Paper } from "@mantine/core";
 import { useClickOutside } from "@mantine/hooks";
 import CytoscapeComponent from "react-cytoscapejs";
 import elk from "cytoscape-elk";
+import dagre from "cytoscape-dagre";
 import { Core } from "cytoscape";
 import { CytoscapeContext } from "./CytoscapeContext";
 
 cytoscape.use(elk);
+cytoscape.use(dagre);
 
 type Props = {
   elements: ElementDefinition[];
