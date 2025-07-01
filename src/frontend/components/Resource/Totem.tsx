@@ -1,14 +1,8 @@
-// components/AlternativeDFG.tsx
-import {
-  ObjectCentricDirectlyFollowsGraph,
-  Totem as Resource,
-  TotemEdgeTr,
-} from "@/api/fastapi-schemas";
+import { Totem as Resource } from "@/api/fastapi-schemas";
 import { useMemo } from "react";
 import { ElementDefinition, StylesheetCSS } from "cytoscape";
-import dynamic from "next/dynamic";
 import assignUniqueColors from "@/util/colors";
-import { ocdfg } from "@/api/fastapi/berti/berti";
+import Cytoscape from "../Cytoscape";
 
 const layout = {
   name: "elk",
@@ -41,13 +35,6 @@ const Totem: React.FC<{
   totem?: Resource;
   children?: React.ReactNode;
 }> = ({ totem, children }) => {
-  const CytoscapeGraph = dynamic(
-    () => import("@/components/Cytoscape/Cytoscape"),
-    {
-      ssr: false,
-    },
-  );
-
   const { styles, elements } = useMemo(() => {
     if (!totem) {
       return { styles: [], elements: [] };
@@ -163,14 +150,14 @@ const Totem: React.FC<{
   }, [totem]);
 
   return (
-    <CytoscapeGraph
+    <Cytoscape
       elements={elements}
       styles={styles}
       layout={layout}
       isLoading={!!totem}
     >
       {children}
-    </CytoscapeGraph>
+    </Cytoscape>
   );
 };
 

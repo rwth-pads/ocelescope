@@ -2,22 +2,31 @@
 import { ObjectCentricDirectlyFollowsGraph } from "@/api/fastapi-schemas";
 import { useMemo } from "react";
 import { ElementDefinition, StylesheetCSS } from "cytoscape";
-import dynamic from "next/dynamic";
 import assignUniqueColors from "@/util/colors";
+import Cytoscape from "../Cytoscape";
 
 const layout = {
   name: "elk",
   nodeDimensionsIncludeLabels: true,
   elk: {
-    "org.eclipse.elk.randomSeed": 2,
-    "elk.direction": "RIGHT",
+    "org.eclipse.elk.randomSeed": 3,
     "elk.algorithm": "layered",
-    "elk.spacing.edgeNode": 30.0,
-    "elk.spacing.edgeEdge": 30.0,
-    "elk.spacing.nodeNode": "100",
-    "elk.spacing.componentComponent": 75,
+    "elk.direction": "RIGHT",
+
+    // Increase spacing between nodes and edges
+    "elk.spacing.nodeNode": 100,
+    "elk.spacing.edgeNode": 50,
+    "elk.spacing.edgeEdge": 40,
+    "elk.spacing.componentComponent": 100,
+
+    // Layer spacing
+    "elk.layered.spacing.baseValue": 50,
+    "elk.layered.spacing.nodeNodeBetweenLayers": 150,
+
+    // Better edge routing for visual clarity
     "elk.edgeRouting": "ORTHOGONAL",
-    "elk.layered.spacing.baseValue": 3.0,
+
+    // Node placement and layering strategies
     "elk.layered.nodePlacement.strategy": "NETWORK_SIMPLEX",
     "elk.layered.layering.strategy": "NETWORK_SIMPLEX",
   },
@@ -27,13 +36,6 @@ const Ocdfg: React.FC<{
   ocdfg?: ObjectCentricDirectlyFollowsGraph;
   children?: React.ReactNode;
 }> = ({ ocdfg, children }) => {
-  const CytoscapeGraph = dynamic(
-    () => import("@/components/Cytoscape/Cytoscape"),
-    {
-      ssr: false,
-    },
-  );
-
   const { styles, elements } = useMemo(() => {
     if (!ocdfg) {
       return { styles: [], elements: [] };
@@ -155,7 +157,7 @@ const Ocdfg: React.FC<{
       {
         selector: "edge[source = target]", // self-loop detection
         css: {
-          "loop-direction": "-45deg", // or try 0deg, 90deg, etc.
+          "loop-direction": "180deg", // or try 0deg, 90deg, etc.
           "loop-sweep": "60deg",
         },
       },
@@ -172,14 +174,14 @@ const Ocdfg: React.FC<{
   }, [ocdfg]);
 
   return (
-    <CytoscapeGraph
+    <Cytoscape
       elements={elements}
       styles={styles}
       layout={layout}
       isLoading={!!ocdfg}
     >
       {children}
-    </CytoscapeGraph>
+    </Cytoscape>
   );
 };
 

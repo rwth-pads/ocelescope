@@ -4,18 +4,12 @@ import { useMemo } from "react";
 import { ElementDefinition, StylesheetCSS } from "cytoscape";
 import dynamic from "next/dynamic";
 import assignUniqueColors from "@/util/colors";
+import Cytoscape from "../Cytoscape";
 
 const PetriNet: React.FC<{
   ocpn?: ObjectCentricPetriNet;
   children?: React.ReactNode;
 }> = ({ ocpn, children }) => {
-  const CytoscapeGraph = dynamic(
-    () => import("@/components/Cytoscape/Cytoscape"),
-    {
-      ssr: false,
-    },
-  );
-
   const { styles, elements } = useMemo(() => {
     if (!ocpn) {
       return { styles: [], elements: [] };
@@ -136,9 +130,9 @@ const PetriNet: React.FC<{
   };
 
   return (
-    <CytoscapeGraph elements={elements} styles={styles} layout={layout}>
+    <Cytoscape elements={elements} styles={styles} layout={layout}>
       {children}
-    </CytoscapeGraph>
+    </Cytoscape>
   );
 };
 
