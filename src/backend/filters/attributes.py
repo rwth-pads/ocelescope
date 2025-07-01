@@ -26,7 +26,7 @@ class AttributeFilterConfig(BaseModel):
 def filter_by_attribute(
     attribute_df: DataFrame, type_column: str, config: AttributeFilterConfig
 ):
-    df = attribute_df[attribute_df[type_column] == config.target_type]
+    df = attribute_df
     col = config.attribute
 
     if col not in df.columns:
@@ -66,7 +66,10 @@ def filter_by_attribute(
     if config.regex is not None:
         mask &= series.astype(str).str.contains(config.regex, regex=True, na=False)
 
-    return mask
+    is_not_target_type = attribute_df[type_column] != config.target_type
+
+    final_mask = cast(Series, is_not_target_type | mask)
+    return final_mask
 
 
 class EventAttributeFilterConfig(BaseFilterConfig):
