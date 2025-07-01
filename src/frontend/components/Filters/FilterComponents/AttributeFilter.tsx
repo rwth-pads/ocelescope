@@ -188,7 +188,8 @@ const AttributeFilter: React.FC<AttributeFilterProps> = ({
       </Grid.Col>
       {currentAttribute &&
         attributeTypeToInput[currentAttribute.type]({
-          attribute: currentAttribute,
+          // TODO: Fix this
+          attribute: currentAttribute as never,
           value,
           onChange,
         })}
