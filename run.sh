@@ -19,7 +19,7 @@ echo "📄 Using: $COMPOSE_FILE"
 if [ "$ACTION" = "up" ]; then
   if [ "$MODE" = "dev" ]; then
     echo "🔁 Running in watch mode for development..."
-    docker compose -f "$COMPOSE_FILE" watch
+    docker compose -f "$COMPOSE_FILE" up --build
   else
     echo "🚀 Bringing up production containers..."
     docker compose -f "$COMPOSE_FILE" up --build $DETACHED
