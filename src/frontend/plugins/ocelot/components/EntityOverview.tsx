@@ -3,9 +3,7 @@ import {
   EventCounts200,
   RelationCountSummary,
 } from "@/api/fastapi-schemas";
-import { Input, SimpleGrid, Stack } from "@mantine/core";
-import { useDebouncedState } from "@mantine/hooks";
-import { SearchIcon } from "lucide-react";
+import { SimpleGrid } from "@mantine/core";
 import { useMemo } from "react";
 import EntityCard from "./EntityCard";
 

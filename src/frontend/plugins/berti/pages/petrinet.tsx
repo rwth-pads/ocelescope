@@ -1,4 +1,4 @@
-import { usePetriNet, useSavePnet } from "@/api/fastapi/berti/berti";
+import { useBertiPetriNet, useBertiSavePnet } from "@/api/fastapi/berti/berti";
 import { RouteDefinition } from "@/plugins/types";
 import useWaitForTask from "@/hooks/useTaskWaiter";
 import { Box, LoadingOverlay } from "@mantine/core";
@@ -8,10 +8,10 @@ import useInvalidateResources from "@/hooks/useInvalidateResources";
 import { showNotification } from "@mantine/notifications";
 
 const PetriNetPage = () => {
-  const { data: pnet, refetch } = usePetriNet({});
+  const { data: pnet, refetch } = useBertiPetriNet({});
 
   const invalidateResources = useInvalidateResources();
-  const { mutate } = useSavePnet({
+  const { mutate } = useBertiSavePnet({
     mutation: {
       onSuccess: async (addedResource) => {
         showNotification({

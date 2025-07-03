@@ -4,9 +4,7 @@
  * OCEAn
  * OpenAPI spec version: 0.9.12
  */
-import {
-  useQuery
-} from '@tanstack/react-query';
+import { useQuery } from "@tanstack/react-query";
 import type {
   DataTag,
   DefinedInitialDataOptions,
@@ -16,430 +14,773 @@ import type {
   QueryKey,
   UndefinedInitialDataOptions,
   UseQueryOptions,
-  UseQueryResult
-} from '@tanstack/react-query';
+  UseQueryResult,
+} from "@tanstack/react-query";
 
 import type {
-  EventInfoParams,
   HTTPValidationError,
-  ObjectInfoParams,
-  PaginatedEventsParams,
-  PaginatedObjectsParams,
-  PaginatedResponse
-} from '../../fastapi-schemas';
+  OcelotEventInfoParams,
+  OcelotObjectInfoParams,
+  OcelotPaginatedEventsParams,
+  OcelotPaginatedObjectsParams,
+  PaginatedResponse,
+} from "../../fastapi-schemas";
 
-import { customFetch } from '../../fetcher';
-
+import { customFetch } from "../../fetcher";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
-
-
 /**
  * @summary Get Events
  */
-export const getPaginatedEventsUrl = (params: PaginatedEventsParams,) => {
+export const getOcelotPaginatedEventsUrl = (
+  params: OcelotPaginatedEventsParams,
+) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+      normalizedParams.append(key, value === null ? "null" : value.toString());
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `http://localhost:8000/ocelot/events?${stringifiedParams}` : `http://localhost:8000/ocelot/events`
-}
+  return stringifiedParams.length > 0
+    ? `http://localhost:8000/ocelot/events?${stringifiedParams}`
+    : `http://localhost:8000/ocelot/events`;
+};
 
-export const paginatedEvents = async (params: PaginatedEventsParams, options?: RequestInit): Promise<PaginatedResponse> => {
-  
-  return customFetch<PaginatedResponse>(getPaginatedEventsUrl(params),
-  {      
+export const ocelotPaginatedEvents = async (
+  params: OcelotPaginatedEventsParams,
+  options?: RequestInit,
+): Promise<PaginatedResponse> => {
+  return customFetch<PaginatedResponse>(getOcelotPaginatedEventsUrl(params), {
     ...options,
-    method: 'GET'
-    
-    
-  }
-);}
+    method: "GET",
+  });
+};
 
-
-
-export const getPaginatedEventsQueryKey = (params: PaginatedEventsParams,) => {
-    return [`http://localhost:8000/ocelot/events`, ...(params ? [params]: [])] as const;
-    }
-
-    
-export const getPaginatedEventsQueryOptions = <TData = Awaited<ReturnType<typeof paginatedEvents>>, TError = HTTPValidationError>(params: PaginatedEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof paginatedEvents>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+export const getOcelotPaginatedEventsQueryKey = (
+  params: OcelotPaginatedEventsParams,
 ) => {
+  return [
+    `http://localhost:8000/ocelot/events`,
+    ...(params ? [params] : []),
+  ] as const;
+};
 
-const {query: queryOptions, request: requestOptions} = options ?? {};
+export const getOcelotPaginatedEventsQueryOptions = <
+  TData = Awaited<ReturnType<typeof ocelotPaginatedEvents>>,
+  TError = HTTPValidationError,
+>(
+  params: OcelotPaginatedEventsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof ocelotPaginatedEvents>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getPaginatedEventsQueryKey(params);
+  const queryKey =
+    queryOptions?.queryKey ?? getOcelotPaginatedEventsQueryKey(params);
 
-  
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof ocelotPaginatedEvents>>
+  > = ({ signal }) =>
+    ocelotPaginatedEvents(params, { signal, ...requestOptions });
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof paginatedEvents>>> = ({ signal }) => paginatedEvents(params, { signal, ...requestOptions });
+  return {
+    queryKey,
+    queryFn,
+    staleTime: 300000,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof ocelotPaginatedEvents>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
 
-      
+export type OcelotPaginatedEventsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof ocelotPaginatedEvents>>
+>;
+export type OcelotPaginatedEventsQueryError = HTTPValidationError;
 
-      
-
-   return  { queryKey, queryFn,   staleTime: 300000,  ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof paginatedEvents>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type PaginatedEventsQueryResult = NonNullable<Awaited<ReturnType<typeof paginatedEvents>>>
-export type PaginatedEventsQueryError = HTTPValidationError
-
-
-export function usePaginatedEvents<TData = Awaited<ReturnType<typeof paginatedEvents>>, TError = HTTPValidationError>(
- params: PaginatedEventsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof paginatedEvents>>, TError, TData>> & Pick<
+export function useOcelotPaginatedEvents<
+  TData = Awaited<ReturnType<typeof ocelotPaginatedEvents>>,
+  TError = HTTPValidationError,
+>(
+  params: OcelotPaginatedEventsParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof ocelotPaginatedEvents>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof paginatedEvents>>,
+          Awaited<ReturnType<typeof ocelotPaginatedEvents>>,
           TError,
-          Awaited<ReturnType<typeof paginatedEvents>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function usePaginatedEvents<TData = Awaited<ReturnType<typeof paginatedEvents>>, TError = HTTPValidationError>(
- params: PaginatedEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof paginatedEvents>>, TError, TData>> & Pick<
+          Awaited<ReturnType<typeof ocelotPaginatedEvents>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useOcelotPaginatedEvents<
+  TData = Awaited<ReturnType<typeof ocelotPaginatedEvents>>,
+  TError = HTTPValidationError,
+>(
+  params: OcelotPaginatedEventsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof ocelotPaginatedEvents>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof paginatedEvents>>,
+          Awaited<ReturnType<typeof ocelotPaginatedEvents>>,
           TError,
-          Awaited<ReturnType<typeof paginatedEvents>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function usePaginatedEvents<TData = Awaited<ReturnType<typeof paginatedEvents>>, TError = HTTPValidationError>(
- params: PaginatedEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof paginatedEvents>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+          Awaited<ReturnType<typeof ocelotPaginatedEvents>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useOcelotPaginatedEvents<
+  TData = Awaited<ReturnType<typeof ocelotPaginatedEvents>>,
+  TError = HTTPValidationError,
+>(
+  params: OcelotPaginatedEventsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof ocelotPaginatedEvents>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary Get Events
  */
 
-export function usePaginatedEvents<TData = Awaited<ReturnType<typeof paginatedEvents>>, TError = HTTPValidationError>(
- params: PaginatedEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof paginatedEvents>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useOcelotPaginatedEvents<
+  TData = Awaited<ReturnType<typeof ocelotPaginatedEvents>>,
+  TError = HTTPValidationError,
+>(
+  params: OcelotPaginatedEventsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof ocelotPaginatedEvents>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getOcelotPaginatedEventsQueryOptions(params, options);
 
-  const queryOptions = getPaginatedEventsQueryOptions(params,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 
-  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  query.queryKey = queryOptions.queryKey ;
+  query.queryKey = queryOptions.queryKey;
 
   return query;
 }
-
-
 
 /**
  * @summary Get Objects
  */
-export const getPaginatedObjectsUrl = (params: PaginatedObjectsParams,) => {
+export const getOcelotPaginatedObjectsUrl = (
+  params: OcelotPaginatedObjectsParams,
+) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+      normalizedParams.append(key, value === null ? "null" : value.toString());
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `http://localhost:8000/ocelot/objects?${stringifiedParams}` : `http://localhost:8000/ocelot/objects`
-}
+  return stringifiedParams.length > 0
+    ? `http://localhost:8000/ocelot/objects?${stringifiedParams}`
+    : `http://localhost:8000/ocelot/objects`;
+};
 
-export const paginatedObjects = async (params: PaginatedObjectsParams, options?: RequestInit): Promise<PaginatedResponse> => {
-  
-  return customFetch<PaginatedResponse>(getPaginatedObjectsUrl(params),
-  {      
+export const ocelotPaginatedObjects = async (
+  params: OcelotPaginatedObjectsParams,
+  options?: RequestInit,
+): Promise<PaginatedResponse> => {
+  return customFetch<PaginatedResponse>(getOcelotPaginatedObjectsUrl(params), {
     ...options,
-    method: 'GET'
-    
-    
-  }
-);}
+    method: "GET",
+  });
+};
 
-
-
-export const getPaginatedObjectsQueryKey = (params: PaginatedObjectsParams,) => {
-    return [`http://localhost:8000/ocelot/objects`, ...(params ? [params]: [])] as const;
-    }
-
-    
-export const getPaginatedObjectsQueryOptions = <TData = Awaited<ReturnType<typeof paginatedObjects>>, TError = HTTPValidationError>(params: PaginatedObjectsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof paginatedObjects>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+export const getOcelotPaginatedObjectsQueryKey = (
+  params: OcelotPaginatedObjectsParams,
 ) => {
+  return [
+    `http://localhost:8000/ocelot/objects`,
+    ...(params ? [params] : []),
+  ] as const;
+};
 
-const {query: queryOptions, request: requestOptions} = options ?? {};
+export const getOcelotPaginatedObjectsQueryOptions = <
+  TData = Awaited<ReturnType<typeof ocelotPaginatedObjects>>,
+  TError = HTTPValidationError,
+>(
+  params: OcelotPaginatedObjectsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof ocelotPaginatedObjects>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getPaginatedObjectsQueryKey(params);
+  const queryKey =
+    queryOptions?.queryKey ?? getOcelotPaginatedObjectsQueryKey(params);
 
-  
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof ocelotPaginatedObjects>>
+  > = ({ signal }) =>
+    ocelotPaginatedObjects(params, { signal, ...requestOptions });
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof paginatedObjects>>> = ({ signal }) => paginatedObjects(params, { signal, ...requestOptions });
+  return {
+    queryKey,
+    queryFn,
+    staleTime: 300000,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof ocelotPaginatedObjects>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
 
-      
+export type OcelotPaginatedObjectsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof ocelotPaginatedObjects>>
+>;
+export type OcelotPaginatedObjectsQueryError = HTTPValidationError;
 
-      
-
-   return  { queryKey, queryFn,   staleTime: 300000,  ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof paginatedObjects>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type PaginatedObjectsQueryResult = NonNullable<Awaited<ReturnType<typeof paginatedObjects>>>
-export type PaginatedObjectsQueryError = HTTPValidationError
-
-
-export function usePaginatedObjects<TData = Awaited<ReturnType<typeof paginatedObjects>>, TError = HTTPValidationError>(
- params: PaginatedObjectsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof paginatedObjects>>, TError, TData>> & Pick<
+export function useOcelotPaginatedObjects<
+  TData = Awaited<ReturnType<typeof ocelotPaginatedObjects>>,
+  TError = HTTPValidationError,
+>(
+  params: OcelotPaginatedObjectsParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof ocelotPaginatedObjects>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof paginatedObjects>>,
+          Awaited<ReturnType<typeof ocelotPaginatedObjects>>,
           TError,
-          Awaited<ReturnType<typeof paginatedObjects>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function usePaginatedObjects<TData = Awaited<ReturnType<typeof paginatedObjects>>, TError = HTTPValidationError>(
- params: PaginatedObjectsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof paginatedObjects>>, TError, TData>> & Pick<
+          Awaited<ReturnType<typeof ocelotPaginatedObjects>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useOcelotPaginatedObjects<
+  TData = Awaited<ReturnType<typeof ocelotPaginatedObjects>>,
+  TError = HTTPValidationError,
+>(
+  params: OcelotPaginatedObjectsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof ocelotPaginatedObjects>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof paginatedObjects>>,
+          Awaited<ReturnType<typeof ocelotPaginatedObjects>>,
           TError,
-          Awaited<ReturnType<typeof paginatedObjects>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function usePaginatedObjects<TData = Awaited<ReturnType<typeof paginatedObjects>>, TError = HTTPValidationError>(
- params: PaginatedObjectsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof paginatedObjects>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+          Awaited<ReturnType<typeof ocelotPaginatedObjects>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useOcelotPaginatedObjects<
+  TData = Awaited<ReturnType<typeof ocelotPaginatedObjects>>,
+  TError = HTTPValidationError,
+>(
+  params: OcelotPaginatedObjectsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof ocelotPaginatedObjects>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary Get Objects
  */
 
-export function usePaginatedObjects<TData = Awaited<ReturnType<typeof paginatedObjects>>, TError = HTTPValidationError>(
- params: PaginatedObjectsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof paginatedObjects>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useOcelotPaginatedObjects<
+  TData = Awaited<ReturnType<typeof ocelotPaginatedObjects>>,
+  TError = HTTPValidationError,
+>(
+  params: OcelotPaginatedObjectsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof ocelotPaginatedObjects>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getOcelotPaginatedObjectsQueryOptions(params, options);
 
-  const queryOptions = getPaginatedObjectsQueryOptions(params,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 
-  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  query.queryKey = queryOptions.queryKey ;
+  query.queryKey = queryOptions.queryKey;
 
   return query;
 }
 
-
-
 /**
  * @summary Get Objects Info
  */
-export const getObjectInfoUrl = (params?: ObjectInfoParams,) => {
+export const getOcelotObjectInfoUrl = (params?: OcelotObjectInfoParams) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+      normalizedParams.append(key, value === null ? "null" : value.toString());
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `http://localhost:8000/ocelot/objectInfo?${stringifiedParams}` : `http://localhost:8000/ocelot/objectInfo`
-}
+  return stringifiedParams.length > 0
+    ? `http://localhost:8000/ocelot/objectInfo?${stringifiedParams}`
+    : `http://localhost:8000/ocelot/objectInfo`;
+};
 
-export const objectInfo = async (params?: ObjectInfoParams, options?: RequestInit): Promise<string[]> => {
-  
-  return customFetch<string[]>(getObjectInfoUrl(params),
-  {      
+export const ocelotObjectInfo = async (
+  params?: OcelotObjectInfoParams,
+  options?: RequestInit,
+): Promise<string[]> => {
+  return customFetch<string[]>(getOcelotObjectInfoUrl(params), {
     ...options,
-    method: 'GET'
-    
-    
-  }
-);}
+    method: "GET",
+  });
+};
 
-
-
-export const getObjectInfoQueryKey = (params?: ObjectInfoParams,) => {
-    return [`http://localhost:8000/ocelot/objectInfo`, ...(params ? [params]: [])] as const;
-    }
-
-    
-export const getObjectInfoQueryOptions = <TData = Awaited<ReturnType<typeof objectInfo>>, TError = HTTPValidationError>(params?: ObjectInfoParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof objectInfo>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+export const getOcelotObjectInfoQueryKey = (
+  params?: OcelotObjectInfoParams,
 ) => {
+  return [
+    `http://localhost:8000/ocelot/objectInfo`,
+    ...(params ? [params] : []),
+  ] as const;
+};
 
-const {query: queryOptions, request: requestOptions} = options ?? {};
+export const getOcelotObjectInfoQueryOptions = <
+  TData = Awaited<ReturnType<typeof ocelotObjectInfo>>,
+  TError = HTTPValidationError,
+>(
+  params?: OcelotObjectInfoParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof ocelotObjectInfo>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getObjectInfoQueryKey(params);
+  const queryKey =
+    queryOptions?.queryKey ?? getOcelotObjectInfoQueryKey(params);
 
-  
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof ocelotObjectInfo>>
+  > = ({ signal }) => ocelotObjectInfo(params, { signal, ...requestOptions });
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof objectInfo>>> = ({ signal }) => objectInfo(params, { signal, ...requestOptions });
+  return {
+    queryKey,
+    queryFn,
+    staleTime: 300000,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof ocelotObjectInfo>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
 
-      
+export type OcelotObjectInfoQueryResult = NonNullable<
+  Awaited<ReturnType<typeof ocelotObjectInfo>>
+>;
+export type OcelotObjectInfoQueryError = HTTPValidationError;
 
-      
-
-   return  { queryKey, queryFn,   staleTime: 300000,  ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof objectInfo>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type ObjectInfoQueryResult = NonNullable<Awaited<ReturnType<typeof objectInfo>>>
-export type ObjectInfoQueryError = HTTPValidationError
-
-
-export function useObjectInfo<TData = Awaited<ReturnType<typeof objectInfo>>, TError = HTTPValidationError>(
- params: undefined |  ObjectInfoParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof objectInfo>>, TError, TData>> & Pick<
+export function useOcelotObjectInfo<
+  TData = Awaited<ReturnType<typeof ocelotObjectInfo>>,
+  TError = HTTPValidationError,
+>(
+  params: undefined | OcelotObjectInfoParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof ocelotObjectInfo>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof objectInfo>>,
+          Awaited<ReturnType<typeof ocelotObjectInfo>>,
           TError,
-          Awaited<ReturnType<typeof objectInfo>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useObjectInfo<TData = Awaited<ReturnType<typeof objectInfo>>, TError = HTTPValidationError>(
- params?: ObjectInfoParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof objectInfo>>, TError, TData>> & Pick<
+          Awaited<ReturnType<typeof ocelotObjectInfo>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useOcelotObjectInfo<
+  TData = Awaited<ReturnType<typeof ocelotObjectInfo>>,
+  TError = HTTPValidationError,
+>(
+  params?: OcelotObjectInfoParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof ocelotObjectInfo>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof objectInfo>>,
+          Awaited<ReturnType<typeof ocelotObjectInfo>>,
           TError,
-          Awaited<ReturnType<typeof objectInfo>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useObjectInfo<TData = Awaited<ReturnType<typeof objectInfo>>, TError = HTTPValidationError>(
- params?: ObjectInfoParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof objectInfo>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+          Awaited<ReturnType<typeof ocelotObjectInfo>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useOcelotObjectInfo<
+  TData = Awaited<ReturnType<typeof ocelotObjectInfo>>,
+  TError = HTTPValidationError,
+>(
+  params?: OcelotObjectInfoParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof ocelotObjectInfo>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary Get Objects Info
  */
 
-export function useObjectInfo<TData = Awaited<ReturnType<typeof objectInfo>>, TError = HTTPValidationError>(
- params?: ObjectInfoParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof objectInfo>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useOcelotObjectInfo<
+  TData = Awaited<ReturnType<typeof ocelotObjectInfo>>,
+  TError = HTTPValidationError,
+>(
+  params?: OcelotObjectInfoParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof ocelotObjectInfo>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getOcelotObjectInfoQueryOptions(params, options);
 
-  const queryOptions = getObjectInfoQueryOptions(params,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 
-  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  query.queryKey = queryOptions.queryKey ;
+  query.queryKey = queryOptions.queryKey;
 
   return query;
 }
 
-
-
 /**
  * @summary Get Event Info
  */
-export const getEventInfoUrl = (params?: EventInfoParams,) => {
+export const getOcelotEventInfoUrl = (params?: OcelotEventInfoParams) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+      normalizedParams.append(key, value === null ? "null" : value.toString());
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `http://localhost:8000/ocelot/eventInfo?${stringifiedParams}` : `http://localhost:8000/ocelot/eventInfo`
-}
+  return stringifiedParams.length > 0
+    ? `http://localhost:8000/ocelot/eventInfo?${stringifiedParams}`
+    : `http://localhost:8000/ocelot/eventInfo`;
+};
 
-export const eventInfo = async (params?: EventInfoParams, options?: RequestInit): Promise<string[]> => {
-  
-  return customFetch<string[]>(getEventInfoUrl(params),
-  {      
+export const ocelotEventInfo = async (
+  params?: OcelotEventInfoParams,
+  options?: RequestInit,
+): Promise<string[]> => {
+  return customFetch<string[]>(getOcelotEventInfoUrl(params), {
     ...options,
-    method: 'GET'
-    
-    
-  }
-);}
+    method: "GET",
+  });
+};
 
+export const getOcelotEventInfoQueryKey = (params?: OcelotEventInfoParams) => {
+  return [
+    `http://localhost:8000/ocelot/eventInfo`,
+    ...(params ? [params] : []),
+  ] as const;
+};
 
-
-export const getEventInfoQueryKey = (params?: EventInfoParams,) => {
-    return [`http://localhost:8000/ocelot/eventInfo`, ...(params ? [params]: [])] as const;
-    }
-
-    
-export const getEventInfoQueryOptions = <TData = Awaited<ReturnType<typeof eventInfo>>, TError = HTTPValidationError>(params?: EventInfoParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof eventInfo>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+export const getOcelotEventInfoQueryOptions = <
+  TData = Awaited<ReturnType<typeof ocelotEventInfo>>,
+  TError = HTTPValidationError,
+>(
+  params?: OcelotEventInfoParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof ocelotEventInfo>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
 ) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-const {query: queryOptions, request: requestOptions} = options ?? {};
+  const queryKey = queryOptions?.queryKey ?? getOcelotEventInfoQueryKey(params);
 
-  const queryKey =  queryOptions?.queryKey ?? getEventInfoQueryKey(params);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof ocelotEventInfo>>> = ({
+    signal,
+  }) => ocelotEventInfo(params, { signal, ...requestOptions });
 
-  
+  return {
+    queryKey,
+    queryFn,
+    staleTime: 300000,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof ocelotEventInfo>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof eventInfo>>> = ({ signal }) => eventInfo(params, { signal, ...requestOptions });
+export type OcelotEventInfoQueryResult = NonNullable<
+  Awaited<ReturnType<typeof ocelotEventInfo>>
+>;
+export type OcelotEventInfoQueryError = HTTPValidationError;
 
-      
-
-      
-
-   return  { queryKey, queryFn,   staleTime: 300000,  ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof eventInfo>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type EventInfoQueryResult = NonNullable<Awaited<ReturnType<typeof eventInfo>>>
-export type EventInfoQueryError = HTTPValidationError
-
-
-export function useEventInfo<TData = Awaited<ReturnType<typeof eventInfo>>, TError = HTTPValidationError>(
- params: undefined |  EventInfoParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof eventInfo>>, TError, TData>> & Pick<
+export function useOcelotEventInfo<
+  TData = Awaited<ReturnType<typeof ocelotEventInfo>>,
+  TError = HTTPValidationError,
+>(
+  params: undefined | OcelotEventInfoParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof ocelotEventInfo>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof eventInfo>>,
+          Awaited<ReturnType<typeof ocelotEventInfo>>,
           TError,
-          Awaited<ReturnType<typeof eventInfo>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useEventInfo<TData = Awaited<ReturnType<typeof eventInfo>>, TError = HTTPValidationError>(
- params?: EventInfoParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof eventInfo>>, TError, TData>> & Pick<
+          Awaited<ReturnType<typeof ocelotEventInfo>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useOcelotEventInfo<
+  TData = Awaited<ReturnType<typeof ocelotEventInfo>>,
+  TError = HTTPValidationError,
+>(
+  params?: OcelotEventInfoParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof ocelotEventInfo>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof eventInfo>>,
+          Awaited<ReturnType<typeof ocelotEventInfo>>,
           TError,
-          Awaited<ReturnType<typeof eventInfo>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useEventInfo<TData = Awaited<ReturnType<typeof eventInfo>>, TError = HTTPValidationError>(
- params?: EventInfoParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof eventInfo>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+          Awaited<ReturnType<typeof ocelotEventInfo>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useOcelotEventInfo<
+  TData = Awaited<ReturnType<typeof ocelotEventInfo>>,
+  TError = HTTPValidationError,
+>(
+  params?: OcelotEventInfoParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof ocelotEventInfo>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary Get Event Info
  */
 
-export function useEventInfo<TData = Awaited<ReturnType<typeof eventInfo>>, TError = HTTPValidationError>(
- params?: EventInfoParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof eventInfo>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useOcelotEventInfo<
+  TData = Awaited<ReturnType<typeof ocelotEventInfo>>,
+  TError = HTTPValidationError,
+>(
+  params?: OcelotEventInfoParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof ocelotEventInfo>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getOcelotEventInfoQueryOptions(params, options);
 
-  const queryOptions = getEventInfoQueryOptions(params,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 
-  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  query.queryKey = queryOptions.queryKey ;
+  query.queryKey = queryOptions.queryKey;
 
   return query;
 }
-
-
-

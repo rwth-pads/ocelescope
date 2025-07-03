@@ -4,10 +4,7 @@
  * OCEAn
  * OpenAPI spec version: 0.9.12
  */
-import {
-  useMutation,
-  useQuery
-} from '@tanstack/react-query';
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
   DataTag,
   DefinedInitialDataOptions,
@@ -20,383 +17,557 @@ import type {
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
-  UseQueryResult
-} from '@tanstack/react-query';
+  UseQueryResult,
+} from "@tanstack/react-query";
 
 import type {
+  BertiOcdfgParams,
+  BertiPetriNetParams,
+  BertiSaveOcdfgParams,
+  BertiSavePnetParams,
   HTTPValidationError,
-  OcdfgParams,
-  PetriNetParams,
   Resource,
-  SaveOcdfgParams,
-  SavePnetParams,
   TaskResponseObjectCentricDirectlyFollowsGraph,
-  TaskResponseObjectCentricPetriNet
-} from '../../fastapi-schemas';
+  TaskResponseObjectCentricPetriNet,
+} from "../../fastapi-schemas";
 
-import { customFetch } from '../../fetcher';
-
+import { customFetch } from "../../fetcher";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
-
-
 /**
  * @summary Get Petri Net
  */
-export const getPetriNetUrl = (params?: PetriNetParams,) => {
+export const getBertiPetriNetUrl = (params?: BertiPetriNetParams) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+      normalizedParams.append(key, value === null ? "null" : value.toString());
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `http://localhost:8000/berti/petriNet?${stringifiedParams}` : `http://localhost:8000/berti/petriNet`
-}
+  return stringifiedParams.length > 0
+    ? `http://localhost:8000/berti/petriNet?${stringifiedParams}`
+    : `http://localhost:8000/berti/petriNet`;
+};
 
-export const petriNet = async (params?: PetriNetParams, options?: RequestInit): Promise<TaskResponseObjectCentricPetriNet> => {
-  
-  return customFetch<TaskResponseObjectCentricPetriNet>(getPetriNetUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
+export const bertiPetriNet = async (
+  params?: BertiPetriNetParams,
+  options?: RequestInit,
+): Promise<TaskResponseObjectCentricPetriNet> => {
+  return customFetch<TaskResponseObjectCentricPetriNet>(
+    getBertiPetriNetUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
 
+export const getBertiPetriNetQueryKey = (params?: BertiPetriNetParams) => {
+  return [
+    `http://localhost:8000/berti/petriNet`,
+    ...(params ? [params] : []),
+  ] as const;
+};
 
-
-export const getPetriNetQueryKey = (params?: PetriNetParams,) => {
-    return [`http://localhost:8000/berti/petriNet`, ...(params ? [params]: [])] as const;
-    }
-
-    
-export const getPetriNetQueryOptions = <TData = Awaited<ReturnType<typeof petriNet>>, TError = HTTPValidationError>(params?: PetriNetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof petriNet>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+export const getBertiPetriNetQueryOptions = <
+  TData = Awaited<ReturnType<typeof bertiPetriNet>>,
+  TError = HTTPValidationError,
+>(
+  params?: BertiPetriNetParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof bertiPetriNet>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
 ) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-const {query: queryOptions, request: requestOptions} = options ?? {};
+  const queryKey = queryOptions?.queryKey ?? getBertiPetriNetQueryKey(params);
 
-  const queryKey =  queryOptions?.queryKey ?? getPetriNetQueryKey(params);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof bertiPetriNet>>> = ({
+    signal,
+  }) => bertiPetriNet(params, { signal, ...requestOptions });
 
-  
+  return {
+    queryKey,
+    queryFn,
+    staleTime: 300000,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof bertiPetriNet>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof petriNet>>> = ({ signal }) => petriNet(params, { signal, ...requestOptions });
+export type BertiPetriNetQueryResult = NonNullable<
+  Awaited<ReturnType<typeof bertiPetriNet>>
+>;
+export type BertiPetriNetQueryError = HTTPValidationError;
 
-      
-
-      
-
-   return  { queryKey, queryFn,   staleTime: 300000,  ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof petriNet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type PetriNetQueryResult = NonNullable<Awaited<ReturnType<typeof petriNet>>>
-export type PetriNetQueryError = HTTPValidationError
-
-
-export function usePetriNet<TData = Awaited<ReturnType<typeof petriNet>>, TError = HTTPValidationError>(
- params: undefined |  PetriNetParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof petriNet>>, TError, TData>> & Pick<
+export function useBertiPetriNet<
+  TData = Awaited<ReturnType<typeof bertiPetriNet>>,
+  TError = HTTPValidationError,
+>(
+  params: undefined | BertiPetriNetParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof bertiPetriNet>>, TError, TData>
+    > &
+      Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof petriNet>>,
+          Awaited<ReturnType<typeof bertiPetriNet>>,
           TError,
-          Awaited<ReturnType<typeof petriNet>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function usePetriNet<TData = Awaited<ReturnType<typeof petriNet>>, TError = HTTPValidationError>(
- params?: PetriNetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof petriNet>>, TError, TData>> & Pick<
+          Awaited<ReturnType<typeof bertiPetriNet>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useBertiPetriNet<
+  TData = Awaited<ReturnType<typeof bertiPetriNet>>,
+  TError = HTTPValidationError,
+>(
+  params?: BertiPetriNetParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof bertiPetriNet>>, TError, TData>
+    > &
+      Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof petriNet>>,
+          Awaited<ReturnType<typeof bertiPetriNet>>,
           TError,
-          Awaited<ReturnType<typeof petriNet>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function usePetriNet<TData = Awaited<ReturnType<typeof petriNet>>, TError = HTTPValidationError>(
- params?: PetriNetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof petriNet>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+          Awaited<ReturnType<typeof bertiPetriNet>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useBertiPetriNet<
+  TData = Awaited<ReturnType<typeof bertiPetriNet>>,
+  TError = HTTPValidationError,
+>(
+  params?: BertiPetriNetParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof bertiPetriNet>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary Get Petri Net
  */
 
-export function usePetriNet<TData = Awaited<ReturnType<typeof petriNet>>, TError = HTTPValidationError>(
- params?: PetriNetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof petriNet>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useBertiPetriNet<
+  TData = Awaited<ReturnType<typeof bertiPetriNet>>,
+  TError = HTTPValidationError,
+>(
+  params?: BertiPetriNetParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof bertiPetriNet>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getBertiPetriNetQueryOptions(params, options);
 
-  const queryOptions = getPetriNetQueryOptions(params,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 
-  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  query.queryKey = queryOptions.queryKey ;
+  query.queryKey = queryOptions.queryKey;
 
   return query;
 }
 
-
-
 /**
  * @summary Get Ocdfg
  */
-export const getOcdfgUrl = (params?: OcdfgParams,) => {
+export const getBertiOcdfgUrl = (params?: BertiOcdfgParams) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+      normalizedParams.append(key, value === null ? "null" : value.toString());
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `http://localhost:8000/berti/ocdfg?${stringifiedParams}` : `http://localhost:8000/berti/ocdfg`
-}
+  return stringifiedParams.length > 0
+    ? `http://localhost:8000/berti/ocdfg?${stringifiedParams}`
+    : `http://localhost:8000/berti/ocdfg`;
+};
 
-export const ocdfg = async (params?: OcdfgParams, options?: RequestInit): Promise<TaskResponseObjectCentricDirectlyFollowsGraph> => {
-  
-  return customFetch<TaskResponseObjectCentricDirectlyFollowsGraph>(getOcdfgUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
+export const bertiOcdfg = async (
+  params?: BertiOcdfgParams,
+  options?: RequestInit,
+): Promise<TaskResponseObjectCentricDirectlyFollowsGraph> => {
+  return customFetch<TaskResponseObjectCentricDirectlyFollowsGraph>(
+    getBertiOcdfgUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
 
+export const getBertiOcdfgQueryKey = (params?: BertiOcdfgParams) => {
+  return [
+    `http://localhost:8000/berti/ocdfg`,
+    ...(params ? [params] : []),
+  ] as const;
+};
 
-
-export const getOcdfgQueryKey = (params?: OcdfgParams,) => {
-    return [`http://localhost:8000/berti/ocdfg`, ...(params ? [params]: [])] as const;
-    }
-
-    
-export const getOcdfgQueryOptions = <TData = Awaited<ReturnType<typeof ocdfg>>, TError = HTTPValidationError>(params?: OcdfgParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof ocdfg>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+export const getBertiOcdfgQueryOptions = <
+  TData = Awaited<ReturnType<typeof bertiOcdfg>>,
+  TError = HTTPValidationError,
+>(
+  params?: BertiOcdfgParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof bertiOcdfg>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
 ) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-const {query: queryOptions, request: requestOptions} = options ?? {};
+  const queryKey = queryOptions?.queryKey ?? getBertiOcdfgQueryKey(params);
 
-  const queryKey =  queryOptions?.queryKey ?? getOcdfgQueryKey(params);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof bertiOcdfg>>> = ({
+    signal,
+  }) => bertiOcdfg(params, { signal, ...requestOptions });
 
-  
+  return {
+    queryKey,
+    queryFn,
+    staleTime: 300000,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof bertiOcdfg>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof ocdfg>>> = ({ signal }) => ocdfg(params, { signal, ...requestOptions });
+export type BertiOcdfgQueryResult = NonNullable<
+  Awaited<ReturnType<typeof bertiOcdfg>>
+>;
+export type BertiOcdfgQueryError = HTTPValidationError;
 
-      
-
-      
-
-   return  { queryKey, queryFn,   staleTime: 300000,  ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof ocdfg>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type OcdfgQueryResult = NonNullable<Awaited<ReturnType<typeof ocdfg>>>
-export type OcdfgQueryError = HTTPValidationError
-
-
-export function useOcdfg<TData = Awaited<ReturnType<typeof ocdfg>>, TError = HTTPValidationError>(
- params: undefined |  OcdfgParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof ocdfg>>, TError, TData>> & Pick<
+export function useBertiOcdfg<
+  TData = Awaited<ReturnType<typeof bertiOcdfg>>,
+  TError = HTTPValidationError,
+>(
+  params: undefined | BertiOcdfgParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof bertiOcdfg>>, TError, TData>
+    > &
+      Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof ocdfg>>,
+          Awaited<ReturnType<typeof bertiOcdfg>>,
           TError,
-          Awaited<ReturnType<typeof ocdfg>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useOcdfg<TData = Awaited<ReturnType<typeof ocdfg>>, TError = HTTPValidationError>(
- params?: OcdfgParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof ocdfg>>, TError, TData>> & Pick<
+          Awaited<ReturnType<typeof bertiOcdfg>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useBertiOcdfg<
+  TData = Awaited<ReturnType<typeof bertiOcdfg>>,
+  TError = HTTPValidationError,
+>(
+  params?: BertiOcdfgParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof bertiOcdfg>>, TError, TData>
+    > &
+      Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof ocdfg>>,
+          Awaited<ReturnType<typeof bertiOcdfg>>,
           TError,
-          Awaited<ReturnType<typeof ocdfg>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useOcdfg<TData = Awaited<ReturnType<typeof ocdfg>>, TError = HTTPValidationError>(
- params?: OcdfgParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof ocdfg>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+          Awaited<ReturnType<typeof bertiOcdfg>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useBertiOcdfg<
+  TData = Awaited<ReturnType<typeof bertiOcdfg>>,
+  TError = HTTPValidationError,
+>(
+  params?: BertiOcdfgParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof bertiOcdfg>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary Get Ocdfg
  */
 
-export function useOcdfg<TData = Awaited<ReturnType<typeof ocdfg>>, TError = HTTPValidationError>(
- params?: OcdfgParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof ocdfg>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useBertiOcdfg<
+  TData = Awaited<ReturnType<typeof bertiOcdfg>>,
+  TError = HTTPValidationError,
+>(
+  params?: BertiOcdfgParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof bertiOcdfg>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getBertiOcdfgQueryOptions(params, options);
 
-  const queryOptions = getOcdfgQueryOptions(params,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 
-  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  query.queryKey = queryOptions.queryKey ;
+  query.queryKey = queryOptions.queryKey;
 
   return query;
 }
 
+/**
+ * @summary Save Ocdfg
+ */
+export const getBertiSaveOcdfgUrl = (params?: BertiSaveOcdfgParams) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `http://localhost:8000/berti/ocdfg?${stringifiedParams}`
+    : `http://localhost:8000/berti/ocdfg`;
+};
+
+export const bertiSaveOcdfg = async (
+  params?: BertiSaveOcdfgParams,
+  options?: RequestInit,
+): Promise<Resource> => {
+  return customFetch<Resource>(getBertiSaveOcdfgUrl(params), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getBertiSaveOcdfgMutationOptions = <
+  TError = HTTPValidationError,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof bertiSaveOcdfg>>,
+    TError,
+    { params?: BertiSaveOcdfgParams },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof bertiSaveOcdfg>>,
+  TError,
+  { params?: BertiSaveOcdfgParams },
+  TContext
+> => {
+  const mutationKey = ["bertiSaveOcdfg"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof bertiSaveOcdfg>>,
+    { params?: BertiSaveOcdfgParams }
+  > = (props) => {
+    const { params } = props ?? {};
+
+    return bertiSaveOcdfg(params, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type BertiSaveOcdfgMutationResult = NonNullable<
+  Awaited<ReturnType<typeof bertiSaveOcdfg>>
+>;
+
+export type BertiSaveOcdfgMutationError = HTTPValidationError;
 
 /**
  * @summary Save Ocdfg
  */
-export const getSaveOcdfgUrl = (params?: SaveOcdfgParams,) => {
+export const useBertiSaveOcdfg = <
+  TError = HTTPValidationError,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof bertiSaveOcdfg>>,
+      TError,
+      { params?: BertiSaveOcdfgParams },
+      TContext
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof bertiSaveOcdfg>>,
+  TError,
+  { params?: BertiSaveOcdfgParams },
+  TContext
+> => {
+  const mutationOptions = getBertiSaveOcdfgMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
+};
+/**
+ * @summary Save Pnet
+ */
+export const getBertiSavePnetUrl = (params?: BertiSavePnetParams) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+      normalizedParams.append(key, value === null ? "null" : value.toString());
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `http://localhost:8000/berti/ocdfg?${stringifiedParams}` : `http://localhost:8000/berti/ocdfg`
-}
+  return stringifiedParams.length > 0
+    ? `http://localhost:8000/berti/pnet?${stringifiedParams}`
+    : `http://localhost:8000/berti/pnet`;
+};
 
-export const saveOcdfg = async (params?: SaveOcdfgParams, options?: RequestInit): Promise<Resource> => {
-  
-  return customFetch<Resource>(getSaveOcdfgUrl(params),
-  {      
+export const bertiSavePnet = async (
+  params?: BertiSavePnetParams,
+  options?: RequestInit,
+): Promise<Resource> => {
+  return customFetch<Resource>(getBertiSavePnetUrl(params), {
     ...options,
-    method: 'POST'
-    
-    
-  }
-);}
-
-
-
-
-export const getSaveOcdfgMutationOptions = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveOcdfg>>, TError,{params?: SaveOcdfgParams}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof saveOcdfg>>, TError,{params?: SaveOcdfgParams}, TContext> => {
-
-const mutationKey = ['saveOcdfg'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveOcdfg>>, {params?: SaveOcdfgParams}> = (props) => {
-          const {params} = props ?? {};
-
-          return  saveOcdfg(params,requestOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type SaveOcdfgMutationResult = NonNullable<Awaited<ReturnType<typeof saveOcdfg>>>
-    
-    export type SaveOcdfgMutationError = HTTPValidationError
-
-    /**
- * @summary Save Ocdfg
- */
-export const useSaveOcdfg = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveOcdfg>>, TError,{params?: SaveOcdfgParams}, TContext>, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof saveOcdfg>>,
-        TError,
-        {params?: SaveOcdfgParams},
-        TContext
-      > => {
-
-      const mutationOptions = getSaveOcdfgMutationOptions(options);
-
-      return useMutation(mutationOptions , queryClient);
-    }
-    /**
- * @summary Save Pnet
- */
-export const getSavePnetUrl = (params?: SavePnetParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
+    method: "POST",
   });
+};
 
-  const stringifiedParams = normalizedParams.toString();
+export const getBertiSavePnetMutationOptions = <
+  TError = HTTPValidationError,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof bertiSavePnet>>,
+    TError,
+    { params?: BertiSavePnetParams },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof bertiSavePnet>>,
+  TError,
+  { params?: BertiSavePnetParams },
+  TContext
+> => {
+  const mutationKey = ["bertiSavePnet"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
 
-  return stringifiedParams.length > 0 ? `http://localhost:8000/berti/pnet?${stringifiedParams}` : `http://localhost:8000/berti/pnet`
-}
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof bertiSavePnet>>,
+    { params?: BertiSavePnetParams }
+  > = (props) => {
+    const { params } = props ?? {};
 
-export const savePnet = async (params?: SavePnetParams, options?: RequestInit): Promise<Resource> => {
-  
-  return customFetch<Resource>(getSavePnetUrl(params),
-  {      
-    ...options,
-    method: 'POST'
-    
-    
-  }
-);}
+    return bertiSavePnet(params, requestOptions);
+  };
 
+  return { mutationFn, ...mutationOptions };
+};
 
+export type BertiSavePnetMutationResult = NonNullable<
+  Awaited<ReturnType<typeof bertiSavePnet>>
+>;
 
+export type BertiSavePnetMutationError = HTTPValidationError;
 
-export const getSavePnetMutationOptions = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof savePnet>>, TError,{params?: SavePnetParams}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof savePnet>>, TError,{params?: SavePnetParams}, TContext> => {
-
-const mutationKey = ['savePnet'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof savePnet>>, {params?: SavePnetParams}> = (props) => {
-          const {params} = props ?? {};
-
-          return  savePnet(params,requestOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type SavePnetMutationResult = NonNullable<Awaited<ReturnType<typeof savePnet>>>
-    
-    export type SavePnetMutationError = HTTPValidationError
-
-    /**
+/**
  * @summary Save Pnet
  */
-export const useSavePnet = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof savePnet>>, TError,{params?: SavePnetParams}, TContext>, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof savePnet>>,
-        TError,
-        {params?: SavePnetParams},
-        TContext
-      > => {
+export const useBertiSavePnet = <
+  TError = HTTPValidationError,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof bertiSavePnet>>,
+      TError,
+      { params?: BertiSavePnetParams },
+      TContext
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof bertiSavePnet>>,
+  TError,
+  { params?: BertiSavePnetParams },
+  TContext
+> => {
+  const mutationOptions = getBertiSavePnetMutationOptions(options);
 
-      const mutationOptions = getSavePnetMutationOptions(options);
-
-      return useMutation(mutationOptions , queryClient);
-    }
-    
+  return useMutation(mutationOptions, queryClient);
+};

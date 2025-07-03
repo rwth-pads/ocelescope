@@ -4,10 +4,7 @@
  * OCEAn
  * OpenAPI spec version: 0.9.12
  */
-import {
-  useMutation,
-  useQuery
-} from '@tanstack/react-query';
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
   DataTag,
   DefinedInitialDataOptions,
@@ -20,201 +17,283 @@ import type {
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
-  UseQueryResult
-} from '@tanstack/react-query';
+  UseQueryResult,
+} from "@tanstack/react-query";
 
 import type {
   HTTPValidationError,
   Resource,
-  SaveTotemParams,
   TaskResponseTotem,
-  TotemParams
-} from '../../fastapi-schemas';
+  TotemSaveTotemParams,
+  TotemTotemParams,
+} from "../../fastapi-schemas";
 
-import { customFetch } from '../../fetcher';
-
+import { customFetch } from "../../fetcher";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
-
-
 
 /**
  * @summary Get Totem
  */
-export const getTotemUrl = (params?: TotemParams,) => {
+export const getTotemTotemUrl = (params?: TotemTotemParams) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+      normalizedParams.append(key, value === null ? "null" : value.toString());
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `http://localhost:8000/totem/totem?${stringifiedParams}` : `http://localhost:8000/totem/totem`
-}
+  return stringifiedParams.length > 0
+    ? `http://localhost:8000/totem/totem?${stringifiedParams}`
+    : `http://localhost:8000/totem/totem`;
+};
 
-export const totem = async (params?: TotemParams, options?: RequestInit): Promise<TaskResponseTotem> => {
-  
-  return customFetch<TaskResponseTotem>(getTotemUrl(params),
-  {      
+export const totemTotem = async (
+  params?: TotemTotemParams,
+  options?: RequestInit,
+): Promise<TaskResponseTotem> => {
+  return customFetch<TaskResponseTotem>(getTotemTotemUrl(params), {
     ...options,
-    method: 'GET'
-    
-    
-  }
-);}
+    method: "GET",
+  });
+};
 
+export const getTotemTotemQueryKey = (params?: TotemTotemParams) => {
+  return [
+    `http://localhost:8000/totem/totem`,
+    ...(params ? [params] : []),
+  ] as const;
+};
 
-
-export const getTotemQueryKey = (params?: TotemParams,) => {
-    return [`http://localhost:8000/totem/totem`, ...(params ? [params]: [])] as const;
-    }
-
-    
-export const getTotemQueryOptions = <TData = Awaited<ReturnType<typeof totem>>, TError = HTTPValidationError>(params?: TotemParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof totem>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+export const getTotemTotemQueryOptions = <
+  TData = Awaited<ReturnType<typeof totemTotem>>,
+  TError = HTTPValidationError,
+>(
+  params?: TotemTotemParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof totemTotem>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
 ) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-const {query: queryOptions, request: requestOptions} = options ?? {};
+  const queryKey = queryOptions?.queryKey ?? getTotemTotemQueryKey(params);
 
-  const queryKey =  queryOptions?.queryKey ?? getTotemQueryKey(params);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof totemTotem>>> = ({
+    signal,
+  }) => totemTotem(params, { signal, ...requestOptions });
 
-  
+  return {
+    queryKey,
+    queryFn,
+    staleTime: 300000,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof totemTotem>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof totem>>> = ({ signal }) => totem(params, { signal, ...requestOptions });
+export type TotemTotemQueryResult = NonNullable<
+  Awaited<ReturnType<typeof totemTotem>>
+>;
+export type TotemTotemQueryError = HTTPValidationError;
 
-      
-
-      
-
-   return  { queryKey, queryFn,   staleTime: 300000,  ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof totem>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type TotemQueryResult = NonNullable<Awaited<ReturnType<typeof totem>>>
-export type TotemQueryError = HTTPValidationError
-
-
-export function useTotem<TData = Awaited<ReturnType<typeof totem>>, TError = HTTPValidationError>(
- params: undefined |  TotemParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof totem>>, TError, TData>> & Pick<
+export function useTotemTotem<
+  TData = Awaited<ReturnType<typeof totemTotem>>,
+  TError = HTTPValidationError,
+>(
+  params: undefined | TotemTotemParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof totemTotem>>, TError, TData>
+    > &
+      Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof totem>>,
+          Awaited<ReturnType<typeof totemTotem>>,
           TError,
-          Awaited<ReturnType<typeof totem>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useTotem<TData = Awaited<ReturnType<typeof totem>>, TError = HTTPValidationError>(
- params?: TotemParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof totem>>, TError, TData>> & Pick<
+          Awaited<ReturnType<typeof totemTotem>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useTotemTotem<
+  TData = Awaited<ReturnType<typeof totemTotem>>,
+  TError = HTTPValidationError,
+>(
+  params?: TotemTotemParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof totemTotem>>, TError, TData>
+    > &
+      Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof totem>>,
+          Awaited<ReturnType<typeof totemTotem>>,
           TError,
-          Awaited<ReturnType<typeof totem>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useTotem<TData = Awaited<ReturnType<typeof totem>>, TError = HTTPValidationError>(
- params?: TotemParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof totem>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+          Awaited<ReturnType<typeof totemTotem>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useTotemTotem<
+  TData = Awaited<ReturnType<typeof totemTotem>>,
+  TError = HTTPValidationError,
+>(
+  params?: TotemTotemParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof totemTotem>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary Get Totem
  */
 
-export function useTotem<TData = Awaited<ReturnType<typeof totem>>, TError = HTTPValidationError>(
- params?: TotemParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof totem>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+export function useTotemTotem<
+  TData = Awaited<ReturnType<typeof totemTotem>>,
+  TError = HTTPValidationError,
+>(
+  params?: TotemTotemParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof totemTotem>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getTotemTotemQueryOptions(params, options);
 
-  const queryOptions = getTotemQueryOptions(params,options)
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 
-  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  query.queryKey = queryOptions.queryKey ;
+  query.queryKey = queryOptions.queryKey;
 
   return query;
 }
 
-
-
 /**
  * @summary Save Pnet
  */
-export const getSaveTotemUrl = (params?: SaveTotemParams,) => {
+export const getTotemSaveTotemUrl = (params?: TotemSaveTotemParams) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+      normalizedParams.append(key, value === null ? "null" : value.toString());
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `http://localhost:8000/totem/totem?${stringifiedParams}` : `http://localhost:8000/totem/totem`
-}
+  return stringifiedParams.length > 0
+    ? `http://localhost:8000/totem/totem?${stringifiedParams}`
+    : `http://localhost:8000/totem/totem`;
+};
 
-export const saveTotem = async (params?: SaveTotemParams, options?: RequestInit): Promise<Resource> => {
-  
-  return customFetch<Resource>(getSaveTotemUrl(params),
-  {      
+export const totemSaveTotem = async (
+  params?: TotemSaveTotemParams,
+  options?: RequestInit,
+): Promise<Resource> => {
+  return customFetch<Resource>(getTotemSaveTotemUrl(params), {
     ...options,
-    method: 'POST'
-    
-    
-  }
-);}
+    method: "POST",
+  });
+};
 
+export const getTotemSaveTotemMutationOptions = <
+  TError = HTTPValidationError,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof totemSaveTotem>>,
+    TError,
+    { params?: TotemSaveTotemParams },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof totemSaveTotem>>,
+  TError,
+  { params?: TotemSaveTotemParams },
+  TContext
+> => {
+  const mutationKey = ["totemSaveTotem"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
 
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof totemSaveTotem>>,
+    { params?: TotemSaveTotemParams }
+  > = (props) => {
+    const { params } = props ?? {};
 
+    return totemSaveTotem(params, requestOptions);
+  };
 
-export const getSaveTotemMutationOptions = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveTotem>>, TError,{params?: SaveTotemParams}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof saveTotem>>, TError,{params?: SaveTotemParams}, TContext> => {
+  return { mutationFn, ...mutationOptions };
+};
 
-const mutationKey = ['saveTotem'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
+export type TotemSaveTotemMutationResult = NonNullable<
+  Awaited<ReturnType<typeof totemSaveTotem>>
+>;
 
-      
+export type TotemSaveTotemMutationError = HTTPValidationError;
 
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveTotem>>, {params?: SaveTotemParams}> = (props) => {
-          const {params} = props ?? {};
-
-          return  saveTotem(params,requestOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type SaveTotemMutationResult = NonNullable<Awaited<ReturnType<typeof saveTotem>>>
-    
-    export type SaveTotemMutationError = HTTPValidationError
-
-    /**
+/**
  * @summary Save Pnet
  */
-export const useSaveTotem = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveTotem>>, TError,{params?: SaveTotemParams}, TContext>, request?: SecondParameter<typeof customFetch>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof saveTotem>>,
-        TError,
-        {params?: SaveTotemParams},
-        TContext
-      > => {
+export const useTotemSaveTotem = <
+  TError = HTTPValidationError,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof totemSaveTotem>>,
+      TError,
+      { params?: TotemSaveTotemParams },
+      TContext
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof totemSaveTotem>>,
+  TError,
+  { params?: TotemSaveTotemParams },
+  TContext
+> => {
+  const mutationOptions = getTotemSaveTotemMutationOptions(options);
 
-      const mutationOptions = getSaveTotemMutationOptions(options);
-
-      return useMutation(mutationOptions , queryClient);
-    }
-    
+  return useMutation(mutationOptions, queryClient);
+};

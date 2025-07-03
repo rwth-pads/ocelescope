@@ -7,8 +7,8 @@ import {
   useObjectCount,
 } from "@/api/fastapi/info/info";
 import {
-  usePaginatedEvents,
-  usePaginatedObjects,
+  useOcelotPaginatedEvents,
+  useOcelotPaginatedObjects,
 } from "@/api/fastapi/ocelot/ocelot";
 import SingleLineTabs from "@/components/SingleLineTabs/SingleLineTabs";
 import { keepPreviousData } from "@tanstack/react-query";
@@ -57,7 +57,7 @@ const EntityPage: React.FC<{ type: "events" | "objects" }> = ({ type }) => {
     return relations.filter(({ source }) => source === currentTab);
   }, [e2o, o2o, currentTab]);
 
-  const { data: eventEntities } = usePaginatedEvents(
+  const { data: eventEntities } = useOcelotPaginatedEvents(
     {
       activity: currentTab,
       page_size: pageSize,
@@ -75,7 +75,7 @@ const EntityPage: React.FC<{ type: "events" | "objects" }> = ({ type }) => {
       },
     },
   );
-  const { data: objectEntities } = usePaginatedObjects(
+  const { data: objectEntities } = useOcelotPaginatedObjects(
     {
       object_type: currentTab,
       page_size: pageSize,

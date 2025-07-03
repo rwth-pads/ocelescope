@@ -3,6 +3,7 @@ import os
 import pkgutil
 
 from fastapi import FastAPI
+from fastapi.routing import APIRoute, APIRouter
 
 from api.extensions import OcelExtension, register_extension
 
@@ -27,6 +28,14 @@ def register_plugins(app: FastAPI):
 
         # Register plugin router
         if hasattr(mod, "router"):
+            router: APIRouter = mod.router
+
+            for route in router.routes:
+                if isinstance(route, APIRoute):
+                    route.operation_id = (
+                        f"{module_name}_{route.operation_id or route.name}"
+                    )
+
             meta = getattr(mod, "meta", {})
             prefix = meta.get("prefix", f"/{module_name}")
             tags = meta.get("tags", [module_name])

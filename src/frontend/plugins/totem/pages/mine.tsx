@@ -1,4 +1,4 @@
-import { useSaveTotem, useTotem } from "@/api/fastapi/totem/totem";
+import { useTotemSaveTotem, useTotemTotem } from "@/api/fastapi/totem/totem";
 import ActionButtons from "@/components/Cytoscape/components/ActionButtons";
 import CytoscapeSidebar from "@/components/Cytoscape/components/SideBar";
 import Totem from "@/components/Resource/Totem";
@@ -22,12 +22,12 @@ const TemporalDirectionDict: Record<TotemEdgeTr, string> = {
 };
 const MinePage = () => {
   const tau = useTotemStore((state) => state.tau);
-  const { data: result, refetch } = useTotem({ tau });
+  const { data: result, refetch } = useTotemTotem({ tau });
 
   const [isOptionsOpen, setOptionsOpen] = useState(false);
 
   const invalidateResources = useInvalidateResources();
-  const { mutate } = useSaveTotem({
+  const { mutate } = useTotemSaveTotem({
     mutation: {
       onSuccess: async (addedResource) => {
         showNotification({
