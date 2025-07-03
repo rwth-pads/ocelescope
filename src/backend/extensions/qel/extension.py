@@ -4,7 +4,7 @@ from typing import Optional, Type, TypeVar
 from pandas import DataFrame
 
 from api.extensions import OcelExtension, register_extension
-from plugins.qel.util import get_table_from_sqlite, get_table_names_from_sqlite
+from extensions.qel.util import get_table_from_sqlite, get_table_names_from_sqlite
 from util.types import PathLike
 
 T = TypeVar("T", bound="QELExtension")
