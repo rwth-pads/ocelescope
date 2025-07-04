@@ -141,6 +141,7 @@ class Session:
         if len(filters) == 0:
             current_ocel.filtered = None
             current_ocel.filter = None
+            return
 
         current_ocel.filtered = current_ocel.original.apply_filter(filters)
         current_ocel.filter = filters
