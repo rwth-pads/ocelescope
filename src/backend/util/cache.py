@@ -157,12 +157,7 @@ def instance_lru_cache(
             make_hashable=make_hashable, func=func, ignore_first=True
         )(key)
         key2 = key_decorator_add_func_name(func=func)(key1)
-        key3 = (
-            key_decorator_add_ocelwrapper_state_id()(key2)
-            if include_ocel_state
-            else key2
-        )
-        _key = key3
+        _key = key2
 
         def lock_context(self):
             if use_lock:

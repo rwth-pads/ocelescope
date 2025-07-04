@@ -3,7 +3,6 @@ from typing import Annotated, List, Literal, Optional, Tuple
 from fastapi import APIRouter
 from fastapi.params import Depends, Query
 from pandas.core.frame import DataFrame
-from pydantic_core.core_schema import none_schema
 
 from api.dependencies import ApiOcel, ApiSession
 from api.model.cache import CachableObject
@@ -18,19 +17,14 @@ router = APIRouter()
 class State(CachableObject):
     # ---------------- Events ---------------- #
 
-    @instance_lru_cache(
-        key=lambda _,
-        method_name,
-        *args,
-        **kwargs: f"{method_name}_{kwargs.get('activity', '')}_{kwargs.get('sort_by', '')}",
-        include_ocel_state=True,
-    )
+    @instance_lru_cache(make_hashable=True)
     def get_sorted_events(
         self,
         ocel: OCELWrapper,
         activity: str,
         sort_by: Optional[Tuple[str, Literal["asc", "desc"]]] = None,
     ) -> DataFrame:
+        print(f"sorted_event_{ocel.state_id}")
         if sort_by is None:
             sort_by = (ocel.ocel.event_id_column, "asc")
 
@@ -41,13 +35,7 @@ class State(CachableObject):
             sort_by=sort_by,
         )
 
-    @instance_lru_cache(
-        key=lambda _, method_name, *args, **kwargs: (
-            f"{method_name}_{kwargs.get('activity', '')}_{kwargs.get('sort_by', '')}_"
-            f"{kwargs.get('page', 1)}_{kwargs.get('page_size', 10)}"
-        ),
-        include_ocel_state=True,
-    )
+    @instance_lru_cache(make_hashable=True)
     def get_paginated_event_table(
         self,
         ocel: OCELWrapper,
@@ -56,6 +44,8 @@ class State(CachableObject):
         page_size: int,
         sort_by: Optional[Tuple[str, Literal["asc", "desc"]]] = None,
     ):
+        print(f"Paginated_Event_Table_{ocel.state_id}")
+
         if sort_by is not None and sort_by[0] == "id":
             sort_by = (ocel.ocel.event_id_column, sort_by[1])
         elif sort_by is not None and sort_by[0] == "timestamp":
@@ -80,13 +70,7 @@ class State(CachableObject):
 
     # ---------------- Objects ---------------- #
 
-    @instance_lru_cache(
-        key=lambda _,
-        method_name,
-        *args,
-        **kwargs: f"{method_name}_{kwargs.get('object_type', '')}_{kwargs.get('sort_by', '')}",
-        include_ocel_state=True,
-    )
+    @instance_lru_cache(make_hashable=True)
     def get_sorted_objects(
         self,
         ocel: OCELWrapper,
@@ -107,11 +91,7 @@ class State(CachableObject):
         )
 
     @instance_lru_cache(
-        key=lambda _, method_name, *args, **kwargs: (
-            f"{method_name}_{kwargs.get('object_type', '')}_{kwargs.get('sort_by', '')}_"
-            f"{kwargs.get('page', 1)}_{kwargs.get('page_size', 10)}"
-        ),
-        include_ocel_state=True,
+        make_hashable=True,
     )
     def get_paginated_object_table(
         self,
