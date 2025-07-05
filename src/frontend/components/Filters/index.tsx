@@ -47,6 +47,7 @@ export type TypeFormProps = {
 type FilterConfigDefinition<K extends FilterType> = {
   defaultValue: ConfigByType<K>;
   typeForm: (props: TypeFormProps) => React.ReactNode;
+  label: string;
 };
 
 const filterTypes: { [K in FilterType]: FilterConfigDefinition<K> } = {
@@ -60,6 +61,7 @@ const filterTypes: { [K in FilterType]: FilterConfigDefinition<K> } = {
     typeForm: (props) => (
       <E2OCountFilterInput ocel_version={"original"} {...props} />
     ),
+    label: "E2O Count Filter",
   },
   o2o_count: {
     defaultValue: {
@@ -71,36 +73,42 @@ const filterTypes: { [K in FilterType]: FilterConfigDefinition<K> } = {
     typeForm: (props) => (
       <O2OCountFilterInput ocel_version={"original"} {...props} />
     ),
+    label: "O2O Count Filter",
   },
   event_type: {
     defaultValue: { type: "event_type", event_types: [] },
     typeForm: (props) => (
       <EventTypeFilterInput ocel_version={"original"} {...props} />
     ),
+    label: "Event Type Filter",
   },
   object_type: {
     defaultValue: { type: "object_type", object_types: [] },
     typeForm: (props) => (
       <ObjectTypeFilterInput ocel_version={"original"} {...props} />
     ),
+    label: "Object Type Filter",
   },
   time_frame: {
     defaultValue: { type: "time_frame", time_range: [null, null] },
     typeForm: (props) => (
       <TimeFrameFilter ocel_version={"original"} {...props} />
     ),
+    label: "Time Frame Filter",
   },
   event_attribute: {
     defaultValue: { type: "event_attribute", attribute: "", target_type: "" },
     typeForm: (props) => (
       <EventAttributeFilter ocel_version={"original"} {...props} />
     ),
+    label: "Event Attribute Filter",
   },
   object_attribute: {
     defaultValue: { type: "object_attribute", attribute: "", target_type: "" },
     typeForm: (props) => (
       <ObjectAttributeFilter ocel_version={"original"} {...props} />
     ),
+    label: "Object Attribute Filter",
   },
 };
 
@@ -185,7 +193,11 @@ const FilterPipelineForm: React.FC<
         <Group gap={0}>
           <Select
             value={nextFilterType}
-            data={Object.keys(filterTypes)}
+            data={Object.entries(filterTypes).map(([filter, { label }]) => ({
+              value: filter,
+              label,
+            }))}
+            searchable
             allowDeselect={false}
             onChange={(nextType) => {
               if (nextFilterType != null) {
