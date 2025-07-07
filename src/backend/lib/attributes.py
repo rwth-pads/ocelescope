@@ -202,3 +202,15 @@ def summarize_object_attributes(ocel: OCEL) -> dict[str, list[AttributeSummary]]
     metadata = pd.concat([melted_objects, melted_changes], ignore_index=True)
 
     return summarize_attributes(metadata, obj_type_col)
+
+
+def get_objects_with_object_changes(ocel: OCEL) -> pd.DataFrame:
+    object_changes = ocel.object_changes
+    object_changes = (
+        object_changes.groupby([ocel.object_id_column, ocel.object_type_column])
+        .last()
+        .reset_index()[[ocel.object_id_column] + pm4py.ocel_get_attribute_names(ocel)]
+    )
+    object_changes = object_changes.set_index([ocel.object_id_column])
+    objects = ocel.objects.set_index(ocel.object_id_column)
+    return objects.fillna(object_changes).reset_index()

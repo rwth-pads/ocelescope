@@ -17,10 +17,11 @@ def get_config_classes():
             with file.open("r") as f:
                 content = f.read()
                 matches = re.findall(
-                    r"class (\w+FilterConfig)\(BaseFilterConfig\)", content
+                    r"class (\w+FilterConfig)\(([^)]*\bBaseFilterConfig\b[^)]*)\)",
+                    content,
                 )
-                for match in matches:
-                    classes.append((file.stem, match))
+                for cls_name, _ in matches:
+                    classes.append((file.stem, cls_name))
     return classes
 
 

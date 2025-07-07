@@ -89,12 +89,8 @@ def filter_by_relation_counts(
     return final_mask
 
 
-class E2OCountFilterConfig(BaseFilterConfig):
+class E2OCountFilterConfig(BaseFilterConfig, RelationCountFilterConfig):
     type: Literal["e2o_count"]
-    source: str
-    target: str
-    range: tuple[Optional[int], Optional[int]]
-    qualifier: Optional[str] = None
     direction: Literal["source", "target"] = "source"
 
 
@@ -131,12 +127,8 @@ def filter_by_e2o_count(ocel: OCEL, config: E2OCountFilterConfig):
     )
 
 
-class O2OCountFilterConfig(BaseFilterConfig):
+class O2OCountFilterConfig(BaseFilterConfig, RelationCountFilterConfig):
     type: Literal["o2o_count"]
-    source: str
-    target: str
-    range: tuple[Optional[int], Optional[int]]
-    qualifier: Optional[str] = None
     direction: Literal["source", "target"] = "source"
 
 

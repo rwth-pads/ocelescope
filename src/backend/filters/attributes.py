@@ -1,6 +1,6 @@
 from pandas.api.types import is_numeric_dtype, is_datetime64_any_dtype
 import pandas as pd
-from typing import Literal, Union, Optional, cast
+from typing import Literal, Tuple, Union, Optional, cast
 
 from pandas.core.frame import DataFrame
 from pandas.core.series import Series
@@ -8,6 +8,7 @@ from pm4py.objects.ocel.obj import OCEL
 from pydantic.main import BaseModel
 
 from filters.base import BaseFilterConfig, FilterResult, register_filter
+from lib.attributes import get_objects_with_object_changes
 
 
 class AttributeFilterConfig(BaseModel):
@@ -15,8 +16,10 @@ class AttributeFilterConfig(BaseModel):
     attribute: str
 
     # Range filters
-    min: Optional[Union[int, float, str]] = None
-    max: Optional[Union[int, float, str]] = None
+    time_range: Optional[Tuple[Optional[str], Optional[str]]] = None
+    number_range: Optional[
+        Tuple[Optional[Union[int, float]], Optional[Union[int, float]]]
+    ] = None
 
     # Nominal filters
     values: Optional[list[Union[str, int, float]]] = None
@@ -36,28 +39,28 @@ def filter_by_attribute(
     mask = pd.Series(True, index=series.index)
 
     # Handle numeric filtering
-    if config.min is not None or config.max is not None:
+    if config.number_range is not None:
         if is_numeric_dtype(series):
             numeric_series = series
         else:
             numeric_series = pd.to_numeric(series, errors="coerce")
 
-        if config.min is not None:
-            mask &= numeric_series >= float(config.min)
-        if config.max is not None:
-            mask &= numeric_series <= float(config.max)
+        if config.number_range[0] is not None:
+            mask &= numeric_series >= float(config.number_range[0])
+        if config.number_range[1] is not None:
+            mask &= numeric_series <= float(config.number_range[1])
 
     # Handle date filtering
-    elif isinstance(config.min, str) or isinstance(config.max, str):
+    elif config.time_range is not None:
         if is_datetime64_any_dtype(series):
             date_series = series
         else:
             date_series = pd.to_datetime(series, errors="coerce")
 
-        if config.min is not None:
-            mask &= date_series >= pd.to_datetime(config.min)
-        if config.max is not None:
-            mask &= date_series <= pd.to_datetime(config.max)
+        if config.time_range[0] is not None:
+            mask &= date_series >= pd.to_datetime(config.time_range[0])
+        if config.time_range[1] is not None:
+            mask &= date_series <= pd.to_datetime(config.time_range[1])
 
     # Handle nominal filtering
     if config.values is not None:
@@ -72,18 +75,8 @@ def filter_by_attribute(
     return final_mask
 
 
-class EventAttributeFilterConfig(BaseFilterConfig):
+class EventAttributeFilterConfig(BaseFilterConfig, AttributeFilterConfig):
     type: Literal["event_attribute"]
-    target_type: str
-    attribute: str
-
-    # Range filters
-    min: Optional[Union[int, float, str]] = None
-    max: Optional[Union[int, float, str]] = None
-
-    # Nominal filters
-    values: Optional[list[Union[str, int, float]]] = None
-    regex: Optional[str] = None
 
 
 @register_filter(EventAttributeFilterConfig)
@@ -97,25 +90,15 @@ def filter_by_event_attribute(ocel: OCEL, config: EventAttributeFilterConfig):
     )
 
 
-class ObjectAttributeFilterConfig(BaseFilterConfig):
+class ObjectAttributeFilterConfig(BaseFilterConfig, AttributeFilterConfig):
     type: Literal["object_attribute"]
-    target_type: str
-    attribute: str
-
-    # Range filters
-    min: Optional[Union[int, float, str]] = None
-    max: Optional[Union[int, float, str]] = None
-
-    # Nominal filters
-    values: Optional[list[Union[str, int, float]]] = None
-    regex: Optional[str] = None
 
 
 @register_filter(ObjectAttributeFilterConfig)
 def filter_by_object_attribute(ocel: OCEL, config: ObjectAttributeFilterConfig):
     return FilterResult(
         objects=filter_by_attribute(
-            ocel.objects,
+            get_objects_with_object_changes(ocel),
             ocel.object_type_column,
             config=AttributeFilterConfig(**config.model_dump()),
         )
