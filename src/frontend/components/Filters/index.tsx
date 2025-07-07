@@ -5,13 +5,14 @@ import {
   Divider,
   Flex,
   Group,
+  ScrollArea,
   Select,
 } from "@mantine/core";
 import { FormProvider, useForm } from "react-hook-form";
 
 import { useEffect, useState } from "react";
 import { ConfigByType, FilterType } from "./types";
-import { Check, Plus, RefreshCw, X } from "lucide-react";
+import { Check, Plus, RefreshCw, Trash2Icon, TrashIcon, X } from "lucide-react";
 import {
   FilterPipeLine,
   FilterPipeLinePipelineItem,
@@ -113,6 +114,29 @@ export type FilterFormType = {
   [K in SingleFormKeys]?: ConfigByType<K>;
 };
 
+const parsePipelineIntoFilterForm = ({ pipeline }: FilterPipeLine) => {
+  return pipeline.reduce(
+    (filter, currentPipelineItem) => {
+      const filterType = currentPipelineItem.type as FilterType;
+      if (isMultiFormKey(filterType)) {
+        if (!filter[filterType]) {
+          filter[filterType] = [];
+        }
+        (filter[filterType] as Array<ConfigByType<FilterType>>).push(
+          currentPipelineItem,
+        );
+      } else {
+        filter[filterType] = currentPipelineItem;
+      }
+      return filter;
+    },
+    {} as Record<
+      FilterType,
+      Array<ConfigByType<FilterType>> | ConfigByType<FilterType>
+    >,
+  ) as FilterFormType;
+};
+
 const FilterPipelineForm: React.FC<
   {
     filter: FilterPipeLine;
@@ -120,7 +144,9 @@ const FilterPipelineForm: React.FC<
   } & Pick<OcelInputType, "ocel_id">
 > = ({ filter, submit, ocel_id }) => {
   const [selectedFields, setSelectedFields] = useState<Set<FilterType>>(
-    new Set(),
+    new Set(
+      Object.keys(parsePipelineIntoFilterForm(filter)) as Array<FilterType>,
+    ),
   );
 
   const [nextFilterType, setNextFilterType] = useState<FilterType | undefined>(
@@ -128,7 +154,7 @@ const FilterPipelineForm: React.FC<
   );
 
   const methods = useForm<FilterFormType>({
-    defaultValues: {},
+    defaultValues: parsePipelineIntoFilterForm(filter),
   });
 
   const {
@@ -137,6 +163,7 @@ const FilterPipelineForm: React.FC<
     formState: { isDirty },
     subscribe,
     setValue,
+    resetField,
   } = methods;
 
   useEffect(() => {
@@ -161,7 +188,7 @@ const FilterPipelineForm: React.FC<
   return (
     // #TODO: Find ways to not use formProvider
     <FormProvider {...methods}>
-      <form
+      <Flex
         onSubmit={handleSubmit((data) => {
           const pipeline: FilterPipeLinePipelineItem[] = Object.entries(
             data,
@@ -172,64 +199,73 @@ const FilterPipelineForm: React.FC<
               : [filter];
           });
           submit({ pipeline });
-          reset();
+          reset(data);
         })}
+        component={"form"}
+        direction={"column"}
+        h={"100%"}
+        pb={"md"}
       >
-        <Flex direction={"column"} h={"100%"} pb={"md"}>
-          <Group pb={10} justify="space-between">
-            <Group gap={0}>
-              <Select
-                value={nextFilterType}
-                data={Object.entries(filterTypes)
-                  .filter(
-                    ([filter]) => !selectedFields.has(filter as FilterType),
-                  )
-                  .map(([filter, { label }]) => ({
-                    value: filter,
-                    label,
-                  }))}
-                allowDeselect={false}
-                onChange={(nextType) => {
-                  if (nextFilterType != null) {
-                    setNextFilterType(nextType as FilterType);
-                  }
-                }}
-              />
-              <Button
-                color={"green"}
-                onClick={() => {
-                  if (multiFormKeys.includes(nextFilterType as MultiFormKeys)) {
-                    setValue(nextFilterType as MultiFormKeys, []);
-                  } else {
-                    setValue(
-                      nextFilterType as SingleFormKeys,
-                      filterTypes[nextFilterType as SingleFormKeys]
-                        .defaultValue,
-                    );
-                  }
-                }}
-              >
-                <Plus />
-              </Button>
-            </Group>
-            <ButtonGroup>
-              <Button color={"red"} onClick={() => {}}>
-                <X />
-              </Button>
-              <Button
-                disabled={!isDirty}
-                color={"yellow"}
-                onClick={() => reset()}
-              >
-                <RefreshCw />
-              </Button>
-              <Button disabled={!isDirty} color={"green"} type="submit">
-                <Check />
-              </Button>
-            </ButtonGroup>
+        <Group pb={10} justify="space-between">
+          <Group gap={0}>
+            <Select
+              value={nextFilterType}
+              data={Object.entries(filterTypes)
+                .filter(([filter]) => !selectedFields.has(filter as FilterType))
+                .map(([filter, { label }]) => ({
+                  value: filter,
+                  label,
+                }))}
+              allowDeselect={false}
+              onChange={(nextType) => {
+                if (nextFilterType != null) {
+                  setNextFilterType(nextType as FilterType);
+                }
+              }}
+            />
+            <Button
+              color={"green"}
+              onClick={() => {
+                if (multiFormKeys.includes(nextFilterType as MultiFormKeys)) {
+                  setValue(nextFilterType as MultiFormKeys, []);
+                } else {
+                  setValue(
+                    nextFilterType as SingleFormKeys,
+                    filterTypes[nextFilterType as SingleFormKeys].defaultValue,
+                  );
+                }
+              }}
+            >
+              <Plus />
+            </Button>
           </Group>
-          <Divider />
-          <Accordion multiple m={"md"} variant="separated">
+          <ButtonGroup>
+            <Button
+              color={"red"}
+              onClick={() => reset({}, { keepDirty: false })}
+            >
+              <X />
+            </Button>
+            <Button
+              disabled={!isDirty}
+              color={"yellow"}
+              onClick={() => reset()}
+            >
+              <RefreshCw />
+            </Button>
+            <Button disabled={!isDirty} color={"green"} type="submit">
+              <Check />
+            </Button>
+          </ButtonGroup>
+        </Group>
+        <Divider />
+        <ScrollArea h={"100%"} flex={1}>
+          <Accordion
+            multiple
+            m={"md"}
+            variant="separated"
+            chevronPosition="left"
+          >
             {Array.from(selectedFields).map((filter) => (
               <>
                 <Accordion.Item
@@ -238,7 +274,30 @@ const FilterPipelineForm: React.FC<
                   bd={"1px solid black"}
                 >
                   <Accordion.Control>
-                    {filterTypes[filter].label}
+                    <Group align="center" justify="space-between">
+                      {filterTypes[filter].label}
+                      <Button
+                        variant="subtle"
+                        color="red"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          reset(
+                            (field) =>
+                              Object.fromEntries(
+                                Object.entries(field).filter(
+                                  ([filterName]) => filterName !== filter,
+                                ),
+                              ),
+                            {
+                              keepDirty: false,
+                            },
+                          );
+                        }}
+                        p={5}
+                      >
+                        <Trash2Icon width={20} height={20} />
+                      </Button>
+                    </Group>
                   </Accordion.Control>
                   <Accordion.Panel>
                     {filterTypes[filter].filterForm({
@@ -250,8 +309,8 @@ const FilterPipelineForm: React.FC<
               </>
             ))}
           </Accordion>
-        </Flex>
-      </form>
+        </ScrollArea>
+      </Flex>
     </FormProvider>
   );
 };

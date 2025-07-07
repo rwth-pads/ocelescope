@@ -50,14 +50,14 @@ type AttirbuteByType<K extends AttributeTypes> = Extract<
   { type: K }
 >;
 
-type AttributeTypeInput<K extends AttributeTypes> = (
+type AttributeTypeInput = (
   props: Omit<AttributeFilterProps, "attributes"> & {
     attribute: Attribute;
   },
 ) => ReactNode;
 
 const attributeTypeToInput: {
-  [K in AttributeTypes]: AttributeTypeInput<K>;
+  [K in AttributeTypes]: AttributeTypeInput;
 } = {
   boolean: ({ index, control, attributeField }) => (
     <Grid.Col span={6}>{"Not Implemented"}</Grid.Col>
@@ -145,7 +145,7 @@ const attributeTypeToInput: {
       />
     );
   },
-  nominal: ({ attribute, index, control, attributeField }) => (
+  nominal: ({ index, control, attributeField }) => (
     <Controller
       control={control}
       name={`${attributeField}.${index}.regex`}
