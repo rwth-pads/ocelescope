@@ -96,10 +96,14 @@ class ObjectAttributeFilterConfig(BaseFilterConfig, AttributeFilterConfig):
 
 @register_filter(ObjectAttributeFilterConfig)
 def filter_by_object_attribute(ocel: OCEL, config: ObjectAttributeFilterConfig):
-    return FilterResult(
-        objects=filter_by_attribute(
-            get_objects_with_object_changes(ocel),
+    enriched_objects = get_objects_with_object_changes(ocel)
+    filtered_rows = enriched_objects[
+        filter_by_attribute(
+            enriched_objects,
             ocel.object_type_column,
             config=AttributeFilterConfig(**config.model_dump()),
         )
-    )
+    ]
+    valid_ids = filtered_rows[ocel.object_id_column].unique()
+
+    return FilterResult(objects=ocel.objects[ocel.object_id_column].isin(valid_ids))
