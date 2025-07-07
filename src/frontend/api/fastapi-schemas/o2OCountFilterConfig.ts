@@ -4,22 +4,22 @@
  * OCEAn
  * OpenAPI spec version: 0.9.12
  */
-import type { O2OCountFilterConfigMode } from './o2OCountFilterConfigMode';
-import type { O2OCountFilterConfigRangeItem0 } from './o2OCountFilterConfigRangeItem0';
-import type { O2OCountFilterConfigRangeItem1 } from './o2OCountFilterConfigRangeItem1';
-import type { O2OCountFilterConfigQualifier } from './o2OCountFilterConfigQualifier';
-import type { O2OCountFilterConfigDirection } from './o2OCountFilterConfigDirection';
+import type { O2OCountFilterConfigMode } from "./o2OCountFilterConfigMode";
+import type { O2OCountFilterConfigRangeItem0 } from "./o2OCountFilterConfigRangeItem0";
+import type { O2OCountFilterConfigRangeItem1 } from "./o2OCountFilterConfigRangeItem1";
+import type { O2OCountFilterConfigQualifier } from "./o2OCountFilterConfigQualifier";
+import type { O2OCountFilterConfigDirection } from "./o2OCountFilterConfigDirection";
 
 export interface O2OCountFilterConfig {
-  mode?: O2OCountFilterConfigMode;
-  type: 'o2o_count';
   source: string;
   target: string;
+  mode?: O2OCountFilterConfigMode;
   /**
    * @minItems 2
    * @maxItems 2
    */
   range: [O2OCountFilterConfigRangeItem0, O2OCountFilterConfigRangeItem1];
   qualifier?: O2OCountFilterConfigQualifier;
+  type: "o2o_count";
   direction?: O2OCountFilterConfigDirection;
 }

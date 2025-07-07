@@ -5,8 +5,9 @@ import { BarChart } from "@mantine/charts";
 import { DateTimePicker } from "@mantine/dates";
 import dayjs from "dayjs";
 import { EntityTimeInfo } from "@/api/fastapi-schemas";
-import { TypeFormProps } from "..";
-import { Controller, useWatch } from "react-hook-form";
+import { Controller, useFormContext, useWatch } from "react-hook-form";
+import { OcelInputType } from "@/types/ocel";
+import { FilterFormType } from "..";
 
 const TimeGraph: React.FC<{
   timeInfo: EntityTimeInfo;
@@ -64,8 +65,9 @@ const TimeGraph: React.FC<{
   );
 });
 
-const TimeFrameFilter: React.FC<TypeFormProps> = memo(
-  ({ control, index, ...ocelParams }) => {
+const TimeFrameFilter: React.FC<{ ocelParams: OcelInputType }> = memo(
+  ({ ocelParams }) => {
+    const { control } = useFormContext<FilterFormType>();
     const { data: timeInfo, isLoading } = useTimeInfo({
       ...ocelParams,
     });
@@ -74,7 +76,7 @@ const TimeFrameFilter: React.FC<TypeFormProps> = memo(
 
     const value = useWatch({
       control,
-      name: `pipeline.${index}.time_range`,
+      name: "time_frame.time_range",
     });
 
     const { amountOfDays } = useMemo(() => {
@@ -90,20 +92,6 @@ const TimeFrameFilter: React.FC<TypeFormProps> = memo(
       return { amountOfDays };
     }, [timeInfo, eventCount]);
 
-    const sliderValue: [number, number] = useMemo(() => {
-      if (!timeInfo) return [0, 0];
-
-      const startDiff = value[0]
-        ? dayjs(value[0]).diff(dayjs(timeInfo.start_time), "day")
-        : 0;
-
-      const endDiff = value[1]
-        ? dayjs(value[1]).diff(dayjs(timeInfo.start_time), "day")
-        : amountOfDays;
-
-      return [startDiff, endDiff];
-    }, [value, timeInfo, amountOfDays]);
-
     return (
       <Box pos={"relative"} w={"100%"} h={"100%"}>
         <LoadingOverlay visible={isLoading} />
@@ -112,7 +100,7 @@ const TimeFrameFilter: React.FC<TypeFormProps> = memo(
             <Grid.Col span={3}>
               <Controller
                 control={control}
-                name={`pipeline.${index}.time_range.0`}
+                name={"time_frame.time_range.0"}
                 render={({ field }) => (
                   <DateTimePicker
                     minDate={timeInfo.start_time}
@@ -128,36 +116,41 @@ const TimeFrameFilter: React.FC<TypeFormProps> = memo(
             <Grid.Col span={6}>
               <Controller
                 control={control}
-                name={`pipeline.${index}.time_range.0`}
-                render={({ field: startField }) => (
-                  <Controller
-                    control={control}
-                    name={`pipeline.${index}.time_range.1`}
-                    render={({ field: endField }) => (
-                      <RangeSlider
-                        minRange={0}
-                        min={0}
-                        max={amountOfDays}
-                        value={sliderValue}
-                        label={(value) => {
-                          return dayjs(timeInfo.start_time)
-                            .add(value, "day")
-                            .format("YYYY-MM-DD");
-                        }}
-                        onChange={([startDiff, endDiff]) => {
-                          startField.onChange(
-                            dayjs(timeInfo.start_time)
-                              .add(startDiff, "days")
-                              .toISOString(),
-                          );
-                          endField.onChange(
-                            dayjs(timeInfo.start_time)
-                              .add(endDiff, "days")
-                              .toISOString(),
-                          );
-                        }}
-                      />
-                    )}
+                name={"time_frame.time_range"}
+                render={({ field }) => (
+                  <RangeSlider
+                    minRange={0}
+                    min={0}
+                    max={amountOfDays}
+                    value={[
+                      field.value[0]
+                        ? dayjs(value[0]).diff(
+                            dayjs(timeInfo.start_time),
+                            "day",
+                          )
+                        : 0,
+                      value[1]
+                        ? dayjs(value[1]).diff(
+                            dayjs(timeInfo.start_time),
+                            "day",
+                          )
+                        : amountOfDays,
+                    ]}
+                    label={(value) => {
+                      return dayjs(timeInfo.start_time)
+                        .add(value, "day")
+                        .format("YYYY-MM-DD");
+                    }}
+                    onChange={([startDiff, endDiff]) => {
+                      field.onChange([
+                        dayjs(timeInfo.start_time)
+                          .add(startDiff, "days")
+                          .toISOString(),
+                        dayjs(timeInfo.start_time)
+                          .add(endDiff, "days")
+                          .toISOString(),
+                      ]);
+                    }}
                   />
                 )}
               />
@@ -165,7 +158,7 @@ const TimeFrameFilter: React.FC<TypeFormProps> = memo(
             <Grid.Col span={3}>
               <Controller
                 control={control}
-                name={`pipeline.${index}.time_range.${1}`}
+                name={"time_frame.time_range.1"}
                 render={({ field }) => {
                   return (
                     <DateTimePicker

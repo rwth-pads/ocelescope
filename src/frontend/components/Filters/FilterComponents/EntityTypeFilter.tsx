@@ -2,27 +2,28 @@ import { useEventCounts, useObjectCount } from "@/api/fastapi/info/info";
 import { MultiSelect, Stack } from "@mantine/core";
 import BarChartSelect from "@/components/Charts/BarChartSelect";
 import { memo, useMemo } from "react";
-import { TypeFormProps } from "..";
-import { Controller } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
+import { FilterFormType } from "..";
+import { OcelInputType } from "@/types/ocel";
 
 const EntityTypeFilterInput: React.FC<{
-  value: string[];
-  data: { key: string; value: number }[];
+  selectedEntityTypes: string[];
+  entityTypes: { key: string; value: number }[];
   onChange: (values: string[]) => void;
   showGraph?: boolean;
-}> = ({ value, onChange, showGraph = true, data }) => {
+}> = ({ entityTypes, onChange, showGraph = true, selectedEntityTypes }) => {
   return (
     <Stack pos={"relative"}>
       <>
         {showGraph && (
           <BarChartSelect
-            selected={value ?? []}
-            values={data}
+            selected={selectedEntityTypes}
+            values={entityTypes}
             onSelect={(selectedValue) => {
               onChange(
-                value.includes(selectedValue)
-                  ? value.filter((v) => v !== selectedValue)
-                  : [...value, selectedValue],
+                selectedEntityTypes.includes(selectedValue)
+                  ? selectedEntityTypes.filter((v) => v !== selectedValue)
+                  : [...selectedEntityTypes, selectedValue],
               );
             }}
           />
@@ -30,8 +31,8 @@ const EntityTypeFilterInput: React.FC<{
 
         <MultiSelect
           label="Event Types"
-          data={data.map(({ key }) => key)}
-          value={value}
+          data={entityTypes.map(({ key }) => key)}
+          value={selectedEntityTypes}
           searchable
           hidePickedOptions
           nothingFoundMessage={"No event type found"}
@@ -43,36 +44,39 @@ const EntityTypeFilterInput: React.FC<{
   );
 };
 
-export const EventTypeFilterInput: React.FC<TypeFormProps> = memo(
-  ({ control, index, ...ocelParams }) => {
-    const { data: eventCounts = {} } = useEventCounts({
-      ...ocelParams,
-    });
+export const EventTypeFilterInput: React.FC<{
+  ocelParams?: OcelInputType;
+}> = memo(({ ocelParams }) => {
+  const { data: eventCounts = {} } = useEventCounts({
+    ...ocelParams,
+  });
 
-    const values = useMemo(() => {
-      return Object.entries(eventCounts).map(([activityType, count]) => ({
-        key: activityType,
-        value: count,
-      }));
-    }, [eventCounts]);
+  const values = useMemo(() => {
+    return Object.entries(eventCounts).map(([activityType, count]) => ({
+      key: activityType,
+      value: count,
+    }));
+  }, [eventCounts]);
 
-    return (
-      <Controller
-        control={control}
-        name={`pipeline.${index}.event_types`}
-        render={({ field }) => (
-          <EntityTypeFilterInput
-            value={field.value}
-            data={values}
-            onChange={field.onChange}
-          />
-        )}
-      />
-    );
-  },
-);
-export const ObjectTypeFilterInput: React.FC<TypeFormProps> = memo(
-  ({ control, index, ...ocelParams }) => {
+  const { control } = useFormContext<FilterFormType>();
+  return (
+    <Controller
+      control={control}
+      name={"event_type.event_types"}
+      render={({ field }) => (
+        <EntityTypeFilterInput
+          onChange={field.onChange}
+          entityTypes={values}
+          selectedEntityTypes={field.value}
+          showGraph={true}
+        />
+      )}
+    />
+  );
+});
+
+export const ObjectTypeFilterInput: React.FC<{ ocelParams: OcelInputType }> =
+  memo(({ ocelParams }) => {
     const { data: objectCounts = {}, isLoading } = useObjectCount({
       ...ocelParams,
     });
@@ -84,18 +88,19 @@ export const ObjectTypeFilterInput: React.FC<TypeFormProps> = memo(
       }));
     }, [objectCounts]);
 
+    const { control } = useFormContext<FilterFormType>();
     return (
       <Controller
         control={control}
-        name={`pipeline.${index}.object_types`}
+        name={"object_type.object_types"}
         render={({ field }) => (
           <EntityTypeFilterInput
-            value={field.value}
-            data={values}
             onChange={field.onChange}
+            entityTypes={values}
+            selectedEntityTypes={field.value}
+            showGraph={true}
           />
         )}
       />
     );
-  },
-);
+  });

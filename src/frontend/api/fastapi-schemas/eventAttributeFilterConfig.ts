@@ -4,19 +4,19 @@
  * OCEAn
  * OpenAPI spec version: 0.9.12
  */
-import type { EventAttributeFilterConfigMode } from './eventAttributeFilterConfigMode';
-import type { EventAttributeFilterConfigMin } from './eventAttributeFilterConfigMin';
-import type { EventAttributeFilterConfigMax } from './eventAttributeFilterConfigMax';
-import type { EventAttributeFilterConfigValues } from './eventAttributeFilterConfigValues';
-import type { EventAttributeFilterConfigRegex } from './eventAttributeFilterConfigRegex';
+import type { EventAttributeFilterConfigTimeRange } from "./eventAttributeFilterConfigTimeRange";
+import type { EventAttributeFilterConfigNumberRange } from "./eventAttributeFilterConfigNumberRange";
+import type { EventAttributeFilterConfigValues } from "./eventAttributeFilterConfigValues";
+import type { EventAttributeFilterConfigRegex } from "./eventAttributeFilterConfigRegex";
+import type { EventAttributeFilterConfigMode } from "./eventAttributeFilterConfigMode";
 
 export interface EventAttributeFilterConfig {
-  mode?: EventAttributeFilterConfigMode;
-  type: 'event_attribute';
   target_type: string;
   attribute: string;
-  min?: EventAttributeFilterConfigMin;
-  max?: EventAttributeFilterConfigMax;
+  time_range?: EventAttributeFilterConfigTimeRange;
+  number_range?: EventAttributeFilterConfigNumberRange;
   values?: EventAttributeFilterConfigValues;
   regex?: EventAttributeFilterConfigRegex;
+  mode?: EventAttributeFilterConfigMode;
+  type: "event_attribute";
 }

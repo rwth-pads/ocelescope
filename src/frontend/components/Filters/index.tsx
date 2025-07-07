@@ -1,56 +1,43 @@
 import {
+  Accordion,
   Button,
   ButtonGroup,
   Divider,
   Flex,
   Group,
-  Paper,
-  ScrollArea,
   Select,
-  Stack,
-  Title,
 } from "@mantine/core";
+import { FormProvider, useForm } from "react-hook-form";
+
+import { useEffect, useState } from "react";
+import { ConfigByType, FilterType } from "./types";
+import { Check, Plus, RefreshCw, X } from "lucide-react";
 import {
-  Control,
-  FieldArrayWithId,
-  useFieldArray,
-  useForm,
-} from "react-hook-form";
+  FilterPipeLine,
+  FilterPipeLinePipelineItem,
+} from "@/api/fastapi-schemas";
+import { OcelInputType } from "@/types/ocel";
 import {
   EventTypeFilterInput,
   ObjectTypeFilterInput,
 } from "./FilterComponents/EntityTypeFilter";
-import { useMemo, useState } from "react";
-import { ConfigByType, FilterConfig, FilterType } from "./types";
-import { Check, Plus, RefreshCw, X } from "lucide-react";
 import TimeFrameFilter from "./FilterComponents/TimeFrameFilter";
 import {
-  E2OCountFilterInput,
-  O2OCountFilterInput,
+  E2OCountFilter,
+  O2OCountFilter,
 } from "./FilterComponents/RelationFilter";
-import { FilterPipeLine } from "@/api/fastapi-schemas";
-import { OcelInputType } from "@/types/ocel";
 import {
   EventAttributeFilter,
   ObjectAttributeFilter,
 } from "./FilterComponents/AttributeFilter";
 
-export type FilterFormValues = {
-  pipeline: FilterConfig[];
-};
-
-export type TypeFormProps = {
-  control: Control<FilterFormValues>;
-  index: number;
-} & OcelInputType;
-
 type FilterConfigDefinition<K extends FilterType> = {
   defaultValue: ConfigByType<K>;
-  typeForm: (props: TypeFormProps) => React.ReactNode;
   label: string;
+  filterForm: (ocelParams: OcelInputType) => React.ReactNode;
 };
 
-const filterTypes: { [K in FilterType]: FilterConfigDefinition<K> } = {
+export const filterTypes: { [K in FilterType]: FilterConfigDefinition<K> } = {
   e2o_count: {
     defaultValue: {
       type: "e2o_count",
@@ -58,10 +45,8 @@ const filterTypes: { [K in FilterType]: FilterConfigDefinition<K> } = {
       range: [null, null],
       target: "",
     },
-    typeForm: (props) => (
-      <E2OCountFilterInput ocel_version={"original"} {...props} />
-    ),
     label: "E2O Count Filter",
+    filterForm: (ocelParams) => <E2OCountFilter ocelParams={ocelParams} />,
   },
   o2o_count: {
     defaultValue: {
@@ -70,88 +55,62 @@ const filterTypes: { [K in FilterType]: FilterConfigDefinition<K> } = {
       range: [null, null],
       target: "",
     },
-    typeForm: (props) => (
-      <O2OCountFilterInput ocel_version={"original"} {...props} />
-    ),
+    filterForm: (ocelParams) => <O2OCountFilter ocelParams={ocelParams} />,
     label: "O2O Count Filter",
   },
   event_type: {
     defaultValue: { type: "event_type", event_types: [] },
-    typeForm: (props) => (
-      <EventTypeFilterInput ocel_version={"original"} {...props} />
-    ),
     label: "Event Type Filter",
+    filterForm: (ocelParams) => (
+      <EventTypeFilterInput ocelParams={ocelParams} />
+    ),
   },
   object_type: {
     defaultValue: { type: "object_type", object_types: [] },
-    typeForm: (props) => (
-      <ObjectTypeFilterInput ocel_version={"original"} {...props} />
-    ),
     label: "Object Type Filter",
+    filterForm: (ocelParams) => (
+      <ObjectTypeFilterInput ocelParams={ocelParams} />
+    ),
   },
   time_frame: {
     defaultValue: { type: "time_frame", time_range: [null, null] },
-    typeForm: (props) => (
-      <TimeFrameFilter ocel_version={"original"} {...props} />
-    ),
     label: "Time Frame Filter",
+    filterForm: (ocelParams) => <TimeFrameFilter ocelParams={ocelParams} />,
   },
   event_attribute: {
     defaultValue: { type: "event_attribute", attribute: "", target_type: "" },
-    typeForm: (props) => (
-      <EventAttributeFilter ocel_version={"original"} {...props} />
-    ),
     label: "Event Attribute Filter",
+    filterForm: (ocelParams) => (
+      <EventAttributeFilter ocelParams={ocelParams} />
+    ),
   },
   object_attribute: {
     defaultValue: { type: "object_attribute", attribute: "", target_type: "" },
-    typeForm: (props) => (
-      <ObjectAttributeFilter ocel_version={"original"} {...props} />
-    ),
     label: "Object Attribute Filter",
+    filterForm: (ocelParams) => (
+      <ObjectAttributeFilter ocelParams={ocelParams} />
+    ),
   },
-};
+} as const;
 
-const getFilterDefinition = <T extends FilterType>(
-  type: T,
-): FilterConfigDefinition<T> => {
-  return filterTypes[type] as FilterConfigDefinition<T>;
-};
+const multiFormKeys = [
+  "e2o_count",
+  "o2o_count",
+  "event_attribute",
+  "object_attribute",
+] as const;
 
-const FilterItem: React.FC<
-  {
-    index: number;
-    control: Control<FilterFormValues>;
-    field: FieldArrayWithId<FilterFormValues, "pipeline", "id">;
-    remove: () => void;
-  } & Pick<OcelInputType, "ocel_id">
-> = ({ control, field, index, remove, ocel_id }) => {
-  const a = useMemo(() => {
-    return getFilterDefinition(field.type);
-  }, [field.type, index]);
-  return (
-    <Paper
-      component={Stack}
-      mt="md"
-      p="md"
-      style={{ border: "1px solid #ccc", borderRadius: 4 }}
-      shadow="md"
-      w={800}
-    >
-      <Group justify="space-between">
-        <Title size={"h4"}>{field.type}</Title>
-        <Button variant="subtle" color="red" onClick={remove}>
-          <X color="red" />
-        </Button>
-      </Group>
-      <Divider />
-      {a.typeForm({
-        control,
-        index,
-        ocel_id,
-      })}
-    </Paper>
-  );
+type MultiFormKeys = (typeof multiFormKeys)[number];
+
+const isMultiFormKey = (key: FilterType): key is MultiFormKeys =>
+  multiFormKeys.includes(key as MultiFormKeys);
+
+type SingleFormKeys = Exclude<FilterType, MultiFormKeys>;
+
+export type FilterFormType = {
+  [K in MultiFormKeys]?: ConfigByType<K>[];
+} & {
+  [K in SingleFormKeys]?: ConfigByType<K>;
 };
 
 const FilterPipelineForm: React.FC<
@@ -160,93 +119,140 @@ const FilterPipelineForm: React.FC<
     submit: (filter: FilterPipeLine) => void;
   } & Pick<OcelInputType, "ocel_id">
 > = ({ filter, submit, ocel_id }) => {
+  const [selectedFields, setSelectedFields] = useState<Set<FilterType>>(
+    new Set(),
+  );
+
+  const [nextFilterType, setNextFilterType] = useState<FilterType | undefined>(
+    "event_type",
+  );
+
+  const methods = useForm<FilterFormType>({
+    defaultValues: {},
+  });
+
   const {
-    control,
     handleSubmit,
     reset,
     formState: { isDirty },
+    subscribe,
     setValue,
-  } = useForm<FilterPipeLine>({
-    defaultValues: filter,
-  });
+  } = methods;
 
-  const { fields, append, remove } = useFieldArray({
-    name: "pipeline",
-    control,
-  });
-
-  const [nextFilterType, setNextFilterType] =
-    useState<FilterType>("event_type");
+  useEffect(() => {
+    return subscribe({
+      formState: { values: true },
+      callback: ({ values }) => {
+        const usedFilters = new Set(Object.keys(values) as FilterType[]);
+        if (usedFilters !== selectedFields) {
+          setSelectedFields(usedFilters);
+        }
+        if (nextFilterType && usedFilters.has(nextFilterType)) {
+          setNextFilterType(
+            Object.keys(filterTypes).find(
+              (filterType) => !usedFilters.has(filterType as FilterType),
+            ) as FilterType | undefined,
+          );
+        }
+      },
+    });
+  }, [subscribe]);
 
   return (
-    <Flex
-      direction={"column"}
-      component={"form"}
-      h={"100%"}
-      onSubmit={handleSubmit((data) => {
-        submit(data);
-        reset(data);
-      })}
-      pb={"md"}
-    >
-      <Group pb={10} justify="space-between">
-        <Group gap={0}>
-          <Select
-            value={nextFilterType}
-            data={Object.entries(filterTypes).map(([filter, { label }]) => ({
-              value: filter,
-              label,
-            }))}
-            searchable
-            allowDeselect={false}
-            onChange={(nextType) => {
-              if (nextFilterType != null) {
-                setNextFilterType(nextType as FilterType);
-              }
-            }}
-          />
-          <Button
-            color={"green"}
-            onClick={() => append(filterTypes[nextFilterType].defaultValue)}
-          >
-            <Plus />
-          </Button>
-        </Group>
-
-        <ButtonGroup>
-          <Button
-            color={"red"}
-            onClick={() => setValue("pipeline", [], { shouldDirty: true })}
-          >
-            <X />
-          </Button>
-          <Button disabled={!isDirty} color={"yellow"} onClick={() => reset()}>
-            <RefreshCw />
-          </Button>
-          <Button disabled={!isDirty} color={"green"} type="submit">
-            <Check />
-          </Button>
-        </ButtonGroup>
-      </Group>
-      <Divider />
-
-      <ScrollArea flex={1} h={"100%"} px={10}>
-        <Stack w={"100%"} justify="center" align="center">
-          {fields.map((field, index) => (
-            <FilterItem
-              key={field.id}
-              field={field}
-              control={control}
-              index={index}
-              ocel_id={ocel_id}
-              remove={() => {
-                remove(index);
-              }}
-            />
-          ))}
-        </Stack>
-      </ScrollArea>
-    </Flex>
+    // #TODO: Find ways to not use formProvider
+    <FormProvider {...methods}>
+      <form
+        onSubmit={handleSubmit((data) => {
+          const pipeline: FilterPipeLinePipelineItem[] = Object.entries(
+            data,
+          ).flatMap(([_, filter]) => {
+            if (!filter) return [];
+            return Array.isArray(filter)
+              ? (filter as FilterPipeLinePipelineItem[])
+              : [filter];
+          });
+          submit({ pipeline });
+          reset();
+        })}
+      >
+        <Flex direction={"column"} h={"100%"} pb={"md"}>
+          <Group pb={10} justify="space-between">
+            <Group gap={0}>
+              <Select
+                value={nextFilterType}
+                data={Object.entries(filterTypes)
+                  .filter(
+                    ([filter]) => !selectedFields.has(filter as FilterType),
+                  )
+                  .map(([filter, { label }]) => ({
+                    value: filter,
+                    label,
+                  }))}
+                allowDeselect={false}
+                onChange={(nextType) => {
+                  if (nextFilterType != null) {
+                    setNextFilterType(nextType as FilterType);
+                  }
+                }}
+              />
+              <Button
+                color={"green"}
+                onClick={() => {
+                  if (multiFormKeys.includes(nextFilterType as MultiFormKeys)) {
+                    setValue(nextFilterType as MultiFormKeys, []);
+                  } else {
+                    setValue(
+                      nextFilterType as SingleFormKeys,
+                      filterTypes[nextFilterType as SingleFormKeys]
+                        .defaultValue,
+                    );
+                  }
+                }}
+              >
+                <Plus />
+              </Button>
+            </Group>
+            <ButtonGroup>
+              <Button color={"red"} onClick={() => {}}>
+                <X />
+              </Button>
+              <Button
+                disabled={!isDirty}
+                color={"yellow"}
+                onClick={() => reset()}
+              >
+                <RefreshCw />
+              </Button>
+              <Button disabled={!isDirty} color={"green"} type="submit">
+                <Check />
+              </Button>
+            </ButtonGroup>
+          </Group>
+          <Divider />
+          <Accordion multiple m={"md"} variant="separated">
+            {Array.from(selectedFields).map((filter) => (
+              <>
+                <Accordion.Item
+                  key={filter}
+                  value={filter}
+                  bd={"1px solid black"}
+                >
+                  <Accordion.Control>
+                    {filterTypes[filter].label}
+                  </Accordion.Control>
+                  <Accordion.Panel>
+                    {filterTypes[filter].filterForm({
+                      ocel_id,
+                      ocel_version: "original",
+                    })}
+                  </Accordion.Panel>
+                </Accordion.Item>
+              </>
+            ))}
+          </Accordion>
+        </Flex>
+      </form>
+    </FormProvider>
   );
 };
 

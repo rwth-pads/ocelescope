@@ -4,19 +4,19 @@
  * OCEAn
  * OpenAPI spec version: 0.9.12
  */
-import type { ObjectAttributeFilterConfigMode } from './objectAttributeFilterConfigMode';
-import type { ObjectAttributeFilterConfigMin } from './objectAttributeFilterConfigMin';
-import type { ObjectAttributeFilterConfigMax } from './objectAttributeFilterConfigMax';
-import type { ObjectAttributeFilterConfigValues } from './objectAttributeFilterConfigValues';
-import type { ObjectAttributeFilterConfigRegex } from './objectAttributeFilterConfigRegex';
+import type { ObjectAttributeFilterConfigTimeRange } from "./objectAttributeFilterConfigTimeRange";
+import type { ObjectAttributeFilterConfigNumberRange } from "./objectAttributeFilterConfigNumberRange";
+import type { ObjectAttributeFilterConfigValues } from "./objectAttributeFilterConfigValues";
+import type { ObjectAttributeFilterConfigRegex } from "./objectAttributeFilterConfigRegex";
+import type { ObjectAttributeFilterConfigMode } from "./objectAttributeFilterConfigMode";
 
 export interface ObjectAttributeFilterConfig {
-  mode?: ObjectAttributeFilterConfigMode;
-  type: 'object_attribute';
   target_type: string;
   attribute: string;
-  min?: ObjectAttributeFilterConfigMin;
-  max?: ObjectAttributeFilterConfigMax;
+  time_range?: ObjectAttributeFilterConfigTimeRange;
+  number_range?: ObjectAttributeFilterConfigNumberRange;
   values?: ObjectAttributeFilterConfigValues;
   regex?: ObjectAttributeFilterConfigRegex;
+  mode?: ObjectAttributeFilterConfigMode;
+  type: "object_attribute";
 }
