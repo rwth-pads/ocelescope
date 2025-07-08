@@ -6,6 +6,6 @@
  */
 
 export type BertiSavePnetParams = {
-  ocel_id?: string | null;
-  ocel_version?: "original" | "filtered" | null;
+ocel_id?: string | null;
+ocel_version?: 'original' | 'filtered' | null;
 };

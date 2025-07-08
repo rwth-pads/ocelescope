@@ -4,11 +4,11 @@
  * OCEAn
  * OpenAPI spec version: 0.9.12
  */
-import type { ObjectAttributeFilterConfigTimeRange } from "./objectAttributeFilterConfigTimeRange";
-import type { ObjectAttributeFilterConfigNumberRange } from "./objectAttributeFilterConfigNumberRange";
-import type { ObjectAttributeFilterConfigValues } from "./objectAttributeFilterConfigValues";
-import type { ObjectAttributeFilterConfigRegex } from "./objectAttributeFilterConfigRegex";
-import type { ObjectAttributeFilterConfigMode } from "./objectAttributeFilterConfigMode";
+import type { ObjectAttributeFilterConfigTimeRange } from './objectAttributeFilterConfigTimeRange';
+import type { ObjectAttributeFilterConfigNumberRange } from './objectAttributeFilterConfigNumberRange';
+import type { ObjectAttributeFilterConfigValues } from './objectAttributeFilterConfigValues';
+import type { ObjectAttributeFilterConfigRegex } from './objectAttributeFilterConfigRegex';
+import type { ObjectAttributeFilterConfigMode } from './objectAttributeFilterConfigMode';
 
 export interface ObjectAttributeFilterConfig {
   target_type: string;
@@ -18,5 +18,5 @@ export interface ObjectAttributeFilterConfig {
   values?: ObjectAttributeFilterConfigValues;
   regex?: ObjectAttributeFilterConfigRegex;
   mode?: ObjectAttributeFilterConfigMode;
-  type: "object_attribute";
+  type: 'object_attribute';
 }

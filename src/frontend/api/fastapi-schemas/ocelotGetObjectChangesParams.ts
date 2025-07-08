@@ -5,15 +5,7 @@
  * OpenAPI spec version: 0.9.12
  */
 
-export type OcelotPaginatedObjectsParams = {
-/**
- * Object type name
- */
-object_type: string;
-page?: number;
-page_size?: number;
-sort_by?: string | null;
-ascending?: boolean;
+export type OcelotGetObjectChangesParams = {
 ocel_id?: string | null;
 ocel_version?: 'original' | 'filtered' | null;
 };

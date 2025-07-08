@@ -4,12 +4,7 @@
  * OCEAn
  * OpenAPI spec version: 0.9.12
  */
-import type { ObjectAttributeFilterConfigNumberRangeAnyOfItem0 } from "./objectAttributeFilterConfigNumberRangeAnyOfItem0";
-import type { ObjectAttributeFilterConfigNumberRangeAnyOfItem1 } from "./objectAttributeFilterConfigNumberRangeAnyOfItem1";
+import type { ObjectAttributeFilterConfigNumberRangeAnyOfItem0 } from './objectAttributeFilterConfigNumberRangeAnyOfItem0';
+import type { ObjectAttributeFilterConfigNumberRangeAnyOfItem1 } from './objectAttributeFilterConfigNumberRangeAnyOfItem1';
 
-export type ObjectAttributeFilterConfigNumberRange =
-  | [
-      ObjectAttributeFilterConfigNumberRangeAnyOfItem0,
-      ObjectAttributeFilterConfigNumberRangeAnyOfItem1,
-    ]
-  | null;
+export type ObjectAttributeFilterConfigNumberRange = [ObjectAttributeFilterConfigNumberRangeAnyOfItem0, ObjectAttributeFilterConfigNumberRangeAnyOfItem1] | null;

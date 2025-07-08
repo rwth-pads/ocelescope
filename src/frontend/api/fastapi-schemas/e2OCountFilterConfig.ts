@@ -4,11 +4,11 @@
  * OCEAn
  * OpenAPI spec version: 0.9.12
  */
-import type { E2OCountFilterConfigMode } from "./e2OCountFilterConfigMode";
-import type { E2OCountFilterConfigRangeItem0 } from "./e2OCountFilterConfigRangeItem0";
-import type { E2OCountFilterConfigRangeItem1 } from "./e2OCountFilterConfigRangeItem1";
-import type { E2OCountFilterConfigQualifier } from "./e2OCountFilterConfigQualifier";
-import type { E2OCountFilterConfigDirection } from "./e2OCountFilterConfigDirection";
+import type { E2OCountFilterConfigMode } from './e2OCountFilterConfigMode';
+import type { E2OCountFilterConfigRangeItem0 } from './e2OCountFilterConfigRangeItem0';
+import type { E2OCountFilterConfigRangeItem1 } from './e2OCountFilterConfigRangeItem1';
+import type { E2OCountFilterConfigQualifier } from './e2OCountFilterConfigQualifier';
+import type { E2OCountFilterConfigDirection } from './e2OCountFilterConfigDirection';
 
 export interface E2OCountFilterConfig {
   source: string;
@@ -20,6 +20,6 @@ export interface E2OCountFilterConfig {
    */
   range: [E2OCountFilterConfigRangeItem0, E2OCountFilterConfigRangeItem1];
   qualifier?: E2OCountFilterConfigQualifier;
-  type: "e2o_count";
+  type: 'e2o_count';
   direction?: E2OCountFilterConfigDirection;
 }

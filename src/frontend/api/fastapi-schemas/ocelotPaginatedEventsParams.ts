@@ -6,14 +6,14 @@
  */
 
 export type OcelotPaginatedEventsParams = {
-  /**
-   * Activity name
-   */
-  activity: string;
-  page?: number;
-  page_size?: number;
-  sort_by?: string | null;
-  ascending?: boolean;
-  ocel_id?: string | null;
-  ocel_version?: "original" | "filtered" | null;
+/**
+ * Activity name
+ */
+activity: string;
+page?: number;
+page_size?: number;
+sort_by?: string | null;
+ascending?: boolean;
+ocel_id?: string | null;
+ocel_version?: 'original' | 'filtered' | null;
 };

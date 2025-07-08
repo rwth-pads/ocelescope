@@ -4,12 +4,7 @@
  * OCEAn
  * OpenAPI spec version: 0.9.12
  */
-import type { EventAttributeFilterConfigNumberRangeAnyOfItem0 } from "./eventAttributeFilterConfigNumberRangeAnyOfItem0";
-import type { EventAttributeFilterConfigNumberRangeAnyOfItem1 } from "./eventAttributeFilterConfigNumberRangeAnyOfItem1";
+import type { EventAttributeFilterConfigNumberRangeAnyOfItem0 } from './eventAttributeFilterConfigNumberRangeAnyOfItem0';
+import type { EventAttributeFilterConfigNumberRangeAnyOfItem1 } from './eventAttributeFilterConfigNumberRangeAnyOfItem1';
 
-export type EventAttributeFilterConfigNumberRange =
-  | [
-      EventAttributeFilterConfigNumberRangeAnyOfItem0,
-      EventAttributeFilterConfigNumberRangeAnyOfItem1,
-    ]
-  | null;
+export type EventAttributeFilterConfigNumberRange = [EventAttributeFilterConfigNumberRangeAnyOfItem0, EventAttributeFilterConfigNumberRangeAnyOfItem1] | null;

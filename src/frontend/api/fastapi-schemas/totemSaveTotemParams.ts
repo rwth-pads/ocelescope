@@ -6,7 +6,7 @@
  */
 
 export type TotemSaveTotemParams = {
-  tau?: number | null;
-  ocel_id?: string | null;
-  ocel_version?: "original" | "filtered" | null;
+tau?: number | null;
+ocel_id?: string | null;
+ocel_version?: 'original' | 'filtered' | null;
 };

@@ -5,4 +5,4 @@
  * OpenAPI spec version: 0.9.12
  */
 
-export type ObjectAttributeFilterConfigNumberRangeAnyOfItem1 = number | number | null;
+export type ResourceInputMetaData = { [key: string]: unknown };

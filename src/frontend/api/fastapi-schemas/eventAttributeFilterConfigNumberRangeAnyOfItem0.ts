@@ -5,7 +5,4 @@
  * OpenAPI spec version: 0.9.12
  */
 
-export type EventAttributeFilterConfigNumberRangeAnyOfItem0 =
-  | number
-  | number
-  | null;
+export type EventAttributeFilterConfigNumberRangeAnyOfItem0 = number | number | null;
