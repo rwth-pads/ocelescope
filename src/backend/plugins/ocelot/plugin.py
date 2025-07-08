@@ -6,9 +6,14 @@ from pandas.core.frame import DataFrame
 
 from api.dependencies import ApiOcel, ApiSession
 from api.model.cache import CachableObject
+from lib.attributes import get_objects_with_object_changes
 from ocel.ocel_wrapper import OCELWrapper
 from plugins.ocelot.models import PaginatedResponse
-from plugins.ocelot.util import get_paginated_dataframe, get_sorted_table
+from plugins.ocelot.util import (
+    get_object_history,
+    get_paginated_dataframe,
+    get_sorted_table,
+)
 from util.cache import instance_lru_cache
 
 router = APIRouter()
@@ -84,7 +89,7 @@ class State(CachableObject):
             sort_by = (ocel.ocel.object_id_column, "asc")
 
         return get_sorted_table(
-            dataframe=ocel.ocel.objects,
+            dataframe=get_objects_with_object_changes(ocel.ocel),
             type_field=ocel.ocel.object_type_column,
             type_value=object_type,
             sort_by=sort_by,
@@ -170,6 +175,14 @@ def get_objects(
         page=page,
         page_size=page_size,
         sort_by=None if sort_by is None else (sort_by, "asc" if ascending else "desc"),
+    )
+
+
+@router.get("/objects/changes/{object_id}", operation_id="getObjectChanges")
+def get_object_changes(ocel: ApiOcel, object_id: str):
+    return get_object_history(
+        ocel,
+        object_id=object_id,
     )
 
 

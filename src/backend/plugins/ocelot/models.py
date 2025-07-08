@@ -1,5 +1,6 @@
+from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
@@ -17,3 +18,9 @@ class PaginatedResponse(BaseModel):
     total_pages: int
     total_items: int
     items: List[OcelEntity]
+
+
+@dataclass
+class ObjectChange:
+    timestamp: str
+    attributes: dict[str, Optional[Union[str, int, float]]]

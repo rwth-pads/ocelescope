@@ -1,10 +1,11 @@
 from math import ceil
-from typing import Literal, Optional, Tuple
+from typing import Literal, Optional, Tuple, cast
 
 import pandas as pd
 from pandas.core.frame import DataFrame
 
-from plugins.ocelot.models import OcelEntity, PaginatedResponse
+from ocel.ocel_wrapper import OCELWrapper
+from plugins.ocelot.models import ObjectChange, OcelEntity, PaginatedResponse
 
 
 def get_sorted_table(
@@ -96,3 +97,23 @@ def get_paginated_dataframe(
         total_items=total_items,
         items=items,
     )
+
+
+def get_object_history(ocel: OCELWrapper, object_id: str):
+    object_changes = ocel.object_changes
+    object_changes = object_changes[
+        object_changes[ocel.ocel.object_id_column] == object_id
+    ]
+    object_changes = object_changes[[ocel.ocel.event_timestamp] + ocel.oattr_names]
+
+    return [
+        ObjectChange(
+            timestamp=row[ocel.ocel.event_timestamp].isoformat(),
+            attributes={
+                key: None if pd.isna(value) else value
+                for key, value in row.items()
+                if key != ocel.ocel.event_timestamp
+            },
+        )
+        for row in cast(DataFrame, object_changes).to_dict(orient="records")
+    ]
