@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate:pluginMap": "tsx scripts/generatePlugin.ts",
+    "generate:plugins": "tsx scripts/generatePlugin.ts",
+    "generate:api": "npx orval",
+    "generate": "npm run generate:plugins && npm run generate:api",
     "format": "biome format . --write"
   },
   "dependencies": {

@@ -3,7 +3,7 @@
   "files": {
     "ignoreUnknown": true,
     "maxSize": 2000000,
-    "ignore": ["api/fastapi*"]
+    "ignore": ["api/fastapi*", "plugins/pluginMap.ts"]
   },
   "formatter": {
     "indentStyle": "space"
