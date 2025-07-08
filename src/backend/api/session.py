@@ -156,7 +156,7 @@ class Session:
 
     def add_resource(
         self,
-        resource: ResourceUnion,
+        entity: ResourceUnion,
         source: str,
         name: Optional[str] = None,
         meta_data: Optional[dict[str, Any]] = None,
@@ -165,15 +165,24 @@ class Session:
         new_resource = Resource(
             id=str(uuid.uuid4()),
             source=source,
-            resource=resource,
+            entity=entity,
             created_at=created_at,
             meta_data=meta_data if meta_data is not None else {},
-            name=name if name is not None else f"{source}_{resource.type}_{created_at}",
+            name=name if name is not None else f"{source}_{entity.type}_{created_at}",
         )
 
         self._resources[new_resource.id] = new_resource
 
         return new_resource
+
+    def update_resource(self, resource_id: str, name: str):
+        if resource_id not in self._resources:
+            raise NotFound(f"Resource with id {resource_id} not found")
+
+        resource = self._resources[resource_id]
+        resource.name = name
+
+        return resource
 
     def delete_resource(self, resource_id: str):
         self._resources.pop(resource_id)

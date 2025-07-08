@@ -26,7 +26,8 @@ import type {
 import type {
   HTTPValidationError,
   ResourceInput,
-  ResourceOutput
+  ResourceOutput,
+  UpdateResourceParams
 } from '../../fastapi-schemas';
 
 import { customFetch } from '../../fetcher';
@@ -298,6 +299,85 @@ export function useGetResourceResourceResourceIdGet<TData = Awaited<ReturnType<t
 
 
 /**
+ * @summary Update Resource
+ */
+export const getUpdateResourceUrl = (resourceId: string,
+    params: UpdateResourceParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `http://localhost:8000/resource/${resourceId}?${stringifiedParams}` : `http://localhost:8000/resource/${resourceId}`
+}
+
+export const updateResource = async (resourceId: string,
+    params: UpdateResourceParams, options?: RequestInit): Promise<ResourceOutput> => {
+  
+  return customFetch<ResourceOutput>(getUpdateResourceUrl(resourceId,params),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
+  }
+);}
+
+
+
+
+export const getUpdateResourceMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateResource>>, TError,{resourceId: string;params: UpdateResourceParams}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateResource>>, TError,{resourceId: string;params: UpdateResourceParams}, TContext> => {
+
+const mutationKey = ['updateResource'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateResource>>, {resourceId: string;params: UpdateResourceParams}> = (props) => {
+          const {resourceId,params} = props ?? {};
+
+          return  updateResource(resourceId,params,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateResourceMutationResult = NonNullable<Awaited<ReturnType<typeof updateResource>>>
+    
+    export type UpdateResourceMutationError = HTTPValidationError
+
+    /**
+ * @summary Update Resource
+ */
+export const useUpdateResource = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateResource>>, TError,{resourceId: string;params: UpdateResourceParams}, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateResource>>,
+        TError,
+        {resourceId: string;params: UpdateResourceParams},
+        TContext
+      > => {
+
+      const mutationOptions = getUpdateResourceMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    /**
  * @summary Delete Resource
  */
 export const getDeleteResourceUrl = (resourceId: string,) => {

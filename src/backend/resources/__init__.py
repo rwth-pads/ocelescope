@@ -4,9 +4,9 @@ from .ocdfg import ObjectCentricDirectlyFollowsGraph
 from .ocpn import ObjectCentricPetriNet
 from .totem import Totem
 
-from dataclasses import dataclass
 from typing import Annotated, Any, Union
 from pydantic import Field
+from pydantic.main import BaseModel
 
 __all__ = [
     "ObjectCentricDirectlyFollowsGraph",
@@ -21,11 +21,10 @@ ResourceUnion = Annotated[
 ]
 
 
-@dataclass
-class Resource:
+class Resource(BaseModel):
     id: str
     name: str
     created_at: str
     source: str
     meta_data: dict[str, Any]
-    resource: ResourceUnion
+    entity: ResourceUnion

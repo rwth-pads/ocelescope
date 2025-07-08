@@ -98,9 +98,7 @@ def save_ocdfg(
     if ocel.state_id not in state.ocdfgs:
         raise NotFound("Process model not discovered")
 
-    resource = session.add_resource(
-        source="berti", resource=state.ocdfgs[ocel.state_id]
-    )
+    resource = session.add_resource(source="berti", entity=state.ocdfgs[ocel.state_id])
     return resource
 
 
@@ -114,7 +112,7 @@ def save_pnet(
         raise NotFound("Process model not discovered")
 
     resource = session.add_resource(
-        source="berti", resource=state.petri_nets[ocel.state_id]
+        source="berti", entity=state.petri_nets[ocel.state_id]
     )
     return resource
 

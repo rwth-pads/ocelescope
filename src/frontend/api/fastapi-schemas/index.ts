@@ -170,3 +170,4 @@ export * from './resourceInputMetaData';
 export * from './resourceOutput';
 export * from './resourceOutputEntity';
 export * from './resourceOutputMetaData';
+export * from './updateResourceParams';

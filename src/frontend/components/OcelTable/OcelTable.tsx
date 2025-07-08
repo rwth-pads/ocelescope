@@ -139,18 +139,7 @@ const OcelTable = () => {
                       <Table.Td align="center">
                         <Group>
                           {renamedOcel?.id !== id ? (
-                            <>
-                              {name}
-                              <Button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setRenamedOcel({ id, value: name });
-                                }}
-                                size={"xs"}
-                              >
-                                <Pencil size={16} />
-                              </Button>
-                            </>
+                            <>{name}</>
                           ) : (
                             <>
                               <TextInput
@@ -209,6 +198,15 @@ const OcelTable = () => {
                           </Menu.Target>
 
                           <Menu.Dropdown>
+                            <Menu.Item
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setRenamedOcel({ id, value: name });
+                              }}
+                              leftSection={<Pencil size={16} />}
+                            >
+                              Rename
+                            </Menu.Item>
                             <Menu.Item
                               onClick={(e) => {
                                 e.stopPropagation();

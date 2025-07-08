@@ -1,10 +1,10 @@
-import { Resource, ResourceResource } from "@/api/fastapi-schemas";
+import { ResourceOutput } from "@/api/fastapi-schemas";
 import Ocdfg from "./Ocdfg";
 import PetriNet from "./Ocpn";
 import Totem from "./Totem";
 
-const ResourceView: React.FC<{ resource: ResourceResource }> = (s) => {
-  if (s.resource.type === "ocdfg") {
+const ResourceView: React.FC<{ resource: ResourceOutput["entity"] }> = (s) => {
+  if (s.type === "ocdfg") {
     return <Ocdfg ocdfg={s.resource} />;
   }
   if (s.resource.type === "ocpn") {

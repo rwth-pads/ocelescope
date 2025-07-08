@@ -67,7 +67,7 @@ def save_pnet(
         raise NotFound("Process model not discovered")
 
     resource = session.add_resource(
-        source="totem", resource=state.totems[(ocel.state_id, tau or 0.9)]
+        source="totem", entity=state.totems[(ocel.state_id, tau or 0.9)]
     )
     return resource
 

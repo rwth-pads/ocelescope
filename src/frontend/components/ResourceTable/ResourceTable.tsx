@@ -1,22 +1,32 @@
-import { Resource } from "@/api/fastapi-schemas";
+import { ResourceOutput } from "@/api/fastapi-schemas";
 import {
   useDeleteResource,
   useGetResources,
+  useUpdateResource,
 } from "@/api/fastapi/resource/resource";
 import {
   Box,
   Button,
-  LoadingOverlay,
+  Group,
   Menu,
   Modal,
   Stack,
   Table,
-  Text,
+  TextInput,
   Title,
 } from "@mantine/core";
-import { Download, EllipsisVerticalIcon, Trash } from "lucide-react";
+import {
+  Check,
+  Download,
+  EllipsisVerticalIcon,
+  FileUp,
+  Pencil,
+  Trash,
+  X,
+} from "lucide-react";
 import { useState } from "react";
 import ResourceView from "../Resource";
+import ResourceUpload from "../ResourceUpload/ResourceUpload";
 
 const ResourceTable = () => {
   const { data: resources = [], refetch: refetchResources } = useGetResources();
@@ -24,10 +34,24 @@ const ResourceTable = () => {
     mutation: { onSuccess: async () => await refetchResources() },
   });
 
-  const [openedResource, setOpenedResource] = useState<Resource | undefined>(
-    undefined,
-  );
+  const { mutate: renameResource } = useUpdateResource({
+    mutation: {
+      onSuccess: async () => {
+        await refetchResources();
+        setRenamedResource(undefined);
+      },
+    },
+  });
 
+  const [openedResource, setOpenedResource] = useState<
+    ResourceOutput | undefined
+  >(undefined);
+
+  const [renamedResource, setRenamedResource] = useState<
+    { id: string; value: string } | undefined
+  >(undefined);
+
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   return (
     <>
       <Modal
@@ -37,10 +61,26 @@ const ResourceTable = () => {
         size={"auto"}
       >
         <Box w={700} h={700}>
-          {openedResource && (
-            <ResourceView resource={openedResource.resource} />
-          )}
+          {openedResource && <ResourceView resource={openedResource.entity} />}
         </Box>
+      </Modal>
+      <Modal
+        opened={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        withCloseButton={false}
+        styles={{
+          content: {
+            backgroundColor: "transparent", // removes background
+            boxShadow: "none", // optional: removes drop shadow
+          },
+        }}
+      >
+        <ResourceUpload
+          onSuccess={() => {
+            refetchResources();
+            setIsUploadModalOpen(false);
+          }}
+        />
       </Modal>
       <Stack gap={0}>
         <Title size={"h2"}>Resources</Title>
@@ -51,6 +91,21 @@ const ResourceTable = () => {
               <Table.Th>Type</Table.Th>
               <Table.Th>Created At</Table.Th>
               <Table.Th>Source</Table.Th>
+              <Table.Th
+                style={{ display: "flex", justifyContent: "end" }}
+                px={0}
+                align="right"
+              >
+                <Button
+                  variant="subtle"
+                  p={0}
+                  w={30}
+                  h={30}
+                  onClick={() => setIsUploadModalOpen(true)}
+                >
+                  <FileUp size={20} />
+                </Button>
+              </Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -59,8 +114,51 @@ const ResourceTable = () => {
                 key={resource.id}
                 onClick={() => setOpenedResource(resource)}
               >
-                <Table.Td>{resource.name}</Table.Td>
-                <Table.Td>{resource.resource.type}</Table.Td>
+                <Table.Td>
+                  {renamedResource?.id !== resource.id ? (
+                    <>{resource.name}</>
+                  ) : (
+                    <Group>
+                      <TextInput
+                        value={renamedResource.value}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                        }}
+                        onChange={(newName) =>
+                          setRenamedResource({
+                            id: resource.id,
+                            value: newName.currentTarget.value,
+                          })
+                        }
+                      />
+                      <Button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          renameResource({
+                            resourceId: renamedResource.id,
+                            params: { name: renamedResource.value },
+                          });
+                        }}
+                        size={"xs"}
+                        color="green"
+                      >
+                        <Check size={16} />
+                      </Button>
+                      <Button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+
+                          setRenamedResource(undefined);
+                        }}
+                        size={"xs"}
+                        color="red"
+                      >
+                        <X size={16} />
+                      </Button>
+                    </Group>
+                  )}
+                </Table.Td>
+                <Table.Td>{resource.entity.type}</Table.Td>
                 <Table.Td>{resource.created_at}</Table.Td>
                 <Table.Td>{resource.source}</Table.Td>
                 <Table.Td align="right" px={0}>
@@ -76,7 +174,24 @@ const ResourceTable = () => {
                     </Menu.Target>
 
                     <Menu.Dropdown>
-                      <Menu.Item disabled leftSection={<Download size={16} />}>
+                      <Menu.Item
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setRenamedResource({
+                            id: resource.id,
+                            value: resource.name,
+                          });
+                        }}
+                        leftSection={<Pencil size={16} />}
+                      >
+                        Rename
+                      </Menu.Item>
+                      <Menu.Item
+                        component={"a"}
+                        href={`http://localhost:8000/resource/${resource.id}/download`}
+                        leftSection={<Download size={16} />}
+                        onClick={(event) => event.stopPropagation()}
+                      >
                         Download
                       </Menu.Item>
                       <Menu.Divider />

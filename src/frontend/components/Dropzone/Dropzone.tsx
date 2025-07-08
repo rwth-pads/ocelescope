@@ -41,17 +41,21 @@ const FileDropzone: React.FC<{
 
           <Text ta="center" fw={700} fz="lg" mt="xl">
             {content.accept && (
-              <Dropzone.Accept>Drop files here</Dropzone.Accept>
+              <Dropzone.Accept>{content.accept}</Dropzone.Accept>
             )}
             {content.reject && (
-              <Dropzone.Reject>Not supported file format</Dropzone.Reject>
+              <Dropzone.Reject>{content.reject}</Dropzone.Reject>
             )}
-            {content.idle && <Dropzone.Idle>Upload OCEL</Dropzone.Idle>}
+            {content.idle && <Dropzone.Idle>{content.idle}</Dropzone.Idle>}
           </Text>
 
           <Text className={classes.description}>
-            Drag&apos;n&apos;drop files here to upload. We can accept only
-            <i>.sqlite, .json, .xml </i> files.
+            {content.description || (
+              <span>
+                Drag&apos;n&apos;drop files here to upload. We can accept only{" "}
+                <i>{accept?.join(", ")}</i> files.
+              </span>
+            )}
           </Text>
         </div>
       </Dropzone>

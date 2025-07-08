@@ -201,7 +201,6 @@ def download_ocel(
     file_response = TempFileResponse(
         prefix=tmp_file_prefix, suffix=ext, filename=name + (ext or ".sqlite")
     )
-    print(file_response.tmp_path)
 
     ocel.write_ocel(file_response.tmp_path, ext)
 
