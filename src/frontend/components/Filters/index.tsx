@@ -163,14 +163,17 @@ const FilterPipelineForm: React.FC<
     formState: { isDirty },
     subscribe,
     setValue,
-    resetField,
   } = methods;
 
   useEffect(() => {
     return subscribe({
       formState: { values: true },
       callback: ({ values }) => {
-        const usedFilters = new Set(Object.keys(values) as FilterType[]);
+        const usedFilters = new Set(
+          Object.entries(values)
+            .filter(([key, value]) => !!value)
+            .map(([key, _]) => key) as FilterType[],
+        );
         if (usedFilters !== selectedFields) {
           setSelectedFields(usedFilters);
         }
@@ -240,16 +243,22 @@ const FilterPipelineForm: React.FC<
             </Button>
           </Group>
           <ButtonGroup>
-            <Button
-              color={"red"}
-              onClick={() => reset({}, { keepDirty: false })}
-            >
+            <Button color={"red"} onClick={() => reset()}>
               <X />
             </Button>
             <Button
               disabled={!isDirty}
               color={"yellow"}
-              onClick={() => reset()}
+              onClick={() =>
+                reset(
+                  Object.fromEntries(
+                    Object.keys(filterTypes).map((filter) => [
+                      filter,
+                      undefined,
+                    ]),
+                  ),
+                )
+              }
             >
               <RefreshCw />
             </Button>
@@ -281,17 +290,7 @@ const FilterPipelineForm: React.FC<
                         color="red"
                         onClick={(event) => {
                           event.stopPropagation();
-                          reset(
-                            (field) =>
-                              Object.fromEntries(
-                                Object.entries(field).filter(
-                                  ([filterName]) => filterName !== filter,
-                                ),
-                              ),
-                            {
-                              keepDirty: false,
-                            },
-                          );
+                          setValue(filter, undefined, { shouldDirty: true });
                         }}
                         p={5}
                       >
