@@ -4,7 +4,7 @@ import PetriNet from "./Ocpn";
 import Totem from "./Totem";
 
 const ResourceView: React.FC<{ resource: ResourceOutput["entity"] }> = (s) => {
-  if (s.type === "ocdfg") {
+  if (s.resource.type === "ocdfg") {
     return <Ocdfg ocdfg={s.resource} />;
   }
   if (s.resource.type === "ocpn") {
