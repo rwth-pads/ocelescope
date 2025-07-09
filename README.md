@@ -38,8 +38,7 @@ or just
   - [x] as SQLite
   - [x] as JSON
   - [x] as XML
-- [ ] Import Resources (Process Models)
-  - [ ] Research supported file formats for process models
+- [x] Import Resources (Process Models)
 
 ---
 
@@ -59,12 +58,11 @@ or just
 
 - [x] Enable global filtering of OCELs
 - [x] Allow filters to be used locally in plugins
-- [ ] Implement commonly used filters:
+- [x] Implement commonly used filters:
   - [x] By event and object type
   - [x] By relation count
   - [x] By time frame
-  - [ ] By attribute values
-  - [ ] By start/end events of objects
+  - [x] By attribute values
 - [x] Implement reusable filter components
 - [ ] Allow saving filters in the session (not essential)
 - [ ] Support import/export of filters as JSON (not essential)
@@ -81,12 +79,10 @@ or just
 
 ### OCELOT
 
-- [ ] Add OCELOT-inspired plugin with OCEL functionality:
+- [x] Add OCELOT-inspired plugin with OCEL functionality:
   - [x] Object/Event data table
     - [x] Table with object-event relations
     - [x] Sortable columns
-    - [ ] Global search across all fields
-    - [ ] Attribute-based column filtering (not essential)
 
 ---
 
@@ -107,9 +103,9 @@ or just
   - [x] Annotated Object-Centric Petri Nets
   - [x] Annotated Object-Centric Directly-Follows Graphs
   - [x] Totems
-- [ ] Enable export as:
+- [x] Enable export as:
   - [x] Image
-  - [ ] Specialized file format
+  - [x] File
 - [x] Add discovery plugins for:
   - [x] Object-Centric Directly-Follows Graph
   - [x] Object-Centric Petri Nets
