@@ -141,7 +141,7 @@ export function useTotemTotem<TData = Awaited<ReturnType<typeof totemTotem>>, TE
 
 
 /**
- * @summary Save Pnet
+ * @summary Save Totem
  */
 export const getTotemSaveTotemUrl = (params?: TotemSaveTotemParams,) => {
   const normalizedParams = new URLSearchParams();
@@ -202,7 +202,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type TotemSaveTotemMutationError = HTTPValidationError
 
     /**
- * @summary Save Pnet
+ * @summary Save Totem
  */
 export const useTotemSaveTotem = <TError = HTTPValidationError,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof totemSaveTotem>>, TError,{params?: TotemSaveTotemParams}, TContext>, request?: SecondParameter<typeof customFetch>}

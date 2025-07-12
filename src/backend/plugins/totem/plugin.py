@@ -57,7 +57,7 @@ def get_totem(
 
 
 @router.post("/totem", operation_id="saveTotem")
-def save_pnet(
+def save_totem(
     session: ApiSession,
     state: StateDep,
     ocel: ApiOcel,
