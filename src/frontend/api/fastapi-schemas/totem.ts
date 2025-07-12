@@ -11,5 +11,5 @@ export interface Totem {
   annotation: TotemAnnotation;
   object_types: string[];
   edges: TotemEdge[];
-  type?: 'totem';
+  type: 'totem';
 }

@@ -24,4 +24,4 @@ class TotemEdge(AnnotatedClass):
 class Totem(Resource):
     object_types: list[str]
     edges: list[TotemEdge]
-    type: Literal["totem"] = "totem"
+    type: Literal["totem"]

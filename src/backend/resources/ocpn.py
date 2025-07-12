@@ -29,4 +29,4 @@ class ObjectCentricPetriNet(Resource):
     places: list[Place]
     transitions: list[Transition]
     arcs: list[Arc]
-    type: Literal["ocpn"] = "ocpn"
+    type: Literal["ocpn"]

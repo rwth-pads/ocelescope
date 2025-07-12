@@ -23,4 +23,4 @@ class ObjectCentricDirectlyFollowsGraph(Resource):
     edges: list[Edge]
     start_activities: list[ObjectActivityEdge]
     end_activities: list[ObjectActivityEdge]
-    type: Literal["ocdfg"] = "ocdfg"
+    type: Literal["ocdfg"]

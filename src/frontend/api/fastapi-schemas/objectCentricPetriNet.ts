@@ -14,5 +14,5 @@ export interface ObjectCentricPetriNet {
   places: Place[];
   transitions: Transition[];
   arcs: Arc[];
-  type?: 'ocpn';
+  type: 'ocpn';
 }

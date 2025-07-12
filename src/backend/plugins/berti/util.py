@@ -71,6 +71,7 @@ def convert_flat_pm4py_to_ocpn(flat_nets: dict[str, PMNet]) -> ObjectCentricPetr
 
     # Assemble the final Petri net and OCPN
     return ObjectCentricPetriNet(
+        type="ocpn",
         places=place_set,
         transitions=list(transition_map.values()),
         arcs=arcs,
@@ -132,6 +133,7 @@ def compute_ocdfg(ocel: OCEL) -> ObjectCentricDirectlyFollowsGraph:
     ]
 
     return ObjectCentricDirectlyFollowsGraph(
+        type="ocdfg",
         activities=ocdfg["activities"],
         edges=edges,
         object_types=ocdfg["object_types"],

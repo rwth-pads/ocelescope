@@ -15,5 +15,5 @@ export interface ObjectCentricDirectlyFollowsGraph {
   edges: Edge[];
   start_activities: ObjectActivityEdge[];
   end_activities: ObjectActivityEdge[];
-  type?: 'ocdfg';
+  type: 'ocdfg';
 }
