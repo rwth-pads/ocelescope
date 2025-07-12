@@ -1,20 +1,20 @@
 // components/PetriNet.tsx
-import { ObjectCentricPetriNet } from "@/api/fastapi-schemas";
 import { useMemo } from "react";
 import { ElementDefinition, StylesheetCSS } from "cytoscape";
-import dynamic from "next/dynamic";
 import assignUniqueColors from "@/util/colors";
-import Cytoscape from "../Cytoscape";
+import Cytoscape from "@/components/Cytoscape";
+import { ResourceViewDefinition, ResourceViewProps } from "@/types/resources";
+import { defineResourceView } from "@/lib/resources";
 
-const PetriNet: React.FC<{
-  ocpn?: ObjectCentricPetriNet;
-  children?: React.ReactNode;
-}> = ({ ocpn, children }) => {
+const PetriNet: React.FC<ResourceViewProps<"ocpn">> = ({
+  resource,
+  children,
+}) => {
   const { styles, elements } = useMemo(() => {
-    if (!ocpn) {
+    if (!resource) {
       return { styles: [], elements: [] };
     }
-    const { places, arcs, transitions } = ocpn;
+    const { places, arcs, transitions } = resource;
 
     const colorMap = assignUniqueColors(
       Array.from(new Set(places.map(({ object_type }) => object_type))),
@@ -110,7 +110,7 @@ const PetriNet: React.FC<{
       },
     ];
     return { elements: [...nodes, ...edges], styles };
-  }, [ocpn]);
+  }, [resource]);
   //
   // Layout
   const layout = {
@@ -136,4 +136,7 @@ const PetriNet: React.FC<{
   );
 };
 
-export default PetriNet;
+export default defineResourceView({
+  type: "ocpn",
+  viewer: PetriNet,
+});

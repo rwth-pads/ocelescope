@@ -5,7 +5,6 @@ import { BaseLayoutOptions } from "cytoscape";
 import { Box } from "@mantine/core";
 import CytoscapeComponent from "react-cytoscapejs";
 import elk from "cytoscape-elk";
-import dagre from "cytoscape-dagre";
 import { Core } from "cytoscape";
 import { CytoscapeContext } from "./CytoscapeContext";
 

@@ -1,8 +1,9 @@
-import { Totem as Resource } from "@/api/fastapi-schemas";
 import { useMemo } from "react";
 import { ElementDefinition, StylesheetCSS } from "cytoscape";
 import assignUniqueColors from "@/util/colors";
-import Cytoscape from "../Cytoscape";
+import Cytoscape from "@/components/Cytoscape";
+import { ResourceViewDefinition, ResourceViewProps } from "@/types/resources";
+import { defineResourceView } from "@/lib/resources";
 
 const layout = {
   name: "elk",
@@ -31,28 +32,29 @@ const layout = {
   },
 };
 
-const Totem: React.FC<{
-  totem?: Resource;
-  children?: React.ReactNode;
-}> = ({ totem, children }) => {
+const Totem: React.FC<ResourceViewProps<"totem">> = ({
+  resource,
+  children,
+}) => {
   const { styles, elements } = useMemo(() => {
-    if (!totem) {
+    if (!resource) {
       return { styles: [], elements: [] };
     }
+    const colorMap = assignUniqueColors([...new Set(resource.object_types)]);
 
-    const colorMap = assignUniqueColors([...new Set(totem.object_types)]);
+    const nodes: ElementDefinition[] = resource.object_types.map(
+      (objectType) => ({
+        data: {
+          id: objectType,
+          label: objectType,
+          type: objectType,
+          color: colorMap[objectType],
+        },
+        classes: "object",
+      }),
+    );
 
-    const nodes: ElementDefinition[] = totem.object_types.map((objectType) => ({
-      data: {
-        id: objectType,
-        label: objectType,
-        type: objectType,
-        color: colorMap[objectType],
-      },
-      classes: "object",
-    }));
-
-    const edges: ElementDefinition[] = totem.edges.map((edge, i) => {
+    const edges: ElementDefinition[] = resource.edges.map((edge) => {
       const { source, target, annotation, tr, tr_inverse } = edge;
 
       const targetArrow = ["Ii", "Di"].includes(tr)
@@ -147,18 +149,21 @@ const Totem: React.FC<{
       elements: [...nodes, ...edges],
       styles,
     };
-  }, [totem]);
+  }, [resource]);
 
   return (
     <Cytoscape
       elements={elements}
       styles={styles}
       layout={layout}
-      isLoading={!!totem}
+      isLoading={!!resource}
     >
       {children}
     </Cytoscape>
   );
 };
 
-export default Totem;
+export default defineResourceView({
+  type: "totem",
+  viewer: Totem,
+});

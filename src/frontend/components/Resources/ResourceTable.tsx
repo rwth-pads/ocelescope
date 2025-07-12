@@ -25,8 +25,8 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
-import ResourceView from "../Resource";
-import ResourceUpload from "../ResourceUpload/ResourceUpload";
+import ResourceView from "./ResourceView";
+import ResourceUpload from "./ResourceUpload";
 
 const ResourceTable = () => {
   const { data: resources = [], refetch: refetchResources } = useGetResources();

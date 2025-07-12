@@ -13,8 +13,6 @@ export const CytoscapeContext = createContext<CytoscapeContextType | undefined>(
 
 export const useCytoscapeContext = () => {
   const context = useContext(CytoscapeContext);
-  if (!context) {
-    throw new Error("useCytoscapeContext must be used within a CytoscapeGraph");
-  }
+
   return context;
 };

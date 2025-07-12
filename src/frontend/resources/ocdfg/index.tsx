@@ -1,9 +1,10 @@
 // components/AlternativeDFG.tsx
-import { ObjectCentricDirectlyFollowsGraph } from "@/api/fastapi-schemas";
 import { useMemo } from "react";
 import { ElementDefinition, StylesheetCSS } from "cytoscape";
 import assignUniqueColors from "@/util/colors";
-import Cytoscape from "../Cytoscape";
+import Cytoscape from "@/components/Cytoscape";
+import { ResourceViewDefinition, ResourceViewProps } from "@/types/resources";
+import { defineResourceView } from "@/lib/resources";
 
 const layout = {
   name: "elk",
@@ -32,28 +33,28 @@ const layout = {
   },
 };
 
-const Ocdfg: React.FC<{
-  ocdfg?: ObjectCentricDirectlyFollowsGraph;
-  children?: React.ReactNode;
-}> = ({ ocdfg, children }) => {
+const Ocdfg: React.FC<ResourceViewProps<"ocdfg">> = ({
+  resource,
+  children,
+}) => {
   const { styles, elements } = useMemo(() => {
-    if (!ocdfg) {
+    if (!resource) {
       return { styles: [], elements: [] };
     }
 
     const colorMap = assignUniqueColors(
-      Array.from(new Set(ocdfg.object_types ?? [])),
+      Array.from(new Set(resource.object_types ?? [])),
     );
 
     const elements: ElementDefinition[] = [
-      ...ocdfg.activities.map<ElementDefinition>((activity) => ({
+      ...resource.activities.map<ElementDefinition>((activity) => ({
         data: {
           id: activity,
           label: activity,
         },
         classes: "activity",
       })),
-      ...ocdfg.object_types.flatMap<ElementDefinition>((objectType) => [
+      ...resource.object_types.flatMap<ElementDefinition>((objectType) => [
         {
           data: {
             id: `start_${objectType}`,
@@ -71,7 +72,7 @@ const Ocdfg: React.FC<{
           classes: `object`,
         },
       ]),
-      ...ocdfg.edges.map<ElementDefinition>((edge) => ({
+      ...resource.edges.map<ElementDefinition>((edge) => ({
         data: {
           id: `${edge.source}->${edge.target}`,
           source: edge.source,
@@ -82,7 +83,7 @@ const Ocdfg: React.FC<{
         },
       })),
 
-      ...ocdfg.start_activities.map(
+      ...resource.start_activities.map(
         ({ object_type, activity, annotation }) => ({
           data: {
             source: `start_${object_type}`,
@@ -94,15 +95,17 @@ const Ocdfg: React.FC<{
           classes: "objectType",
         }),
       ),
-      ...ocdfg.end_activities.map(({ object_type, activity, annotation }) => ({
-        data: {
-          source: activity,
-          target: `end_${object_type}`,
-          id: `${activity}->end_${object_type}`,
-          color: colorMap[object_type],
-          label: annotation?.["label"] ?? undefined,
-        },
-      })),
+      ...resource.end_activities.map(
+        ({ object_type, activity, annotation }) => ({
+          data: {
+            source: activity,
+            target: `end_${object_type}`,
+            id: `${activity}->end_${object_type}`,
+            color: colorMap[object_type],
+            label: annotation?.["label"] ?? undefined,
+          },
+        }),
+      ),
     ];
     const styles: StylesheetCSS[] = [
       {
@@ -171,18 +174,21 @@ const Ocdfg: React.FC<{
     ];
 
     return { styles, elements };
-  }, [ocdfg]);
+  }, [resource]);
 
   return (
     <Cytoscape
       elements={elements}
       styles={styles}
       layout={layout}
-      isLoading={!!ocdfg}
+      isLoading={!!resource}
     >
       {children}
     </Cytoscape>
   );
 };
 
-export default Ocdfg;
+export default defineResourceView({
+  type: "ocdfg",
+  viewer: Ocdfg,
+});

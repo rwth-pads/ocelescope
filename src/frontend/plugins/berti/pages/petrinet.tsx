@@ -2,10 +2,11 @@ import { useBertiPetriNet, useBertiSavePnet } from "@/api/fastapi/berti/berti";
 import { RouteDefinition } from "@/plugins/types";
 import useWaitForTask from "@/hooks/useTaskWaiter";
 import { Box, LoadingOverlay } from "@mantine/core";
-import PetriNet from "@/components/Resource/Ocpn";
 import ActionButtons from "@/components/Cytoscape/components/ActionButtons";
 import useInvalidateResources from "@/hooks/useInvalidateResources";
 import { showNotification } from "@mantine/notifications";
+import ResourceView from "@/components/Resources/ResourceView";
+import CytoscapeLoadingSpinner from "@/components/Cytoscape/components/LoadingSpinner";
 
 const PetriNetPage = () => {
   const { data: pnet, refetch } = useBertiPetriNet({});
@@ -23,17 +24,17 @@ const PetriNetPage = () => {
     },
   });
 
-  useWaitForTask({
+  const { isTaskRunning } = useWaitForTask({
     taskId: pnet?.taskId ?? undefined,
     onSuccess: refetch,
   });
 
   return (
     <Box pos={"relative"} w={"100%"} h={"100%"}>
-      <PetriNet ocpn={pnet?.result ?? undefined}>
-        <LoadingOverlay zIndex={1} visible={!pnet?.result} />
-        <ActionButtons onSave={pnet?.result ? () => mutate({}) : undefined} />
-      </PetriNet>
+      <ResourceView resource={pnet?.result ?? undefined}>
+        <CytoscapeLoadingSpinner visible={isTaskRunning} />
+        <ActionButtons onSave={() => mutate({})} />
+      </ResourceView>
     </Box>
   );
 };

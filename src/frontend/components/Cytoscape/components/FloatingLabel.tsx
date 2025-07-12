@@ -3,7 +3,6 @@ import { useClickOutside } from "@mantine/hooks";
 import { useCytoscapeContext } from "../CytoscapeContext";
 import { useEffect, useState } from "react";
 import { EventObject } from "cytoscape";
-import { EventObjectNode } from "cytoscape";
 
 type TriggerType = {
   action: "hover" | "rightClick" | "leftClick" | "doubleClick";
@@ -28,7 +27,7 @@ const FloatingAnotation: React.FC<{
   content: (event: EventObject) => React.ReactNode;
   trigger: TriggerType;
 }> = ({ content, trigger }) => {
-  const { cy } = useCytoscapeContext();
+  const context = useCytoscapeContext();
 
   const [position, setPositon] = useState<
     { x: number; y: number; event: EventObject } | undefined
@@ -36,8 +35,8 @@ const FloatingAnotation: React.FC<{
   const ref = useClickOutside(() => setPositon(undefined));
 
   useEffect(() => {
-    if (!cy.current) return;
-    const cytoscape = cy.current;
+    if (!context?.cy.current) return;
+    const cytoscape = context?.cy.current;
 
     const triggerEndEvent = triggerActionToEndEvent[trigger.action];
     if (trigger.target) {
@@ -92,7 +91,7 @@ const FloatingAnotation: React.FC<{
         cytoscape.removeListener(triggerEndEvent);
       }
     };
-  }, [cy, trigger]);
+  }, [context, trigger]);
 
   if (!position) {
     return null;

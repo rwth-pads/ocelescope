@@ -1,12 +1,13 @@
 import { RouteDefinition } from "@/plugins/types";
-import { LoadingOverlay } from "@mantine/core";
+import { Box, LoadingOverlay } from "@mantine/core";
 import ActionButtons from "@/components/Cytoscape/components/ActionButtons";
 
-import Ocdfg from "@/components/Resource/Ocdfg";
 import useWaitForTask from "@/hooks/useTaskWaiter";
 import useInvalidateResources from "@/hooks/useInvalidateResources";
 import { showNotification } from "@mantine/notifications";
 import { useBertiOcdfg, useBertiSaveOcdfg } from "@/api/fastapi/berti/berti";
+import ResourceView from "@/components/Resources/ResourceView";
+import CytoscapeLoadingSpinner from "@/components/Cytoscape/components/LoadingSpinner";
 
 const OCDFGPage = () => {
   const invalidateResources = useInvalidateResources();
@@ -24,18 +25,20 @@ const OCDFGPage = () => {
 
   const { data: ocdfgResponse, refetch } = useBertiOcdfg({});
 
-  useWaitForTask({
+  const { isTaskRunning } = useWaitForTask({
     taskId: ocdfgResponse?.taskId ?? undefined,
     onSuccess: refetch,
   });
 
   return (
-    <Ocdfg ocdfg={ocdfgResponse?.result ?? undefined}>
-      <ActionButtons
-        onSave={ocdfgResponse?.result ? () => mutate({}) : undefined}
-      />
-      <LoadingOverlay zIndex={1} visible={!ocdfgResponse?.result} />
-    </Ocdfg>
+    <Box pos={"relative"} w={"100%"} h={"100%"}>
+      <ResourceView resource={ocdfgResponse?.result ?? undefined}>
+        <CytoscapeLoadingSpinner visible={isTaskRunning} />
+        <ActionButtons
+          onSave={ocdfgResponse?.result ? () => mutate({}) : undefined}
+        />
+      </ResourceView>
+    </Box>
   );
 };
 
