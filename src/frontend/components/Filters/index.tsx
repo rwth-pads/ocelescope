@@ -5,14 +5,13 @@ import {
   Divider,
   Flex,
   Group,
-  ScrollArea,
   Select,
 } from "@mantine/core";
 import { FormProvider, useForm } from "react-hook-form";
 
 import { useEffect, useState } from "react";
 import { ConfigByType, FilterType } from "./types";
-import { Check, Plus, RefreshCw, Trash2Icon, TrashIcon, X } from "lucide-react";
+import { Check, Plus, RefreshCw, Trash2Icon, X } from "lucide-react";
 import {
   FilterPipeLine,
   FilterPipeLinePipelineItem,
@@ -268,47 +267,40 @@ const FilterPipelineForm: React.FC<
           </ButtonGroup>
         </Group>
         <Divider />
-        <ScrollArea h={"100%"} flex={1}>
-          <Accordion
-            multiple
-            m={"md"}
-            variant="separated"
-            chevronPosition="left"
-          >
-            {Array.from(selectedFields).map((filter) => (
-              <>
-                <Accordion.Item
-                  key={filter}
-                  value={filter}
-                  bd={"1px solid black"}
-                >
-                  <Accordion.Control>
-                    <Group align="center" justify="space-between">
-                      {filterTypes[filter].label}
-                      <Button
-                        variant="subtle"
-                        color="red"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          setValue(filter, undefined, { shouldDirty: true });
-                        }}
-                        p={5}
-                      >
-                        <Trash2Icon width={20} height={20} />
-                      </Button>
-                    </Group>
-                  </Accordion.Control>
-                  <Accordion.Panel>
-                    {filterTypes[filter].filterForm({
-                      ocel_id,
-                      ocel_version: "original",
-                    })}
-                  </Accordion.Panel>
-                </Accordion.Item>
-              </>
-            ))}
-          </Accordion>
-        </ScrollArea>
+        <Accordion multiple m={"md"} variant="separated" chevronPosition="left">
+          {Array.from(selectedFields).map((filter) => (
+            <>
+              <Accordion.Item
+                key={filter}
+                value={filter}
+                bd={"1px solid black"}
+              >
+                <Accordion.Control>
+                  <Group align="center" justify="space-between">
+                    {filterTypes[filter].label}
+                    <Button
+                      variant="subtle"
+                      color="red"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setValue(filter, undefined, { shouldDirty: true });
+                      }}
+                      p={5}
+                    >
+                      <Trash2Icon width={20} height={20} />
+                    </Button>
+                  </Group>
+                </Accordion.Control>
+                <Accordion.Panel>
+                  {filterTypes[filter].filterForm({
+                    ocel_id,
+                    ocel_version: "original",
+                  })}
+                </Accordion.Panel>
+              </Accordion.Item>
+            </>
+          ))}
+        </Accordion>
       </Flex>
     </FormProvider>
   );

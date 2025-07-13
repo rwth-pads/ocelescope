@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate:plugins": "tsx scripts/generatePlugin.ts",
+    "generate:plugins": "tsx scripts/generatePlugins.ts && tsx scripts/syncPublicFolder.ts",
     "generate:resources": "tsx scripts/generateResources.ts",
     "generate:api": "npx orval",
     "generate": "npm run generate:plugins && npm run generate:api",
@@ -45,13 +45,16 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@hookform/devtools": "^4.4.0",
+    "@types/fs-extra": "^11.0.4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "fs-extra": "^11.3.0",
     "orval": "^7.9.0",
     "postcss": "^8.5.3",
     "postcss-preset-mantine": "^1.17.0",
     "postcss-simple-vars": "^7.0.1",
+    "ts-morph": "^26.0.0",
     "tsx": "^4.19.4",
     "typescript": "^5"
   }

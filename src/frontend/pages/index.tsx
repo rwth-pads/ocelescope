@@ -1,5 +1,5 @@
 import OcelTable from "@/components/OcelTable/OcelTable";
-import ResourceTable from "@/components/ResourceTable/ResourceTable";
+import ResourceTable from "@/components/Resources/ResourceTable";
 import { Container, Stack } from "@mantine/core";
 
 const Overview = () => {

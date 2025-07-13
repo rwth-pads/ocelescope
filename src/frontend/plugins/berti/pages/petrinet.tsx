@@ -1,12 +1,12 @@
 import { useBertiPetriNet, useBertiSavePnet } from "@/api/fastapi/berti/berti";
-import { RouteDefinition } from "@/plugins/types";
 import useWaitForTask from "@/hooks/useTaskWaiter";
-import { Box, LoadingOverlay } from "@mantine/core";
+import { Box } from "@mantine/core";
 import ActionButtons from "@/components/Cytoscape/components/ActionButtons";
 import useInvalidateResources from "@/hooks/useInvalidateResources";
 import { showNotification } from "@mantine/notifications";
 import ResourceView from "@/components/Resources/ResourceView";
 import CytoscapeLoadingSpinner from "@/components/Cytoscape/components/LoadingSpinner";
+import { defineRoute } from "@/lib/plugins";
 
 const PetriNetPage = () => {
   const { data: pnet, refetch } = useBertiPetriNet({});
@@ -39,5 +39,8 @@ const PetriNetPage = () => {
   );
 };
 
-export default PetriNetPage;
-export const config: RouteDefinition = { name: "Petri Net" };
+export default defineRoute({
+  component: PetriNetPage,
+  label: "Object-Centri Petri Net",
+  name: "ocpn",
+});

@@ -19,7 +19,7 @@ import {
   Stack,
   TextInput,
 } from "@mantine/core";
-import { ReactNode, useMemo } from "react";
+import { memo, ReactNode, useMemo } from "react";
 import { FilterType } from "../types";
 import {
   EventAttributes200,
@@ -246,103 +246,101 @@ const AttributeFilter: React.FC<AttributeFilterProps> = ({
   );
 };
 
-export const EventAttributeFilter: React.FC<{ ocelParams: OcelInputType }> = ({
-  ocelParams,
-}) => {
-  const { data: attributes = {} } = useEventAttributes({ ...ocelParams });
+export const EventAttributeFilter: React.FC<{ ocelParams: OcelInputType }> =
+  memo(({ ocelParams }) => {
+    const { data: attributes = {} } = useEventAttributes({ ...ocelParams });
 
-  const { control } = useFormContext<FilterFormType>();
+    const { control } = useFormContext<FilterFormType>();
 
-  const { fields, append, remove } = useFieldArray({
-    name: "event_attribute",
-    control,
-  });
+    const { fields, append, remove } = useFieldArray({
+      name: "event_attribute",
+      control,
+    });
 
-  return (
-    <Stack>
-      {fields.map((field, index) => (
-        <Paper shadow="xs" p="md" key={field.id}>
-          <Grid gutter={0}>
-            <Grid.Col
-              style={{ display: "flex", justifyContent: "end" }}
-              offset={11}
-              span={1}
-            >
-              <Button
-                variant="subtle"
-                color="red"
-                onClick={() => remove(index)}
+    return (
+      <Stack>
+        {fields.map((field, index) => (
+          <Paper shadow="xs" p="md" key={field.id}>
+            <Grid gutter={0}>
+              <Grid.Col
+                style={{ display: "flex", justifyContent: "end" }}
+                offset={11}
+                span={1}
               >
-                <XIcon color="red" />
-              </Button>
-            </Grid.Col>
-            <Grid.Col span={12}>
-              <AttributeFilter
-                key={field.id}
-                control={control}
-                attributes={attributes}
-                index={index}
-                attributeField="event_attribute"
-              />
-            </Grid.Col>
-          </Grid>
-        </Paper>
-      ))}
-      <Button
-        onClick={() => append(filterTypes["event_attribute"].defaultValue)}
-      >
-        Add Filter
-      </Button>
-    </Stack>
-  );
-};
-export const ObjectAttributeFilter: React.FC<{ ocelParams: OcelInputType }> = ({
-  ocelParams,
-}) => {
-  const { data: attributes = {} } = useObjectAttributes({ ...ocelParams });
-
-  const { control } = useFormContext<FilterFormType>();
-
-  const { fields, append, remove } = useFieldArray({
-    name: "object_attribute",
-    control,
+                <Button
+                  variant="subtle"
+                  color="red"
+                  onClick={() => remove(index)}
+                >
+                  <XIcon color="red" />
+                </Button>
+              </Grid.Col>
+              <Grid.Col span={12}>
+                <AttributeFilter
+                  key={field.id}
+                  control={control}
+                  attributes={attributes}
+                  index={index}
+                  attributeField="event_attribute"
+                />
+              </Grid.Col>
+            </Grid>
+          </Paper>
+        ))}
+        <Button
+          onClick={() => append(filterTypes["event_attribute"].defaultValue)}
+        >
+          Add Filter
+        </Button>
+      </Stack>
+    );
   });
+export const ObjectAttributeFilter: React.FC<{ ocelParams: OcelInputType }> =
+  memo(({ ocelParams }) => {
+    const { data: attributes = {} } = useObjectAttributes({ ...ocelParams });
 
-  return (
-    <Stack>
-      {fields.map((field, index) => (
-        <Paper shadow="xs" p="md" key={field.id}>
-          <Grid gutter={0}>
-            <Grid.Col
-              style={{ display: "flex", justifyContent: "end" }}
-              offset={11}
-              span={1}
-            >
-              <Button
-                variant="subtle"
-                color="red"
-                onClick={() => remove(index)}
+    const { control } = useFormContext<FilterFormType>();
+
+    const { fields, append, remove } = useFieldArray({
+      name: "object_attribute",
+      control,
+    });
+
+    return (
+      <Stack>
+        {fields.map((field, index) => (
+          <Paper shadow="xs" p="md" key={field.id}>
+            <Grid gutter={0}>
+              <Grid.Col
+                style={{ display: "flex", justifyContent: "end" }}
+                offset={11}
+                span={1}
               >
-                <XIcon color="red" />
-              </Button>
-            </Grid.Col>
-            <Grid.Col span={12}>
-              <AttributeFilter
-                key={field.id}
-                control={control}
-                attributes={attributes}
-                index={index}
-                attributeField="object_attribute"
-              />
-            </Grid.Col>
-          </Grid>
-        </Paper>
-      ))}
-      <Button
-        onClick={() => append(filterTypes["object_attribute"].defaultValue)}
-      >
-        Add Filter
-      </Button>
-    </Stack>
-  );
-};
+                <Button
+                  variant="subtle"
+                  color="red"
+                  onClick={() => remove(index)}
+                >
+                  <XIcon color="red" />
+                </Button>
+              </Grid.Col>
+              <Grid.Col span={12}>
+                <AttributeFilter
+                  key={field.id}
+                  control={control}
+                  attributes={attributes}
+                  index={index}
+                  attributeField="object_attribute"
+                />
+              </Grid.Col>
+            </Grid>
+          </Paper>
+        ))}
+        <Button
+          onClick={() => append(filterTypes["object_attribute"].defaultValue)}
+        >
+          Add Filter
+        </Button>
+      </Stack>
+    );
+  });

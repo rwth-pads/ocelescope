@@ -1,80 +1,80 @@
 import { GetStaticPaths, GetStaticProps, NextPage } from "next";
 
-import {
-  pluginComponentMap,
-  PluginName,
-  ComponentPath,
-} from "@/plugins/pluginMap";
+import PluginOverview from "@/components/Plugins/PluginOverview";
+import PluginsOverview from "@/components/Plugins/PluginsOverview";
+import { PluginName, RouteName } from "@/types/plugin";
+import pluginMap from "@/lib/plugins/plugin-map";
 
 type PluginPageProps = {
-  pluginName: PluginName;
-  componentPath: ComponentPath<PluginName>;
+  plugin?: {
+    name: PluginName;
+    componentPath?: string;
+  };
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const paths = Object.entries(pluginComponentMap).flatMap(
-    ([pluginName, plugin]) =>
-      plugin.routes.map(({ path }) => ({
-        params: { slug: [pluginName, path] },
-      })),
-  );
+  const paths = Object.entries(pluginMap).flatMap(([pluginName, plugin]) => [
+    { params: { slug: [pluginName] } },
+    ...Object.keys(plugin.routes).map((name) => ({
+      params: { slug: [pluginName, name] },
+    })),
+  ]);
 
   return {
-    paths,
+    paths: [...paths, { params: { slug: [] } }],
     fallback: false,
   };
 };
 
-// Map slug to props — no redirects allowed during static export
 export const getStaticProps: GetStaticProps<PluginPageProps> = async ({
   params,
 }) => {
   const slugs = params?.slug ?? [];
 
-  if (!Array.isArray(slugs) || slugs.length !== 2) {
-    return { notFound: true };
+  if (!Array.isArray(slugs)) {
+    return { props: {} };
   }
 
-  const [pluginName, componentName] = slugs;
+  const pluginName = slugs[0];
 
-  if (!(pluginName in pluginComponentMap)) {
-    return { notFound: true };
+  if (!(pluginName in pluginMap)) {
+    return { props: {} };
   }
 
   const pluginKey = pluginName as PluginName;
-  const plugin = pluginComponentMap[pluginKey];
 
-  if (!plugin.routes.some(({ path }) => path === componentName)) {
-    return { notFound: true };
-  }
+  const routeName = slugs[1];
 
-  const componentPath = componentName as ComponentPath<typeof pluginKey>;
+  const componentPath =
+    routeName in pluginMap[pluginKey].routes
+      ? (routeName as RouteName<typeof pluginKey>)
+      : undefined;
 
   return {
     props: {
-      pluginName: pluginKey,
-      componentPath,
+      plugin: {
+        name: pluginKey,
+        ...(componentPath ? { componentPath } : undefined),
+      },
     },
   };
 };
 
 // Actual page component
-const PluginPage: NextPage<PluginPageProps> = ({
-  pluginName,
-  componentPath,
-}) => {
-  const plugin = pluginComponentMap[pluginName];
-  const route = plugin.routes.find(({ path }) => path === componentPath);
-
-  if (!route) {
-    return null;
+const PluginPage: NextPage<PluginPageProps> = ({ plugin }) => {
+  if (!plugin) {
+    return <PluginsOverview />;
   }
 
-  const Component = route.component;
+  const Component = Object.values(pluginMap[plugin.name].routes).find(
+    ({ name }) => {
+      return name === plugin.componentPath;
+    },
+  )?.component;
 
   return (
     <>
-      <Component />
+      {Component ? <Component /> : <PluginOverview pluginName={plugin.name} />}
     </>
   );
 };

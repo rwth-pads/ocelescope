@@ -3,7 +3,6 @@ import ActionButtons from "@/components/Cytoscape/components/ActionButtons";
 import CytoscapeSidebar from "@/components/Cytoscape/components/SideBar";
 import useInvalidateResources from "@/hooks/useInvalidateResources";
 import useWaitForTask from "@/hooks/useTaskWaiter";
-import { RouteDefinition } from "@/plugins/types";
 import { Box, Table } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import { useCallback, useState } from "react";
@@ -13,6 +12,7 @@ import FloatingAnotation from "@/components/Cytoscape/components/FloatingLabel";
 import { TotemEdgeTr } from "@/api/fastapi-schemas";
 import ResourceView from "@/components/Resources/ResourceView";
 import CytoscapeLoadingSpinner from "@/components/Cytoscape/components/LoadingSpinner";
+import { defineRoute } from "@/lib/plugins";
 
 const TemporalDirectionDict: Record<TotemEdgeTr, string> = {
   D: "Depends",
@@ -119,6 +119,9 @@ const MinePage = () => {
     </Box>
   );
 };
-export default MinePage;
 
-export const config: RouteDefinition = { name: "Mine" };
+export default defineRoute({
+  component: MinePage,
+  label: "Mine Totem",
+  name: "mine",
+});
