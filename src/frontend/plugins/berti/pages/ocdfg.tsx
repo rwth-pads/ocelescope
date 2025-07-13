@@ -1,5 +1,4 @@
-import { RouteDefinition } from "@/plugins/types";
-import { Box, LoadingOverlay } from "@mantine/core";
+import { Box } from "@mantine/core";
 import ActionButtons from "@/components/Cytoscape/components/ActionButtons";
 
 import useWaitForTask from "@/hooks/useTaskWaiter";
@@ -8,6 +7,7 @@ import { showNotification } from "@mantine/notifications";
 import { useBertiOcdfg, useBertiSaveOcdfg } from "@/api/fastapi/berti/berti";
 import ResourceView from "@/components/Resources/ResourceView";
 import CytoscapeLoadingSpinner from "@/components/Cytoscape/components/LoadingSpinner";
+import { defineRoute } from "@/lib/plugins";
 
 const OCDFGPage = () => {
   const invalidateResources = useInvalidateResources();
@@ -42,5 +42,8 @@ const OCDFGPage = () => {
   );
 };
 
-export default OCDFGPage;
-export const config: RouteDefinition = { name: "Object-Centric DFG" };
+export default defineRoute({
+  component: OCDFGPage,
+  label: "Object-Centric Directly Follows Graph",
+  name: "ocdfg",
+});

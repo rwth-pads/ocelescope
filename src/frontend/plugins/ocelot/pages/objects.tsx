@@ -1,8 +1,10 @@
-import { RouteDefinition } from "@/plugins/types";
 import EntityPage from "../components/EntityPage";
+import { defineRoute } from "@/lib/plugins";
 
 const ObjectPage = () => <EntityPage type="objects" />;
 
-export default ObjectPage;
-
-export const config: RouteDefinition = { name: "Objects" };
+export default defineRoute({
+  component: ObjectPage,
+  label: "Objects",
+  name: "objects",
+});

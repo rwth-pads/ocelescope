@@ -1,4 +1,3 @@
-import { RouteDefinition } from "@/plugins/types";
 import {
   useO2o,
   useObjectAttributes,
@@ -12,6 +11,7 @@ import EntityCard from "../components/EntityCard";
 import EntityOverview from "../components/EntityOverview";
 import { SearchIcon } from "lucide-react";
 import { useDebouncedState } from "@mantine/hooks";
+import { defineRoute } from "@/lib/plugins";
 
 const ObjectGraph = () => {
   const { data: o2o } = useO2o();
@@ -98,6 +98,8 @@ const ObjectGraph = () => {
   );
 };
 
-export default ObjectGraph;
-
-export const config: RouteDefinition = { name: "Object Overview" };
+export default defineRoute({
+  component: ObjectGraph,
+  label: "Object Overview",
+  name: "objectOverview",
+});

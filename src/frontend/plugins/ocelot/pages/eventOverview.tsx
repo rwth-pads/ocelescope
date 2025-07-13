@@ -4,10 +4,10 @@ import {
   useEventCounts,
 } from "@/api/fastapi/info/info";
 import { Input, LoadingOverlay, Stack } from "@mantine/core";
-import { RouteDefinition } from "@/plugins/types";
 import { SearchIcon } from "lucide-react";
 import { useDebouncedState } from "@mantine/hooks";
 import EntityOverview from "../components/EntityOverview";
+import { defineRoute } from "@/lib/plugins";
 
 const EventOverview = () => {
   const { data: eventsAttributes = {} } = useEventAttributes();
@@ -38,6 +38,8 @@ const EventOverview = () => {
   );
 };
 
-export default EventOverview;
-
-export const config: RouteDefinition = { name: "Event Overview" };
+export default defineRoute({
+  component: EventOverview,
+  label: "Event Overview",
+  name: "eventOverview",
+});
