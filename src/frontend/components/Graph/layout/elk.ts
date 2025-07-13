@@ -35,7 +35,7 @@ export const useElkLayout = () => {
     const edges = getEdges();
 
     const layoutOptions: LayoutOptions = options ?? defaultOptions;
-    // void elk.knownLayoutAlgorithms().then((r) => console.log({ r }));
+
     const graph: ElkNode = {
       id: "root",
       layoutOptions,

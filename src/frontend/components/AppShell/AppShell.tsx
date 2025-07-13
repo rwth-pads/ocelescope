@@ -101,8 +101,6 @@ const LinksGroup: React.FC<LinksGroupProps> = ({ links, label }) => {
     </Text>
   ));
 
-  console.log(links);
-
   return (
     <>
       <UnstyledButton component={Link} href={"/"} className={classes.control}>
@@ -123,8 +121,6 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(false);
 
   const pluginRoute = usePluginPath();
-
-  console.log(pluginRoute);
 
   return (
     <MAppShell

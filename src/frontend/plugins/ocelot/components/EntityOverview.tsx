@@ -32,7 +32,6 @@ const EntityOverview: React.FC<EntityOverviewProps> = ({
     );
   }, [relations]);
 
-  console.log({ relationMap });
   const filteredEvents = useMemo(() => {
     const toSearch = search.toLowerCase();
     return Object.entries(entityCounts).filter(
@@ -52,7 +51,6 @@ const EntityOverview: React.FC<EntityOverviewProps> = ({
   return (
     <SimpleGrid cols={{ base: 1, sm: 2, lg: 5 }}>
       {filteredEvents.map(([name, count]) => {
-        console.log(name, relationMap[name]);
         return (
           <EntityCard
             key={name}
