@@ -58,8 +58,8 @@ const PluginOverview: React.FC<{ pluginName: PluginName }> = ({
                   onClick={() =>
                     router.push(
                       getPluginRoute({
-                        pluginName: plugin.name as PluginName,
-                        routeName: name as RouteName<PluginName>,
+                        name: plugin.name as PluginName,
+                        route: name as RouteName<PluginName>,
                       }),
                     )
                   }
