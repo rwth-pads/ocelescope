@@ -10,9 +10,9 @@ export const definePlugin = (def: PluginDefinition) => def;
 export const defineRoute = (def: RouteDefinition) => def;
 
 export const getPluginRoute = <K extends PluginName>({
-  pluginName,
-  routeName,
+  name: name,
+  route: route,
 }: {
-  pluginName: K;
-  routeName?: RouteName<K>;
-}) => `/plugin/${pluginName}${routeName ? `/${routeName}` : undefined}`;
+  name: K;
+  route?: RouteName<K>;
+}) => `/plugin/${name}${route ? `/${route}` : ""}`;
