@@ -7,15 +7,9 @@ const usePluginPath = () => {
   const { slug } = router.query;
   const name = slug?.[0];
 
-  if (!name || !(name in pluginMap)) return;
+  if (true) return;
 
   const plugin = pluginMap[name as PluginName];
-
-  return {
-    name: plugin.name as PluginName,
-    route: Object.values(plugin.routes).find(({ name }) => name === slug?.[1])
-      ?.name as RouteName<PluginName>,
-  };
 };
 
 export default usePluginPath;

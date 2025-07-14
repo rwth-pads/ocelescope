@@ -28,16 +28,16 @@ const PluginOverview: React.FC<{ pluginName: PluginName }> = ({
         <Stack align="center" gap={"xs"}>
           <Image
             src={`/plugins/${pluginName}/cover.png`}
-            alt={plugin.label}
+            alt={"a"}
             width={100}
             height={100}
             style={{ borderRadius: "50px" }}
           />
-          <Title>{plugin.label}</Title>
+          <Title>{}</Title>
         </Stack>
         <Stack gap={0}>
           <Title order={2}>Description</Title>
-          <Text>{plugin.description}</Text>
+          <Text>{}</Text>
         </Stack>
         <Stack gap={0}>
           <Title order={2}>Tools</Title>
@@ -51,50 +51,12 @@ const PluginOverview: React.FC<{ pluginName: PluginName }> = ({
                 <Table.Th />
               </Table.Tr>
             </Table.Thead>
-            <Table.Tbody>
-              {Object.values(plugin.routes).map(({ name, label }) => (
-                <Table.Tr
-                  style={{ cursor: "pointer" }}
-                  onClick={() =>
-                    router.push(
-                      getPluginRoute({
-                        name: plugin.name as PluginName,
-                        route: name as RouteName<PluginName>,
-                      }),
-                    )
-                  }
-                >
-                  <Table.Td style={{ whiteSpace: "nowrap" }}>{label}</Table.Td>
-                  <Table.Td>{}</Table.Td>
-                  <Table.Td>
-                    <Group align="center" justify="end">
-                      <ActionIcon
-                        variant={"subtle"}
-                        color="red"
-                        onClick={(event) => event.stopPropagation()}
-                      >
-                        <Star fill="yellow" color="yellow" />
-                      </ActionIcon>
-                    </Group>
-                  </Table.Td>
-                </Table.Tr>
-              ))}
-            </Table.Tbody>
+            <Table.Tbody></Table.Tbody>
           </Table>
         </Stack>
         <Stack gap={0}>
           <Title order={2}>Authors</Title>
-          <Group>
-            {plugin.authors.map(({ name, link }) =>
-              link ? (
-                <Badge component={Link} href={link}>
-                  {name}
-                </Badge>
-              ) : (
-                <Badge>{name}</Badge>
-              ),
-            )}
-          </Group>
+          <Group></Group>
         </Stack>
       </Stack>
     </Container>

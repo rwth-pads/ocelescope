@@ -2,52 +2,12 @@ import importlib
 import os
 import pkgutil
 
-from fastapi import FastAPI
-from fastapi.routing import APIRoute, APIRouter
-
 from api.extensions import OcelExtension, register_extension
 
 
 # Use direct path-based loading for safety
 plugins_path = [os.path.join(os.path.dirname(__file__), "plugins")]
 extensions_path = [os.path.join(os.path.dirname(__file__), "extensions")]
-
-
-def register_plugins(app: FastAPI):
-    for _, module_name, _ in pkgutil.iter_modules(plugins_path):
-        try:
-            mod = importlib.import_module(f"plugins.{module_name}.plugin")
-        except ModuleNotFoundError as e:
-            # Skip if plugin.py does not exist
-            print(f"Plugin '{module_name}' skipped: {e}")
-            continue
-        except Exception as e:
-            # Catch other unexpected import errors
-            print(f"Failed to load plugin '{module_name}': {e}")
-            continue
-
-        # Register plugin router
-        if hasattr(mod, "router"):
-            router: APIRouter = mod.router
-
-            for route in router.routes:
-                if isinstance(route, APIRoute):
-                    route.operation_id = (
-                        f"{module_name}_{route.operation_id or route.name}"
-                    )
-
-            meta = getattr(mod, "meta", {})
-            prefix = meta.get("prefix", f"/{module_name}")
-            tags = meta.get("tags", [module_name])
-            app.include_router(mod.router, prefix=prefix, tags=tags)
-
-        # Register plugin state class for session-based caching
-        if hasattr(mod, "State"):
-            setattr(mod, "_plugin_state", mod.State)
-
-        # Store plugin metadata for inspection (optional)
-        if hasattr(mod, "meta"):
-            setattr(mod, "_plugin_meta", mod.meta)
 
 
 def register_extensions():

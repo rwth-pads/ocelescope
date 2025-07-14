@@ -179,25 +179,7 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </Group>
           </UnstyledButton>
 
-          {pluginRoute && <Divider />}
-          <ScrollArea className={classes.links} px={"md"}>
-            {pluginRoute && (
-              <div className={classes.linksInner}>
-                <LinksGroup
-                  label={pluginMap[pluginRoute.name].label}
-                  links={Object.values(pluginMap[pluginRoute.name].routes).map(
-                    ({ label, name }) => ({
-                      label,
-                      link: getPluginRoute({
-                        name: pluginRoute.name as PluginName,
-                        route: name as RouteName<PluginName>,
-                      }),
-                    }),
-                  )}
-                />
-              </div>
-            )}
-          </ScrollArea>
+          <ScrollArea className={classes.links} px={"md"}></ScrollArea>
           <Divider />
           <LogoutButton />
         </Stack>

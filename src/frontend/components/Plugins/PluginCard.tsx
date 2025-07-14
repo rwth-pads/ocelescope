@@ -36,9 +36,7 @@ const PluginCard: React.FC<{ name: PluginName }> = ({ name }) => {
       </Card.Section>
       <Card.Section mt="xs" pb={"xs"} px={"md"}>
         <Group justify="space-between">
-          <Text fz="lg" fw={500}>
-            {plugin.label}
-          </Text>
+          <Text fz="lg" fw={500}></Text>
           <ActionIcon variant="subtle" radius="md" size={36}>
             <HeartIcon />
           </ActionIcon>
