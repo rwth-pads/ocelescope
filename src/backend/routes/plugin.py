@@ -16,7 +16,9 @@ def list_plugins() -> list[PluginSummary]:
 @plugin_router.post("/{plugin_id}/run")
 def run_plugin(plugin_id: str, session: ApiSession, inputs: dict):
     try:
-        return registry.run_plugin(plugin_id, inputs, session=session)
+        response = registry.run_plugin(plugin_id, inputs, session=session)
+        for key, value in response.items():
+            session.add_resource(entity=value, name=key, meta_data={}, source=plugin_id)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

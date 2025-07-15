@@ -1,11 +1,18 @@
 import { PluginSummary } from "@/api/fastapi-schemas";
-import { useListPluginsPluginGet } from "@/api/fastapi/plugin/plugin";
+import {
+  useListPluginsPluginGet,
+  useRunPluginPluginPluginIdRunPost,
+} from "@/api/fastapi/plugin/plugin";
+import { useGetResources } from "@/api/fastapi/resource/resource";
+import { useGetOcels } from "@/api/fastapi/session/session";
 import PluginUpload from "@/components/PluginUpload/PluginUpload";
 import {
+  Button,
   Code,
   ComboboxItem,
   Divider,
   Group,
+  LoadingOverlay,
   ScrollArea,
   Select,
   Stack,
@@ -13,6 +20,7 @@ import {
   Text,
   Title,
 } from "@mantine/core";
+import { showNotification } from "@mantine/notifications";
 import { useMemo, useState } from "react";
 
 export const PluginTable: React.FC<{ data: PluginSummary[] }> = ({ data }) => {
@@ -62,7 +70,23 @@ export const PluginTable: React.FC<{ data: PluginSummary[] }> = ({ data }) => {
 };
 const PluginPage = () => {
   const { data: plugins = [], refetch } = useListPluginsPluginGet();
-  const [currentOcel, setCurrentOcel] = useState<string | null>(null);
+  const { refetch: refetchResources } = useGetResources();
+  const { mutate, isPending } = useRunPluginPluginPluginIdRunPost({
+    mutation: {
+      onSuccess: () => {
+        refetchResources();
+        showNotification({
+          message: "Plugin executed successfully",
+          color: "green",
+        });
+      },
+    },
+  });
+  const { data: ocels } = useGetOcels();
+  const [currentPlugin, setCurrentPlugin] = useState<PluginSummary | null>(
+    null,
+  );
+
   const selectOptions = useMemo(() => {
     return plugins.reduce<Record<string, { methods: string[] }>>(
       (acc, curr) => {
@@ -78,9 +102,9 @@ const PluginPage = () => {
       {},
     );
   }, [plugins]);
-  console.log("selectOptions", selectOptions);
+
   return (
-    <Stack>
+    <Stack pos={"relative"}>
       <Title order={3} mb="md">
         Upload
       </Title>
@@ -93,6 +117,10 @@ const PluginPage = () => {
       </Title>
       <Select
         label="Select Plugin Method"
+        value={currentPlugin?.id}
+        onChange={(newId) =>
+          setCurrentPlugin(plugins.find(({ id }) => newId === id) ?? null)
+        }
         data={Object.entries(selectOptions).map(([id, { methods }]) => ({
           group: id,
           items: methods.map((method) => ({
@@ -101,6 +129,23 @@ const PluginPage = () => {
           })),
         }))}
       />
+      <Button
+        onClick={() =>
+          mutate({
+            pluginId: currentPlugin!.id,
+            data: Object.fromEntries(
+              currentPlugin!.input_types.map(({ name }) => [
+                name,
+                ocels?.current_ocel_id,
+              ]),
+            ),
+          })
+        }
+        disabled={!currentPlugin || !ocels?.current_ocel_id}
+      >
+        Run
+      </Button>
+      <LoadingOverlay visible={isPending} />
     </Stack>
   );
 };
