@@ -27,11 +27,12 @@ from ocel.default_ocel import (
     get_default_ocel,
     load_default_ocels,
 )
-from plugin_loader import register_extensions, register_plugins
+from plugin_loader import register_extensions
 from routes.filter import filterRouter
 from routes.info import infoRouter
 from routes.session import sessionRouter
 from routes.tasks import taskRouter
+from routes.plugin import plugin_router
 from routes.resources import resourceRouter
 from tasks.ocel import import_ocel_task
 from util.constants import SUPPORTED_FILE_TYPES
@@ -66,10 +67,10 @@ app.middleware("http")(ocel_access_middleware)
 # Error handler for internal server errors
 app.exception_handler(Exception)(error_handler_server)
 
-register_plugins(app)
 register_extensions()
 app.include_router(infoRouter)
 app.include_router(filterRouter)
+app.include_router(plugin_router)
 app.include_router(sessionRouter)
 app.include_router(taskRouter)
 app.include_router(resourceRouter)
