@@ -26,4 +26,10 @@ repos:
       - id: biome-format
         args: ["--config-path", "src/frontend/"]
         additional_dependencies: ["@biomejs/biome@1.9.4"]
-
+  - repo: local
+    hooks:
+      - id: generate-openapi
+        name: Generate OpenAPI and Unions
+        entry: bash scripts/precommit.sh
+        language: system
+        pass_filenames: false

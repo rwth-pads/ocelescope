@@ -8,6 +8,7 @@ from api.middleware import ocel_access_middleware
 from api.utils import (
     custom_snake2camel,
     error_handler_server,
+    export_openapi_schema,
     verify_parameter_alias_consistency,
 )
 from ocel.default_ocel import (
@@ -68,3 +69,6 @@ def post_init_tasks():
 
 
 post_init_tasks()
+
+if __name__ == "__main__":
+    export_openapi_schema(app, "../frontend/schemas/mainBackendOpenApi.json")

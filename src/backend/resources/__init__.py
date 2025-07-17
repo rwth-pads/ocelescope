@@ -8,18 +8,12 @@ from typing import Annotated, Any, Union
 from pydantic import Field
 from pydantic.main import BaseModel
 
-__all__ = [
-    "ObjectCentricDirectlyFollowsGraph",
-    "ObjectCentricPetriNet",
-    "Totem",
-    "ResourceUnion",
-]
+__all__ = ["ObjectCentricDirectlyFollowsGraph", "ObjectCentricPetriNet", "Totem", "ResourceUnion"]
 
 ResourceUnion = Annotated[
     Union[ObjectCentricDirectlyFollowsGraph, ObjectCentricPetriNet, Totem],
-    Field(discriminator="type"),
+    Field(discriminator="type")
 ]
-
 
 class Resource(BaseModel):
     id: str
