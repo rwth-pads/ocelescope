@@ -1,4 +1,4 @@
-import { useGetTask } from "@/api/fastapi/session/session";
+import { useGetTask } from "@/api/fastapi/tasks/tasks";
 import { useEffect, useRef, useState } from "react";
 
 type UseTaskWaiterProps = {
@@ -15,16 +15,13 @@ const useWaitForTask = ({ taskId, onSuccess }: UseTaskWaiterProps) => {
     hasCalledSuccess.current = false;
   }, [taskId]);
 
-  const { data: task } = useGetTask(
-    { task_id: taskId! },
-    {
-      query: {
-        enabled: !!taskId,
-        refetchInterval: ({ state }) =>
-          state.data?.state === "SUCCESS" ? false : 2000,
-      },
+  const { data: task } = useGetTask(taskId!, {
+    query: {
+      enabled: !!taskId,
+      refetchInterval: ({ state }) =>
+        state.data?.state === "SUCCESS" ? false : 2000,
     },
-  );
+  });
 
   useEffect(() => {
     if (!task) return;

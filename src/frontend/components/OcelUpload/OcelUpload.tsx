@@ -13,7 +13,7 @@ import {
   useGetDefaultOcel,
   useImportDefaultOcel,
   useImportOcel,
-} from "@/api/fastapi/default/default";
+} from "@/api/fastapi/ocels/ocels";
 import { Container as ContainerIcon } from "lucide-react";
 import FileDropzone from "@/components/Dropzone/Dropzone";
 

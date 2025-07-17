@@ -10,12 +10,13 @@ import {
 import { FormProvider, useForm } from "react-hook-form";
 
 import { useEffect, useState } from "react";
-import { ConfigByType, FilterType } from "./types";
-import { Check, Plus, RefreshCw, Trash2Icon, X } from "lucide-react";
 import {
-  FilterPipeLine,
-  FilterPipeLinePipelineItem,
-} from "@/api/fastapi-schemas";
+  ConfigByType,
+  FilterType,
+  Filter,
+  FilterConfig,
+} from "@/types/filters";
+import { Check, Plus, RefreshCw, Trash2Icon, X } from "lucide-react";
 import { OcelInputType } from "@/types/ocel";
 import {
   EventTypeFilterInput,
@@ -113,7 +114,7 @@ export type FilterFormType = {
   [K in SingleFormKeys]?: ConfigByType<K>;
 };
 
-const parsePipelineIntoFilterForm = ({ pipeline }: FilterPipeLine) => {
+const parsePipelineIntoFilterForm = ({ pipeline }: Filter) => {
   return pipeline.reduce(
     (filter, currentPipelineItem) => {
       const filterType = currentPipelineItem.type as FilterType;
@@ -138,8 +139,8 @@ const parsePipelineIntoFilterForm = ({ pipeline }: FilterPipeLine) => {
 
 const FilterPipelineForm: React.FC<
   {
-    filter: FilterPipeLine;
-    submit: (filter: FilterPipeLine) => void;
+    filter: Filter;
+    submit: (filter: Filter) => void;
   } & Pick<OcelInputType, "ocel_id">
 > = ({ filter, submit, ocel_id }) => {
   const [selectedFields, setSelectedFields] = useState<Set<FilterType>>(
@@ -192,14 +193,14 @@ const FilterPipelineForm: React.FC<
     <FormProvider {...methods}>
       <Flex
         onSubmit={handleSubmit((data) => {
-          const pipeline: FilterPipeLinePipelineItem[] = Object.entries(
-            data,
-          ).flatMap(([_, filter]) => {
-            if (!filter) return [];
-            return Array.isArray(filter)
-              ? (filter as FilterPipeLinePipelineItem[])
-              : [filter];
-          });
+          const pipeline: FilterConfig[] = Object.entries(data).flatMap(
+            ([_, filter]) => {
+              if (!filter) return [];
+              return Array.isArray(filter)
+                ? (filter as FilterConfig[])
+                : [filter];
+            },
+          );
           submit({ pipeline });
           reset(data);
         })}

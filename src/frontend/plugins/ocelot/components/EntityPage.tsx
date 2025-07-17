@@ -5,7 +5,7 @@ import {
   useO2o,
   useObjectAttributes,
   useObjectCount,
-} from "@/api/fastapi/info/info";
+} from "@/api/fastapi/ocels/ocels";
 import {
   useOcelotPaginatedEvents,
   useOcelotPaginatedObjects,

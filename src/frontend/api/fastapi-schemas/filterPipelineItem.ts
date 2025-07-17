@@ -12,4 +12,4 @@ import type { EventTypeFilterConfig } from './eventTypeFilterConfig';
 import type { E2OCountFilterConfig } from './e2OCountFilterConfig';
 import type { O2OCountFilterConfig } from './o2OCountFilterConfig';
 
-export type FilterPipeLinePipelineItem = TimeFrameFilterConfig | EventAttributeFilterConfig | ObjectAttributeFilterConfig | ObjectTypeFilterConfig | EventTypeFilterConfig | E2OCountFilterConfig | O2OCountFilterConfig;
+export type FilterPipelineItem = TimeFrameFilterConfig | EventAttributeFilterConfig | ObjectAttributeFilterConfig | ObjectTypeFilterConfig | EventTypeFilterConfig | E2OCountFilterConfig | O2OCountFilterConfig;

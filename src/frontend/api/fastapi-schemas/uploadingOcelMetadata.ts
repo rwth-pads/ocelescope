@@ -5,4 +5,8 @@
  * OpenAPI spec version: 0.9.12
  */
 
-export type EventAttributeFilterConfigMax = number | number | string | null;
+export interface UploadingOcelMetadata {
+  name: string;
+  task_id: string;
+  uploaded_at: string;
+}

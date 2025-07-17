@@ -1,4 +1,4 @@
-import { useEventCounts, useTimeInfo } from "@/api/fastapi/info/info";
+import { useEventCounts, useTimeInfo } from "@/api/fastapi/ocels/ocels";
 import { Box, Grid, LoadingOverlay, RangeSlider } from "@mantine/core";
 import { memo, useMemo } from "react";
 import { BarChart } from "@mantine/charts";

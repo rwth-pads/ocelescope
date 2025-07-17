@@ -8,16 +8,18 @@ from api.dependencies import ApiSession
 from api.exceptions import NotFound
 from api.model.tasks import TaskSummary
 
-taskRouter = APIRouter(prefix="/tasks", tags=["session"])
+tasks_router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 
-@taskRouter.get("/", summary="returns all tasks of a session", operation_id="getTasks")
+@tasks_router.get(
+    "/", summary="returns all tasks of a session", operation_id="getTasks"
+)
 def getTasks(session: ApiSession) -> list[TaskSummary]:
     return session.list_tasks()
 
 
-@taskRouter.get(
-    "/task", summary="returns the task of a given taskId", operation_id="getTask"
+@tasks_router.get(
+    "/{task_id}", summary="returns the task of a given taskId", operation_id="getTask"
 )
 def getTask(session: ApiSession, task_id: str) -> TaskSummary:
     task = session.get_task(task_id)

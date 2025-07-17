@@ -2,7 +2,7 @@ import {
   useEventAttributes,
   useObjectAttributes,
   useObjectCount,
-} from "@/api/fastapi/info/info";
+} from "@/api/fastapi/ocels/ocels";
 import {
   Control,
   Controller,
@@ -20,7 +20,7 @@ import {
   TextInput,
 } from "@mantine/core";
 import { memo, ReactNode, useMemo } from "react";
-import { FilterType } from "../types";
+import { FilterType } from "@/types/filters";
 import {
   EventAttributes200,
   EventAttributes200Item,

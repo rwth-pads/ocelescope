@@ -7,7 +7,7 @@ import {
   useEffect,
 } from "react";
 import { Modal, Loader, Text, LoadingOverlay, Box } from "@mantine/core";
-import { useGetTask } from "@/api/fastapi/session/session";
+import { useGetTask } from "@/api/fastapi/tasks/tasks";
 
 type ShowTaskModalArgs = {
   taskId: string;
@@ -44,19 +44,14 @@ export const TaskModalProvider = ({ children }: { children: ReactNode }) => {
     setOnSuccess(undefined);
   }, []);
 
-  const { data: task } = useGetTask(
-    {
-      task_id: taskId!,
-    },
-    {
-      query: {
-        enabled: !!taskId,
+  const { data: task } = useGetTask(taskId!, {
+    query: {
+      enabled: !!taskId,
 
-        refetchInterval: ({ state }) =>
-          state.data?.state === "SUCCESS" ? false : 2000,
-      },
+      refetchInterval: ({ state }) =>
+        state.data?.state === "SUCCESS" ? false : 2000,
     },
-  );
+  });
 
   useEffect(() => {
     if (task?.state === "SUCCESS") {

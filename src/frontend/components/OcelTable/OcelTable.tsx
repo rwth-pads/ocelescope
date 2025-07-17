@@ -3,7 +3,7 @@ import {
   useGetOcels,
   useRenameOcel,
   useSetCurrentOcel,
-} from "@/api/fastapi/session/session";
+} from "@/api/fastapi/ocels/ocels";
 import OcelUpload from "@/components/OcelUpload/OcelUpload";
 import {
   Button,

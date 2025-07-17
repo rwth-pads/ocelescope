@@ -5,7 +5,7 @@
  * OpenAPI spec version: 0.9.12
  */
 
-export type DownloadOcelDownloadGetParams = {
+export type DownloadOcelOcelsDownloadGetParams = {
 ext: '.xml' | '.json' | '.sqlite' | null;
 ocel_id?: string | null;
 ocel_version?: 'original' | 'filtered' | null;

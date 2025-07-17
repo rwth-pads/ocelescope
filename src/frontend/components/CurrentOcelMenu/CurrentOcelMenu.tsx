@@ -1,5 +1,4 @@
-import { OCELMetadata } from "@/api/fastapi-schemas";
-import { useGetOcels } from "@/api/fastapi/session/session";
+import { useGetOcels } from "@/api/fastapi/ocels/ocels";
 import {
   Menu,
   Stack,

@@ -5,7 +5,7 @@
  * OpenAPI spec version: 0.9.12
  */
 
-export interface OCELMetadata {
+export interface OcelMetadata {
   id: string;
   name: string;
   created_at: string;

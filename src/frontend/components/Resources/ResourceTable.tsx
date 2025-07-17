@@ -3,7 +3,7 @@ import {
   useDeleteResource,
   useGetResources,
   useUpdateResource,
-} from "@/api/fastapi/resource/resource";
+} from "@/api/fastapi/resources/resources";
 import {
   Box,
   Button,

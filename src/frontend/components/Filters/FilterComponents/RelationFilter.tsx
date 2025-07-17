@@ -1,24 +1,17 @@
 import {
-  Box,
   Button,
   Grid,
   Group,
-  LoadingOverlay,
   Paper,
   RangeSlider,
-  SegmentedControl,
   Select,
   Stack,
-  Text,
 } from "@mantine/core";
 import { memo, useMemo } from "react";
 import { ArrowRight, PlusIcon, X } from "lucide-react";
-import {
-  E2OCountFilterConfig,
-  RelationCountSummary,
-} from "@/api/fastapi-schemas";
+import { RelationCountSummary } from "@/api/fastapi-schemas";
 import { FilterFormType, filterTypes } from "..";
-import { useE2o, useO2o } from "@/api/fastapi/info/info";
+import { useE2o, useO2o } from "@/api/fastapi/ocels/ocels";
 import {
   Control,
   Controller,
@@ -26,7 +19,7 @@ import {
   useFormContext,
   useWatch,
 } from "react-hook-form";
-import { ConfigByType, FilterType } from "../types";
+import { ConfigByType, FilterType } from "@/types/filters";
 import { OcelInputType } from "@/types/ocel";
 
 const RelationFilter: React.FC<{

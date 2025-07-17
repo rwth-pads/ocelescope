@@ -1,40 +1,22 @@
 from __future__ import annotations
 
-import datetime
-import shutil
-from pathlib import Path
-from tempfile import NamedTemporaryFile
-from typing import Annotated, Literal, Optional
-
-from fastapi import FastAPI, File, Query, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.config import OceanConfig
-from api.dependencies import ApiOcel, ApiSession
 from api.docs import init_custom_docs
-from api.exceptions import BadRequest, NotFound
 from api.middleware import ocel_access_middleware
-from api.model.response import TempFileResponse
 from api.utils import (
     custom_snake2camel,
     error_handler_server,
     verify_parameter_alias_consistency,
 )
 from ocel.default_ocel import (
-    DEFAULT_OCEL_KEYS,
-    DefaultOCEL,
-    filter_default_ocels,
-    get_default_ocel,
     load_default_ocels,
 )
 from plugin_loader import register_extensions, register_plugins
-from routes.filter import filterRouter
-from routes.info import infoRouter
-from routes.session import sessionRouter
-from routes.tasks import taskRouter
-from routes.resources import resourceRouter
-from tasks.ocel import import_ocel_task
-from util.constants import SUPPORTED_FILE_TYPES
+
+from fastapi import FastAPI
+from routes import routes
 from util.misc import export_example_settings_as_dotenv
 from version import __version__
 
@@ -68,146 +50,11 @@ app.exception_handler(Exception)(error_handler_server)
 
 register_plugins(app)
 register_extensions()
-app.include_router(infoRouter)
-app.include_router(filterRouter)
-app.include_router(sessionRouter)
-app.include_router(taskRouter)
-app.include_router(resourceRouter)
+
+for route in routes:
+    app.include_router(route)
+
 init_custom_docs(app)
-
-
-@app.post(
-    "/import", summary="Import OCEL 2.0 from .sqlite file", operation_id="importOcel"
-)
-def import_ocel(
-    session: ApiSession,
-    response: Response,
-    file: Annotated[
-        UploadFile,
-        File(description="An OCEL 2.0 event log (.sqlite format)"),
-    ],
-    name: Annotated[
-        str,
-        Query(
-            description="The name of the uploaded file", pattern=r"[\w\-\(\)]+\.[a-z]+"
-        ),
-        # Need original file name because client-side formData creation in generated api wrapper does not retain it
-    ],
-) -> Response:
-    if file.filename is None or file.filename == "":
-        raise BadRequest("No file uploaded")
-
-    # Save file
-    upload_date = datetime.datetime.now()
-    file_name_path = Path(name)
-    tmp_file_prefix = upload_date.strftime("%Y%m%d-%H%M%S") + "-" + file_name_path.stem
-
-    match file_name_path.suffix.lower():
-        case ".xml":
-            suffix = ".xmlocel"
-        case ".json":
-            suffix = ".jsonocel"
-        case _:
-            suffix = file_name_path.suffix.lower()
-
-    if suffix not in SUPPORTED_FILE_TYPES:
-        raise BadRequest(
-            f"Unsupported file type: {file_name_path.suffix}. Supported types are: {', '.join(SUPPORTED_FILE_TYPES)}"
-        )
-    try:
-        with NamedTemporaryFile(
-            delete=False,
-            prefix=name,
-            suffix=suffix,
-        ) as tmp:
-            shutil.copyfileobj(file.file, tmp)
-            tmp_path = Path(tmp.name)
-    except Exception as err:
-        raise err
-    finally:
-        file.file.close()
-
-    import_ocel_task(
-        session=session,
-        path=tmp_path,
-        upload_date=upload_date,
-        name=tmp_file_prefix,
-        suffix=suffix,
-        metadata={"file_name": tmp_file_prefix, "upload_date": upload_date.isoformat()},
-    )
-
-    response.status_code = 200
-
-    return response
-
-
-@app.get(
-    "/ocel/default", summary="Get default OCEL metadata", operation_id="getDefaultOcel"
-)
-def default_ocels(
-    only_latest_versions: bool = True,
-    only_preloaded: bool = False,
-) -> list[DefaultOCEL]:
-    filtered = filter_default_ocels(
-        exclude_hidden=True,
-        only_latest_versions=only_latest_versions,
-        only_preloaded=only_preloaded,
-    )
-    return filtered
-
-
-@app.post(
-    "/import-default", summary="Import default OCEL", operation_id="importDefaultOcel"
-)
-def import_default_ocel(
-    response: Response,
-    session: ApiSession,
-    key: str = Query(
-        description="Default OCEL key",
-        examples=DEFAULT_OCEL_KEYS,
-    ),
-    version: str | None = Query(
-        default=None,
-        description="Dataset version (optional)",
-        examples=["1.0"],
-    ),
-) -> Response:
-    default_ocel = get_default_ocel(key=key, version=version)
-    if default_ocel is None:
-        raise NotFound("The given default OCEL was not found")
-
-    # Load OCEL
-    ocel = default_ocel.get_ocel_copy(use_abbreviations=False)
-
-    session.add_ocel(ocel)
-    response.status_code = 200
-
-    return response
-
-
-# endregion
-
-# ----- DOWNLOAD / EXPORT ------------------------------------------------------------------------------------------
-# region
-
-
-@app.get("/download", summary="Download OCEL including app state")
-def download_ocel(
-    ocel: ApiOcel,
-    ext: Optional[Literal[".xml", ".json", ".sqlite"]],
-) -> TempFileResponse:
-    name = ocel.meta["fileName"]
-    tmp_file_prefix = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + name
-    file_response = TempFileResponse(
-        prefix=tmp_file_prefix, suffix=ext, filename=name + (ext or ".sqlite")
-    )
-
-    ocel.write_ocel(file_response.tmp_path, ext)
-
-    return file_response
-
-
-# endregion
 
 
 def post_init_tasks():

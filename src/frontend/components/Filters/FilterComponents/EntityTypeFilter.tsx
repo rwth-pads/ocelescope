@@ -1,4 +1,4 @@
-import { useEventCounts, useObjectCount } from "@/api/fastapi/info/info";
+import { useEventCounts, useObjectCount } from "@/api/fastapi/ocels/ocels";
 import { MultiSelect, Stack } from "@mantine/core";
 import BarChartSelect from "@/components/Charts/BarChartSelect";
 import { memo, useMemo } from "react";

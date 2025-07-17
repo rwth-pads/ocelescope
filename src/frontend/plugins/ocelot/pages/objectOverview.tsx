@@ -2,7 +2,7 @@ import {
   useO2o,
   useObjectAttributes,
   useObjectCount,
-} from "@/api/fastapi/info/info";
+} from "@/api/fastapi/ocels/ocels";
 import Graph, { NodeComponents } from "@/components/Graph";
 import { Group, Input, SegmentedControl, Stack, Text } from "@mantine/core";
 import { useMemo, useState } from "react";

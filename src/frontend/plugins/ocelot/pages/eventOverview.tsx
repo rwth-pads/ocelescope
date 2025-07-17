@@ -2,7 +2,7 @@ import {
   useE2o,
   useEventAttributes,
   useEventCounts,
-} from "@/api/fastapi/info/info";
+} from "@/api/fastapi/ocels/ocels";
 import { Input, LoadingOverlay, Stack } from "@mantine/core";
 import { SearchIcon } from "lucide-react";
 import { useDebouncedState } from "@mantine/hooks";

@@ -1,6 +1,6 @@
-import { useGetFilters, useSetFilters } from "@/api/fastapi/filter/filter";
+import { useGetFilters, useSetFilters } from "@/api/fastapi/ocels/ocels";
 import FilterPipelineForm from "@/components/Filters";
-import { Button, Container, LoadingOverlay, Title } from "@mantine/core";
+import { LoadingOverlay } from "@mantine/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 

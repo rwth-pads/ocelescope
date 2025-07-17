@@ -1,7 +1,7 @@
 import { Paper } from "@mantine/core";
 import FileDropzone from "../Dropzone/Dropzone";
 import { FileWithPath } from "@mantine/dropzone";
-import { useAddResource } from "@/api/fastapi/resource/resource";
+import { useAddResource } from "@/api/fastapi/resources/resources";
 import { ResourceOutput } from "@/api/fastapi-schemas";
 import { showNotification } from "@mantine/notifications";
 

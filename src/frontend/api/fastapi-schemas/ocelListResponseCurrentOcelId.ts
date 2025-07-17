@@ -5,8 +5,4 @@
  * OpenAPI spec version: 0.9.12
  */
 
-export interface UploadingOCELMetadata {
-  name: string;
-  task_id: string;
-  uploaded_at: string;
-}
+export type OcelListResponseCurrentOcelId = string | null;

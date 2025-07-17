@@ -45,7 +45,7 @@ export const getGetResourcesUrl = () => {
 
   
 
-  return `http://localhost:8000/resource/`
+  return `http://localhost:8000/resources/`
 }
 
 export const getResources = async ( options?: RequestInit): Promise<ResourceOutput[]> => {
@@ -62,7 +62,7 @@ export const getResources = async ( options?: RequestInit): Promise<ResourceOutp
 
 
 export const getGetResourcesQueryKey = () => {
-    return [`http://localhost:8000/resource/`] as const;
+    return [`http://localhost:8000/resources/`] as const;
     }
 
     
@@ -140,7 +140,7 @@ export const getAddResourceUrl = () => {
 
   
 
-  return `http://localhost:8000/resource/`
+  return `http://localhost:8000/resources/`
 }
 
 export const addResource = async (resourceInput: ResourceInput, options?: RequestInit): Promise<unknown> => {
@@ -206,17 +206,17 @@ export const useAddResource = <TError = HTTPValidationError,
     /**
  * @summary Get Resource
  */
-export const getGetResourceResourceResourceIdGetUrl = (resourceId: string,) => {
+export const getGetResourceResourcesResourceIdGetUrl = (resourceId: string,) => {
 
 
   
 
-  return `http://localhost:8000/resource/${resourceId}`
+  return `http://localhost:8000/resources/${resourceId}`
 }
 
-export const getResourceResourceResourceIdGet = async (resourceId: string, options?: RequestInit): Promise<ResourceOutput> => {
+export const getResourceResourcesResourceIdGet = async (resourceId: string, options?: RequestInit): Promise<ResourceOutput> => {
   
-  return customFetch<ResourceOutput>(getGetResourceResourceResourceIdGetUrl(resourceId),
+  return customFetch<ResourceOutput>(getGetResourceResourcesResourceIdGetUrl(resourceId),
   {      
     ...options,
     method: 'GET'
@@ -227,67 +227,67 @@ export const getResourceResourceResourceIdGet = async (resourceId: string, optio
 
 
 
-export const getGetResourceResourceResourceIdGetQueryKey = (resourceId: string,) => {
-    return [`http://localhost:8000/resource/${resourceId}`] as const;
+export const getGetResourceResourcesResourceIdGetQueryKey = (resourceId: string,) => {
+    return [`http://localhost:8000/resources/${resourceId}`] as const;
     }
 
     
-export const getGetResourceResourceResourceIdGetQueryOptions = <TData = Awaited<ReturnType<typeof getResourceResourceResourceIdGet>>, TError = HTTPValidationError>(resourceId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getResourceResourceResourceIdGet>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+export const getGetResourceResourcesResourceIdGetQueryOptions = <TData = Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>, TError = HTTPValidationError>(resourceId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetResourceResourceResourceIdGetQueryKey(resourceId);
+  const queryKey =  queryOptions?.queryKey ?? getGetResourceResourcesResourceIdGetQueryKey(resourceId);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getResourceResourceResourceIdGet>>> = ({ signal }) => getResourceResourceResourceIdGet(resourceId, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>> = ({ signal }) => getResourceResourcesResourceIdGet(resourceId, { signal, ...requestOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, enabled: !!(resourceId),  staleTime: 300000,  ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getResourceResourceResourceIdGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, enabled: !!(resourceId),  staleTime: 300000,  ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetResourceResourceResourceIdGetQueryResult = NonNullable<Awaited<ReturnType<typeof getResourceResourceResourceIdGet>>>
-export type GetResourceResourceResourceIdGetQueryError = HTTPValidationError
+export type GetResourceResourcesResourceIdGetQueryResult = NonNullable<Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>>
+export type GetResourceResourcesResourceIdGetQueryError = HTTPValidationError
 
 
-export function useGetResourceResourceResourceIdGet<TData = Awaited<ReturnType<typeof getResourceResourceResourceIdGet>>, TError = HTTPValidationError>(
- resourceId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getResourceResourceResourceIdGet>>, TError, TData>> & Pick<
+export function useGetResourceResourcesResourceIdGet<TData = Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>, TError = HTTPValidationError>(
+ resourceId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getResourceResourceResourceIdGet>>,
+          Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>,
           TError,
-          Awaited<ReturnType<typeof getResourceResourceResourceIdGet>>
+          Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>
         > , 'initialData'
       >, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetResourceResourceResourceIdGet<TData = Awaited<ReturnType<typeof getResourceResourceResourceIdGet>>, TError = HTTPValidationError>(
- resourceId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getResourceResourceResourceIdGet>>, TError, TData>> & Pick<
+export function useGetResourceResourcesResourceIdGet<TData = Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>, TError = HTTPValidationError>(
+ resourceId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getResourceResourceResourceIdGet>>,
+          Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>,
           TError,
-          Awaited<ReturnType<typeof getResourceResourceResourceIdGet>>
+          Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>
         > , 'initialData'
       >, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetResourceResourceResourceIdGet<TData = Awaited<ReturnType<typeof getResourceResourceResourceIdGet>>, TError = HTTPValidationError>(
- resourceId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getResourceResourceResourceIdGet>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+export function useGetResourceResourcesResourceIdGet<TData = Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>, TError = HTTPValidationError>(
+ resourceId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get Resource
  */
 
-export function useGetResourceResourceResourceIdGet<TData = Awaited<ReturnType<typeof getResourceResourceResourceIdGet>>, TError = HTTPValidationError>(
- resourceId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getResourceResourceResourceIdGet>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+export function useGetResourceResourcesResourceIdGet<TData = Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>, TError = HTTPValidationError>(
+ resourceId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetResourceResourceResourceIdGetQueryOptions(resourceId,options)
+  const queryOptions = getGetResourceResourcesResourceIdGetQueryOptions(resourceId,options)
 
   const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -314,7 +314,7 @@ export const getUpdateResourceUrl = (resourceId: string,
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `http://localhost:8000/resource/${resourceId}?${stringifiedParams}` : `http://localhost:8000/resource/${resourceId}`
+  return stringifiedParams.length > 0 ? `http://localhost:8000/resources/${resourceId}?${stringifiedParams}` : `http://localhost:8000/resources/${resourceId}`
 }
 
 export const updateResource = async (resourceId: string,
@@ -385,7 +385,7 @@ export const getDeleteResourceUrl = (resourceId: string,) => {
 
   
 
-  return `http://localhost:8000/resource/${resourceId}`
+  return `http://localhost:8000/resources/${resourceId}`
 }
 
 export const deleteResource = async (resourceId: string, options?: RequestInit): Promise<unknown> => {
@@ -455,7 +455,7 @@ export const getDownloadResourceUrl = (resourceId: string,) => {
 
   
 
-  return `http://localhost:8000/resource/${resourceId}/download`
+  return `http://localhost:8000/resources/${resourceId}/download`
 }
 
 export const downloadResource = async (resourceId: string, options?: RequestInit): Promise<unknown> => {
@@ -472,7 +472,7 @@ export const downloadResource = async (resourceId: string, options?: RequestInit
 
 
 export const getDownloadResourceQueryKey = (resourceId: string,) => {
-    return [`http://localhost:8000/resource/${resourceId}/download`] as const;
+    return [`http://localhost:8000/resources/${resourceId}/download`] as const;
     }
 
     
