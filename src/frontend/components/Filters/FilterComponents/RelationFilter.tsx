@@ -8,7 +8,7 @@ import {
   Stack,
 } from "@mantine/core";
 import { memo, useMemo } from "react";
-import { ArrowRight, PlusIcon, X } from "lucide-react";
+import { PlusIcon, X } from "lucide-react";
 import { RelationCountSummary } from "@/api/fastapi-schemas";
 import { FilterFormType, filterTypes } from "..";
 import { useE2o, useO2o } from "@/api/fastapi/ocels/ocels";

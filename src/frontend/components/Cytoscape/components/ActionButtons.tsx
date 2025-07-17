@@ -7,7 +7,6 @@ import {
   Settings,
 } from "lucide-react";
 import { useCytoscapeContext } from "../CytoscapeContext";
-import { useQueryClient } from "@tanstack/react-query";
 
 const ActionButtons: React.FC<{
   toggleOptions?: () => void;

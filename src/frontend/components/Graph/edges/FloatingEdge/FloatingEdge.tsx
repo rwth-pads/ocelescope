@@ -4,12 +4,10 @@ import {
   Edge,
   EdgeLabelRenderer,
   EdgeProps,
-  getBezierPath,
   getStraightPath,
   useInternalNode,
 } from "@xyflow/react";
 import { getEdgeParams } from "@/components/Graph/util/getEdgeParams";
-import { getStaticPaths } from "@/pages/plugin/[[...slug]]";
 
 export type FloatingEdgeType = Edge<
   {

@@ -26,6 +26,12 @@ repos:
       - id: biome-format
         args: ["--config-path", "src/frontend/"]
         additional_dependencies: ["@biomejs/biome@1.9.4"]
+  - repo: https://github.com/biomejs/pre-commit
+    rev: "v0.6.1"  # Use the sha / tag you want to point at
+    hooks:
+      - id: biome-lint
+        args: ["--config-path", "src/frontend/"]
+        additional_dependencies: ["@biomejs/biome@1.9.4"]
   - repo: local
     hooks:
       - id: generate-openapi

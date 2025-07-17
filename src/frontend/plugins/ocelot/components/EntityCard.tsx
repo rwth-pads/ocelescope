@@ -1,9 +1,8 @@
 import {
-  ObjectAttributes200,
   ObjectAttributes200Item,
   RelationCountSummary,
 } from "@/api/fastapi-schemas";
-import { Box, Divider, Flex, Table, Text } from "@mantine/core";
+import { Divider, Flex, Table, Text } from "@mantine/core";
 
 type EntityCardProps = {
   name: string;

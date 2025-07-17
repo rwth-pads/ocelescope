@@ -1,7 +1,6 @@
 import { useReactFlow } from "@xyflow/react";
 import ELK, { LayoutOptions, type ElkNode } from "elkjs/lib/elk.bundled.js";
 import { useCallback } from "react";
-import { NodeComponents } from "..";
 const elk = new ELK();
 
 export const useElkLayout = () => {

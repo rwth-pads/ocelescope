@@ -6,7 +6,7 @@ import {
   ReactNode,
   useEffect,
 } from "react";
-import { Modal, Loader, Text, LoadingOverlay, Box } from "@mantine/core";
+import { LoadingOverlay, Box } from "@mantine/core";
 import { useGetTask } from "@/api/fastapi/tasks/tasks";
 
 type ShowTaskModalArgs = {

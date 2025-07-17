@@ -32,7 +32,12 @@
     }
   },
   "linter": {
-    "enabled": false
+    "rules": {
+      "recommended": false,
+      "correctness": {
+        "noUnusedImports": "error"
+      }
+    }
   },
   "organizeImports": {
     "enabled": true

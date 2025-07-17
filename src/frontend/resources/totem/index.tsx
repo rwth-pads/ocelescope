@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { ElementDefinition, StylesheetCSS } from "cytoscape";
 import assignUniqueColors from "@/util/colors";
 import Cytoscape from "@/components/Cytoscape";
-import { ResourceViewDefinition, ResourceViewProps } from "@/types/resources";
+import { ResourceViewProps } from "@/types/resources";
 import { defineResourceView } from "@/lib/resources";
 
 const layout = {

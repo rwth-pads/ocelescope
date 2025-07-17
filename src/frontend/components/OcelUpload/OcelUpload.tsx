@@ -1,14 +1,4 @@
-import {
-  Button,
-  Container,
-  Divider,
-  LoadingOverlay,
-  Paper,
-  Stack,
-  Title,
-} from "@mantine/core";
-
-import classes from "@/styles/Import.module.css";
+import { Button, Divider, LoadingOverlay, Paper, Stack } from "@mantine/core";
 import {
   useGetDefaultOcel,
   useImportDefaultOcel,

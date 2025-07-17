@@ -1,7 +1,6 @@
 import {
   useEventAttributes,
   useObjectAttributes,
-  useObjectCount,
 } from "@/api/fastapi/ocels/ocels";
 import {
   Control,

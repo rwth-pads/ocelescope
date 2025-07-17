@@ -44,5 +44,6 @@ build-backend = "hatchling.build"
 exclude = ["drafts", "data"]
 
 [tool.ruff]
-ignore = ["E731"]
+fix = true
+lint.ignore = ["E731"]
 exclude = ["*filters/config_union.py", "*resources/__init__.py"]

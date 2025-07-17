@@ -4,7 +4,6 @@ import {
   Group,
   Text,
   UnstyledButton,
-  Collapse,
   Box,
   ScrollArea,
   Button,

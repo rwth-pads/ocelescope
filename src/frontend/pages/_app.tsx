@@ -10,7 +10,7 @@ import "@/styles/floating-flow.css";
 import { Notifications } from "@mantine/notifications";
 
 import Head from "next/head";
-import { MantineProvider, Notification } from "@mantine/core";
+import { MantineProvider } from "@mantine/core";
 import { theme } from "../theme";
 import { useState } from "react";
 
