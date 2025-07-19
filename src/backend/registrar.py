@@ -9,24 +9,21 @@ from api.extensions import OcelExtension, register_extension
 
 
 # Use direct path-based loading for safety
-plugins_path = [os.path.join(os.path.dirname(__file__), "plugins")]
+modules_path = [os.path.join(os.path.dirname(__file__), "modules")]
 extensions_path = [os.path.join(os.path.dirname(__file__), "extensions")]
 
 
-def register_plugins(app: FastAPI):
-    for _, module_name, _ in pkgutil.iter_modules(plugins_path):
+def register_modules(app: FastAPI):
+    for _, module_name, _ in pkgutil.iter_modules(modules_path):
         try:
-            mod = importlib.import_module(f"plugins.{module_name}.plugin")
+            mod = importlib.import_module(f"modules.{module_name}.module")
         except ModuleNotFoundError as e:
-            # Skip if plugin.py does not exist
-            print(f"Plugin '{module_name}' skipped: {e}")
+            print(f"Module '{module_name}' skipped: {e}")
             continue
         except Exception as e:
-            # Catch other unexpected import errors
-            print(f"Failed to load plugin '{module_name}': {e}")
+            print(f"Failed to load module '{module_name}': {e}")
             continue
 
-        # Register plugin router
         if hasattr(mod, "router"):
             router: APIRouter = mod.router
 
@@ -41,13 +38,11 @@ def register_plugins(app: FastAPI):
             tags = meta.get("tags", [module_name])
             app.include_router(mod.router, prefix=prefix, tags=tags)
 
-        # Register plugin state class for session-based caching
         if hasattr(mod, "State"):
-            setattr(mod, "_plugin_state", mod.State)
+            setattr(mod, "_module_state", mod.State)
 
-        # Store plugin metadata for inspection (optional)
         if hasattr(mod, "meta"):
-            setattr(mod, "_plugin_meta", mod.meta)
+            setattr(mod, "_module_meta", mod.meta)
 
 
 def register_extensions():

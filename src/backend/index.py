@@ -9,13 +9,12 @@ from api.middleware import ocel_access_middleware
 from api.utils import (
     custom_snake2camel,
     error_handler_server,
-    export_openapi_schema,
     verify_parameter_alias_consistency,
 )
 from ocel.default_ocel import (
     load_default_ocels,
 )
-from registrar import register_extensions, register_plugins
+from registrar import register_extensions, register_modules
 
 from fastapi import FastAPI
 from routes import routes
@@ -51,7 +50,7 @@ app.middleware("http")(ocel_access_middleware)
 # Error handler for internal server errors
 app.exception_handler(Exception)(error_handler_server)
 
-register_plugins(app)
+register_modules(app)
 register_extensions()
 
 for route in routes:
@@ -68,8 +67,6 @@ def post_init_tasks():
 
     # Generate .env.example file
     export_example_settings_as_dotenv(OceanConfig, ".env.example")
-
-    export_openapi_schema(app, "../frontend/schemas/mainBackendOpenApi.json")
 
 
 post_init_tasks()

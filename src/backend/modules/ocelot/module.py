@@ -5,11 +5,11 @@ from fastapi.params import Depends, Query
 from pandas.core.frame import DataFrame
 
 from api.dependencies import ApiOcel, ApiSession
-from api.model.cache import CachableObject
+from api.model.module import Module
 from lib.attributes import get_objects_with_object_changes
 from ocel.ocel_wrapper import OCELWrapper
-from plugins.ocelot.models import PaginatedResponse
-from plugins.ocelot.util import (
+from modules.ocelot.models import PaginatedResponse
+from modules.ocelot.util import (
     get_object_history,
     get_paginated_dataframe,
     get_sorted_table,
@@ -19,7 +19,7 @@ from util.cache import instance_lru_cache
 router = APIRouter()
 
 
-class State(CachableObject):
+class State(Module):
     # ---------------- Events ---------------- #
 
     @instance_lru_cache(make_hashable=True)
@@ -124,7 +124,7 @@ class State(CachableObject):
 
 
 def get_state(session: ApiSession):
-    return session.get_plugin_state("ocelot", State)
+    return session.get_module_state("ocelot", State)
 
 
 StateDep = Annotated[State, Depends(get_state)]

@@ -5,7 +5,7 @@ import pandas as pd
 from pandas.core.frame import DataFrame
 
 from ocel.ocel_wrapper import OCELWrapper
-from plugins.ocelot.models import ObjectChange, OcelEntity, PaginatedResponse
+from modules.ocelot.models import ObjectChange, OcelEntity, PaginatedResponse
 
 
 def get_sorted_table(

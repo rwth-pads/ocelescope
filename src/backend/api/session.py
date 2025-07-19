@@ -6,7 +6,7 @@ import uuid
 from typing import Any, Optional, Type, TypeVar, cast
 
 from api.exceptions import NotFound
-from api.model.cache import CachableObject
+from api.model.module import Module
 from api.model.tasks import TaskSummary
 from filters.config_union import FilterConfig
 from ocel.ocel_wrapper import Filtered_Ocel, OCELWrapper
@@ -14,7 +14,7 @@ from resources import Resource, ResourceUnion
 from util.tasks import Task
 
 
-T = TypeVar("T", bound=CachableObject)  # Constrain T to CachableObject
+T = TypeVar("T", bound=Module)  # Constrain T to CachableObject
 
 
 class Session:
@@ -32,7 +32,7 @@ class Session:
         self._dedupe_keys: dict[tuple, str] = {}  # dedupe key → task_id
 
         # Plugins
-        self._plugin_states: dict[str, CachableObject] = {}
+        self._module_states: dict[str, Module] = {}
 
         # Resources
         self._resources: dict[str, Resource] = {}
@@ -71,10 +71,10 @@ class Session:
             for task in self._tasks.values()
         ]
 
-    def get_plugin_state(self, key: str, cls: Type[T]) -> T:
-        if key not in self._plugin_states:
-            self._plugin_states[key] = cls()
-        return cast(T, self._plugin_states[key])
+    def get_module_state(self, key: str, cls: Type[T]) -> T:
+        if key not in self._module_states:
+            self._module_states[key] = cls()
+        return cast(T, self._module_states[key])
 
     @staticmethod
     def get(session_id: str) -> Session | None:
@@ -190,9 +190,9 @@ class Session:
     def list_resources(self) -> list[Resource]:
         return list(self._resources.values())
 
-    def invalidate_plugin_states(self):
-        for plugin_state in self._plugin_states.values():
-            plugin_state.clear_cache()
+    def invalidate_module_states(self):
+        for module_state in self._module_states.values():
+            module_state.clear_cache()
 
     def __str__(self):
         d = {

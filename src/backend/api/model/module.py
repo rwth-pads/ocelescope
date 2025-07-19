@@ -4,7 +4,7 @@ from typing import Any
 from cachetools import LRUCache
 
 
-class CachableObject:
+class Module:
     def __init__(self, *, max_cache_size: int = 128):
         self.cache = LRUCache(maxsize=max_cache_size)
         self.cache_lock = RLock()
