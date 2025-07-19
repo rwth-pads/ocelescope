@@ -11,6 +11,7 @@ import {
   Stack,
   Divider,
   ThemeIcon,
+  Collapse,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useRouter } from "next/router";
@@ -20,17 +21,18 @@ import {
   ChevronRightIcon,
   HomeIcon,
   LogOutIcon,
+  PackageIcon,
   PuzzleIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useLogout } from "@/api/fastapi/session/session";
 import { useQueryClient } from "@tanstack/react-query";
 import { TaskModalProvider } from "../TaskModal/TaskModal";
-import pluginMap from "@/lib/plugins/plugin-map";
-import { getPluginRoute } from "@/lib/plugins";
-import { PluginName, RouteName } from "@/types/plugin";
+import { getModuleRoute } from "@/lib/modules";
+import { ModuleName, ModuleRouteName } from "@/types/modules";
 import CurrentOcelMenu from "../CurrentOcelMenu/CurrentOcelMenu";
-import usePluginPath from "@/hooks/usePluginPath";
+import useModulePath from "@/hooks/useModulePath";
+import moduleMap from "@/lib/modules/module-map";
 
 const LogoutButton: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -85,10 +87,17 @@ type LinksGroupProps = {
   label: string;
   initiallyOpened?: boolean;
   links?: { label: string; link: string }[];
+  icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 };
 
-const LinksGroup: React.FC<LinksGroupProps> = ({ links, label }) => {
+const LinksGroup: React.FC<LinksGroupProps> = ({
+  links,
+  label,
+  icon: Icon,
+  initiallyOpened = false,
+}) => {
   const hasLinks = Array.isArray(links);
+  const [opened, setOpened] = useState(initiallyOpened || false);
   const items = (hasLinks ? links : []).map((link) => (
     <Text
       component={Link}
@@ -102,15 +111,31 @@ const LinksGroup: React.FC<LinksGroupProps> = ({ links, label }) => {
 
   return (
     <>
-      <UnstyledButton component={Link} href={"/"} className={classes.control}>
+      <UnstyledButton
+        onClick={() => setOpened((o) => !o)}
+        className={classes.control}
+      >
         <Group justify="space-between" gap={0} align="center">
-          <Box>{label}</Box>
+          <Box style={{ display: "flex", alignItems: "center" }}>
+            <ThemeIcon variant="transparent" size={30}>
+              {Icon ? (
+                <Icon width={18} height={18} />
+              ) : (
+                <PackageIcon size={18} />
+              )}
+            </ThemeIcon>
+            <Box ml="md">{label}</Box>
+          </Box>
           {hasLinks && (
-            <ChevronRightIcon className={classes.chevron} size={16} />
+            <ChevronRightIcon
+              className={classes.chevron}
+              size={16}
+              style={{ transform: opened ? "rotate(90deg)" : "none" }}
+            />
           )}
         </Group>
       </UnstyledButton>
-      {items}
+      {hasLinks ? <Collapse in={opened}>{items}</Collapse> : null}
     </>
   );
 };
@@ -119,7 +144,7 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
   const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(false);
 
-  const pluginRoute = usePluginPath();
+  const moduleRoute = useModulePath();
 
   return (
     <MAppShell
@@ -168,7 +193,7 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <UnstyledButton
             className={classes.control}
             component={Link}
-            href={"/plugin"}
+            href={"/plugins"}
           >
             <Group>
               <ThemeIcon variant="transparent" size={30}>
@@ -178,23 +203,24 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </Group>
           </UnstyledButton>
 
-          {pluginRoute && <Divider />}
           <ScrollArea className={classes.links} px={"md"}>
-            {pluginRoute && (
-              <div className={classes.linksInner}>
-                <LinksGroup
-                  label={pluginMap[pluginRoute.name].label}
-                  links={Object.values(pluginMap[pluginRoute.name].routes).map(
-                    ({ label, name }) => ({
+            {Object.values(moduleMap).map(
+              ({ label, name: moduleName, routes, icon }) => (
+                <div className={classes.linksInner}>
+                  <LinksGroup
+                    label={label}
+                    links={Object.values(routes).map(({ label, name }) => ({
                       label,
-                      link: getPluginRoute({
-                        name: pluginRoute.name as PluginName,
-                        route: name as RouteName<PluginName>,
+                      link: getModuleRoute({
+                        name: moduleName as ModuleName,
+                        route: name as ModuleRouteName<ModuleName>,
                       }),
-                    }),
-                  )}
-                />
-              </div>
+                    }))}
+                    icon={icon}
+                    initiallyOpened={moduleRoute?.name === moduleName}
+                  />
+                </div>
+              ),
             )}
           </ScrollArea>
           <Divider />

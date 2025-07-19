@@ -11,7 +11,7 @@ import EntityCard from "../components/EntityCard";
 import EntityOverview from "../components/EntityOverview";
 import { SearchIcon } from "lucide-react";
 import { useDebouncedState } from "@mantine/hooks";
-import { defineRoute } from "@/lib/plugins";
+import { defineModuleRoute } from "@/lib/modules";
 
 const ObjectGraph = () => {
   const { data: o2o } = useO2o();
@@ -98,7 +98,7 @@ const ObjectGraph = () => {
   );
 };
 
-export default defineRoute({
+export default defineModuleRoute({
   component: ObjectGraph,
   label: "Object Overview",
   name: "objectOverview",

@@ -1,9 +1,9 @@
 import EntityPage from "../components/EntityPage";
-import { defineRoute } from "@/lib/plugins";
+import { defineModuleRoute } from "@/lib/modules";
 
 const EventPage = () => <EntityPage type="events" />;
 
-export default defineRoute({
+export default defineModuleRoute({
   component: EventPage,
   label: "Events",
   name: "events",

@@ -2,31 +2,31 @@ import fs from "fs";
 import path from "path";
 import { Project, SyntaxKind } from "ts-morph";
 
-const PLUGIN_DIR = path.resolve(__dirname, "../plugins");
-const OUT_FILE = path.resolve(__dirname, "../lib/plugins/plugin-map.ts");
+const MODULES_DIR = path.resolve(__dirname, "../modules/");
+const OUT_FILE = path.resolve(__dirname, "../lib/modules/module-map.ts");
 
 const project = new Project({
   tsConfigFilePath: path.resolve(__dirname, "../tsconfig.json"),
 });
 
-const pluginFolders = fs
-  .readdirSync(PLUGIN_DIR)
-  .filter((name) => fs.statSync(path.join(PLUGIN_DIR, name)).isDirectory());
+const moduleFolders = fs
+  .readdirSync(MODULES_DIR)
+  .filter((name) => fs.statSync(path.join(MODULES_DIR, name)).isDirectory());
 
-let imports: string[] = [];
-let pluginEntries: string[] = [];
+const imports: string[] = [];
+const moduleEntries: string[] = [];
 
 let importCounter = 0;
 
-for (const folderName of pluginFolders) {
-  const pluginPath = `@/plugins/${folderName}`;
-  const pluginIndexPath = path.join(PLUGIN_DIR, folderName, "index.ts");
-  const indexSource = project.addSourceFileAtPathIfExists(pluginIndexPath);
+for (const folderName of moduleFolders) {
+  const modulePath = `@/modules/${folderName}`;
+  const moduleIndexPath = path.join(MODULES_DIR, folderName, "index.ts");
+  const indexSource = project.addSourceFileAtPathIfExists(moduleIndexPath);
 
-  const pluginVar = `${folderName}_plugin`;
-  imports.push(`import ${pluginVar} from '${pluginPath}';`);
+  const moduleVar = `${folderName}_module`;
+  imports.push(`import ${moduleVar} from '${modulePath}';`);
 
-  let pluginName = folderName;
+  let moduleName = folderName;
 
   if (indexSource) {
     const defaultExportSymbol = indexSource.getDefaultExportSymbol();
@@ -42,14 +42,14 @@ for (const folderName of pluginFolders) {
           SyntaxKind.StringLiteral,
         );
         if (initializer) {
-          pluginName = initializer.getLiteralValue();
+          moduleName = initializer.getLiteralValue();
         }
       }
     }
   }
 
   // Collect route definitions from pages/
-  const routeFolder = path.join(PLUGIN_DIR, folderName, "pages");
+  const routeFolder = path.join(MODULES_DIR, folderName, "pages");
   const routeDefs: string[] = [];
 
   if (fs.existsSync(routeFolder)) {
@@ -76,7 +76,7 @@ for (const folderName of pluginFolders) {
 
         if (routeName) {
           const importVar = `R${importCounter++}`;
-          const importPath = `${pluginPath}/pages/${file.replace(/\.(ts|tsx)$/, "")}`;
+          const importPath = `${modulePath}/pages/${file.replace(/\.(ts|tsx)$/, "")}`;
           imports.push(`import ${importVar} from '${importPath}';`);
           routeDefs.push(`    "${routeName}": ${importVar}`);
         }
@@ -84,8 +84,8 @@ for (const folderName of pluginFolders) {
     }
   }
 
-  pluginEntries.push(`  "${pluginName}": {
-    ...${pluginVar},
+  moduleEntries.push(`  "${moduleName}": {
+    ...${moduleVar},
     routes: {
 ${routeDefs.join(",\n")}
     }
@@ -95,12 +95,12 @@ ${routeDefs.join(",\n")}
 const output = `// 🚨 AUTO-GENERATED FILE — DO NOT EDIT
 ${imports.join("\n")}
 
-const pluginMap= {
-${pluginEntries.join(",\n")}
+const moduleMap= {
+${moduleEntries.join(",\n")}
 } as const;
 
-export default pluginMap;
+export default moduleMap;
 `;
 
 fs.writeFileSync(OUT_FILE, output);
-console.log("✅ plugin-map.ts generated!");
+console.log("✅ module-map.ts generated!");

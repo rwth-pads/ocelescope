@@ -7,7 +7,7 @@ import { Input, LoadingOverlay, Stack } from "@mantine/core";
 import { SearchIcon } from "lucide-react";
 import { useDebouncedState } from "@mantine/hooks";
 import EntityOverview from "../components/EntityOverview";
-import { defineRoute } from "@/lib/plugins";
+import { defineModuleRoute } from "@/lib/modules";
 
 const EventOverview = () => {
   const { data: eventsAttributes = {} } = useEventAttributes();
@@ -38,7 +38,7 @@ const EventOverview = () => {
   );
 };
 
-export default defineRoute({
+export default defineModuleRoute({
   component: EventOverview,
   label: "Event Overview",
   name: "eventOverview",
