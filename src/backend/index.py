@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
 
 from api.config import OceanConfig
 from api.docs import init_custom_docs
@@ -8,18 +9,18 @@ from api.middleware import ocel_access_middleware
 from api.utils import (
     custom_snake2camel,
     error_handler_server,
-    export_openapi_schema,
     verify_parameter_alias_consistency,
 )
 from ocel.default_ocel import (
     load_default_ocels,
 )
-from plugin_loader import register_extensions, register_plugins
+from registrar import register_extensions, register_modules
 
 from fastapi import FastAPI
 from routes import routes
 from util.misc import export_example_settings_as_dotenv
 from version import __version__
+from api.logger import LOGGER_CONFIG
 
 """
 In this file, all API routes of the OCEAn application are defined.
@@ -49,7 +50,7 @@ app.middleware("http")(ocel_access_middleware)
 # Error handler for internal server errors
 app.exception_handler(Exception)(error_handler_server)
 
-register_plugins(app)
+register_modules(app)
 register_extensions()
 
 for route in routes:
@@ -71,4 +72,10 @@ def post_init_tasks():
 post_init_tasks()
 
 if __name__ == "__main__":
-    export_openapi_schema(app, "../frontend/schemas/mainBackendOpenApi.json")
+    uvicorn.run(
+        "index:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=False,
+        log_config=LOGGER_CONFIG,
+    )
