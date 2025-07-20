@@ -13,8 +13,9 @@ from api.model.base import ApiBaseModel
 from api.session import Session
 from ocel.ocel_wrapper import OCELWrapper
 
-data = json.load(open(config.DATA_DIR / "event_logs.json", "r"))
-OCEL_BASE_PATH = config.DATA_DIR / data["base_path"]
+OCEL_BASE_PATH = None
+DEFAULT_OCELS: list["DefaultOCEL"] = []
+DEFAULT_OCEL_KEYS: list[str] = []
 
 
 class DefaultOCEL(ApiBaseModel):
@@ -31,17 +32,18 @@ class DefaultOCEL(ApiBaseModel):
 
     @property
     def path(self) -> FilePath:
+        if not OCEL_BASE_PATH:
+            raise ValueError("OCEL_BASE_PATH is not defined.")
         return OCEL_BASE_PATH / self.file
 
     @cached_property
     def default_app_state(self) -> dict[str, Any] | None:
-        """Reads app state from a .json file named like '<OCEL>.meta.json'.
-        Deprecated, integrate app state into .sqlite ocean_app_table instead."""
+        if not OCEL_BASE_PATH:
+            return None
         json_path = OCEL_BASE_PATH / (self.file + ".meta.json")
         if not os.path.exists(json_path):
             return None
-        data = json.load(open(json_path, "r", encoding="utf8"))
-        return data
+        return json.load(open(json_path, "r", encoding="utf8"))
 
     def get_ocel_copy(self, use_abbreviations: bool = False) -> OCELWrapper:
         """Reads the OCEL from the given file (if not done yet), and returns a copy of the stored OCEL object."""
@@ -65,23 +67,41 @@ class DefaultOCEL(ApiBaseModel):
         object.__setattr__(self, "__ocel", ocel)
 
 
-# Create objects
-DEFAULT_OCELS = [
-    DefaultOCEL(**event_log)
-    for event_log in sorted(
-        data["event_logs"],
-        key=lambda d: (
-            d["key"],
-            d.get("version", "1.0"),
-        ),
-    )
-]
-del data
+# Try to load event_logs.json only if everything is present
+try:
+    if config.DATA_DIR:
+        event_log_path = (config.DATA_DIR / "event_logs.json").resolve(strict=False)
+        if event_log_path.exists():
+            with event_log_path.open("r", encoding="utf-8") as f:
+                data = json.load(f)
 
-DEFAULT_OCEL_KEYS = util.unique([d.key for d in DEFAULT_OCELS])
-logger.info(
-    f"{len(DEFAULT_OCELS)} OCELs available (keys: {util.set_str(DEFAULT_OCEL_KEYS)})"
-)
+            if "base_path" in data:
+                OCEL_BASE_PATH = (config.DATA_DIR / data["base_path"]).resolve(
+                    strict=False
+                )
+
+                # Create DefaultOCEL instances
+                DEFAULT_OCELS = [
+                    DefaultOCEL(**event_log)
+                    for event_log in sorted(
+                        data.get("event_logs", []),
+                        key=lambda d: (d["key"], d.get("version", "1.0")),
+                    )
+                ]
+                DEFAULT_OCEL_KEYS = util.unique([d.key for d in DEFAULT_OCELS])
+
+                logger.info(
+                    f"{len(DEFAULT_OCELS)} OCELs available (keys: {util.set_str(DEFAULT_OCEL_KEYS)})"
+                )
+            else:
+                logger.warning("Missing 'base_path' in event_logs.json.")
+        else:
+            logger.info("event_logs.json not found — skipping OCEL loading.")
+    else:
+        logger.info("DATA_DIR not set — skipping OCEL loading.")
+
+except Exception as e:
+    logger.error(f"Error loading OCEL configuration: {e}")
 
 
 def filter_default_ocels(

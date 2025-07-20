@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import DirectoryPath, Field
 from pydantic_settings import BaseSettings
 
@@ -23,8 +24,8 @@ class OceanConfig(BaseSettings):
         description="When set to True, passes details of internal errors via the API. Always set to False in production environment.",
     )
 
-    DATA_DIR: DirectoryPath = Field(
-        default="./data",
+    DATA_DIR: Optional[DirectoryPath] = Field(
+        default=None,
         description="Path to the data directory, relative to `main.py`",
     )
 
