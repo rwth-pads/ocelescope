@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
-from api.config import OceanConfig
+from api.config import config
 from api.docs import init_custom_docs
 from api.middleware import ocel_access_middleware
 from api.utils import (
@@ -18,7 +18,6 @@ from registrar import register_extensions, register_modules
 
 from fastapi import FastAPI
 from routes import routes
-from util.misc import export_example_settings_as_dotenv
 from version import __version__
 from api.logger import LOGGER_CONFIG
 
@@ -37,7 +36,9 @@ app = FastAPI(
     redoc_url=None,
     debug=True,
 )
-origins = ["http://localhost:3000"]  # Frontend origin
+
+origins = [config.FRONTEND_URL]  # Frontend origin
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -64,9 +65,6 @@ def post_init_tasks():
 
     # Verify parameter aliases are consistent
     verify_parameter_alias_consistency(app, custom_snake2camel)
-
-    # Generate .env.example file
-    export_example_settings_as_dotenv(OceanConfig, ".env.example")
 
 
 post_init_tasks()

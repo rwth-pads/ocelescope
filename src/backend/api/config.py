@@ -1,4 +1,4 @@
-from pydantic import DirectoryPath, Field, SecretStr
+from pydantic import DirectoryPath, Field
 from pydantic_settings import BaseSettings
 
 """
@@ -23,25 +23,9 @@ class OceanConfig(BaseSettings):
         description="When set to True, passes details of internal errors via the API. Always set to False in production environment.",
     )
 
-    CACHED_TASK_TIMEOUT: float = Field(
-        default=0.5,
-        description="Number of seconds to wait for a supposedly cached task to be finished to then return a non-task object",
-    )
-
     DATA_DIR: DirectoryPath = Field(
         default="./data",
         description="Path to the data directory, relative to `main.py`",
-    )
-
-    CURRENCY_EXCHANGE_DATE: str = Field(
-        default="20241005",
-        description="Reference date for currency exchange rates, determines what pint context to use.\nThe rates can be updated, and a new context generated, using the notebook at `data/units/currency_exchange_rates.ipynb`.",
-        pattern=r"^\d{8}$",
-    )
-
-    CLIMATIQ_API_KEY: SecretStr = Field(
-        description="Climatiq API key. TODO pass the key set by the user via the API and remove this field.",
-        default="",
     )
 
     class Config:
