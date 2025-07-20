@@ -23,22 +23,3 @@ services:
         # Rebuild the image if dependencies change by checking uv.lock
         - action: rebuild
           path:  ./src/backend/uv.lock
-  frontend:
-      build:
-        context: ./src/frontend
-        dockerfile: dev.Dockerfile  # Optional: or default to Dockerfile
-      ports:
-        - "3000:3000"
-      environment:
-        - NODE_ENV=development
-      develop:
-        watch:
-          - action: sync
-            path: ./src/frontend
-            target: /app
-            ignore:
-              - node_modules/
-              - .next/
-          - action: rebuild
-            path: ./src/frontend/package-lock.json
-
