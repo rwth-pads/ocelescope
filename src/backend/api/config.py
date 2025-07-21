@@ -29,6 +29,10 @@ class OceanConfig(BaseSettings):
         description="Path to the data directory, relative to `main.py`",
     )
 
+    PLUGIN_DIR: Optional[DirectoryPath] = Field(
+        default=None, description="Path to the directory, where plugins are stored"
+    )
+
     class Config:
         env_file = ".env"
 
