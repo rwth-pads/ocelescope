@@ -5,4 +5,4 @@
  * OpenAPI spec version: 0.9.12
  */
 
-export type TaskResponseObjectCentricPetriNetTaskId = string | null;
+export type PluginOCELDescription = string | null;

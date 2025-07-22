@@ -5,4 +5,4 @@
  * OpenAPI spec version: 0.9.12
  */
 
-export type TaskResponseObjectCentricDirectlyFollowsGraphTaskId = string | null;
+export type PluginMetadataDescription = string | null;

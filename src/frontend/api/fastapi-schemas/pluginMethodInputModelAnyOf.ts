@@ -5,7 +5,4 @@
  * OpenAPI spec version: 0.9.12
  */
 
-export type BertiOcdfgParams = {
-ocel_id?: string | null;
-ocel_version?: 'original' | 'filtered' | null;
-};
+export type PluginMethodInputModelAnyOf = { [key: string]: unknown };

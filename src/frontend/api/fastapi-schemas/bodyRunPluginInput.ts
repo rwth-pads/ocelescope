@@ -5,4 +5,4 @@
  * OpenAPI spec version: 0.9.12
  */
 
-export type TaskResponseTotemError = string | null;
+export type BodyRunPluginInput = { [key: string]: unknown };

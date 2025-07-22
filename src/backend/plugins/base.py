@@ -12,11 +12,12 @@ from typing import (
 )
 from pydantic import BaseModel
 from ocel.ocel_wrapper import OCELWrapper
+from util.tasks import task
 
 
 class MethodInfo(TypedDict):
-    input_model: Type[BaseModel]
-    output_model: Type[BaseModel]
+    input_model: Optional[Type[BaseModel]]
+    output_model: Optional[Type[BaseModel]]
     method: Callable
 
 
@@ -33,6 +34,8 @@ class PluginOCEL(BaseModel):
 
 
 class PluginMethod(BaseModel):
+    name: str
+    label: str
     description: Optional[str] = None
     tags: Optional[list[str]] = None
     input_model: Optional[dict] = None
@@ -65,13 +68,14 @@ class BasePlugin:
             input_model = hints.get("input")
 
             if not (
-                isinstance(input_model, type) and issubclass(input_model, BaseModel)
+                (isinstance(input_model, type) and issubclass(input_model, BaseModel))
+                or (input_model is None)
             ):
                 continue
 
             ocel_fields: list[PluginOCEL] = []
 
-            for name, hint in hints.items():
+            for ocel_name, hint in hints.items():
                 annotations = []
                 if get_origin(hint) is Annotated:
                     base_type, *annotations = get_args(hint)
@@ -92,15 +96,23 @@ class BasePlugin:
                         description = annotation.description
 
                 ocel_fields.append(
-                    PluginOCEL(name=name, label=label, description=description)
+                    PluginOCEL(
+                        name=ocel_name,
+                        label=label or ocel_name,
+                        description=description,
+                    )
                 )
 
             method_meta = getattr(method, "_plugin_method_metadata", {})
 
             methods_info[name] = PluginMethod(
+                name=name,
+                label=method_meta.get("label", name),
                 description=method_meta.get("description"),
                 tags=method_meta.get("tags", []),
-                input_model=input_model.model_json_schema(),
+                input_model=input_model.model_json_schema()
+                if input_model is not None
+                else None,
                 input_ocels=ocel_fields,
             )
 
@@ -114,7 +126,7 @@ class BasePlugin:
         )
 
     @classmethod
-    def get_method_map(cls) -> dict[str, MethodInfo]:
+    def get_method_map(cls, plugin_id: str) -> dict[str, MethodInfo]:
         method_map = {}
         for name, method in inspect.getmembers(cls, predicate=inspect.isfunction):
             if not hasattr(method, "_plugin_method_metadata"):
@@ -125,16 +137,24 @@ class BasePlugin:
             input_model = hints.get("input")
             output_model = hints.get("return")
 
-            if (
-                input_model
-                and output_model
-                and issubclass(input_model, BaseModel)
-                and issubclass(output_model, BaseModel)
-            ):
-                method_map[name] = MethodInfo(
-                    input_model=input_model,
-                    output_model=output_model,
-                    method=getattr(cls(), name),
-                )
+            # Wrap method with task decorator
+            task_name = f"{plugin_id}:{name}"
+            original_method = getattr(cls(), name)
+
+            task_wrapped = task(
+                name=task_name,
+                dedupe=True,
+                run_once=False,
+            )(original_method)
+
+            method_map[name] = MethodInfo(
+                input_model=input_model
+                if input_model is not None and issubclass(input_model, BaseModel)
+                else None,
+                output_model=output_model
+                if output_model is not None and issubclass(output_model, BaseModel)
+                else None,
+                method=task_wrapped,
+            )
 
         return method_map

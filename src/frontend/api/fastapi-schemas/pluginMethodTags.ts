@@ -4,6 +4,5 @@
  * OCEAn
  * OpenAPI spec version: 0.9.12
  */
-import type { Totem } from './totem';
 
-export type TaskResponseTotemResult = Totem | null;
+export type PluginMethodTags = string[] | null;

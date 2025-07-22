@@ -1,3 +1,4 @@
+import inspect
 import threading
 import functools
 from enum import Enum
@@ -39,12 +40,21 @@ class Task:
     def run(self):
         self.state = TaskState.STARTED
         try:
-            self.result = self.fn(
-                *self.args,
-                session=self.session,
-                stop_event=self.stop_event,
-                **self.kwargs,
-            )
+            sig = inspect.signature(self.fn)
+            accepted_params = sig.parameters
+
+            # Include session and stop_event only if explicitly declared
+            safe_kwargs = {
+                k: v
+                for k, v in {
+                    **self.kwargs,
+                    "session": self.session,
+                    "stop_event": self.stop_event,
+                }.items()
+                if k in accepted_params
+            }
+
+            self.result = self.fn(*self.args, **safe_kwargs)
             self.state = TaskState.SUCCESS
         except Exception:
             self.state = TaskState.FAILURE

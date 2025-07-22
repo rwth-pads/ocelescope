@@ -13,12 +13,14 @@ def plugin_metadata(name: str, version: str, description: Optional[str] = None):
     return decorator
 
 
-def plugin_method(description: str = "", tags: Optional[list[str]] = None):
+def plugin_method(
+    label: Optional[str], description: str = "", tags: Optional[list[str]] = None
+):
     def decorator(func: Callable):
         setattr(
             func,
             "_plugin_method_metadata",
-            {"description": description, "tags": tags or []},
+            {label: label, "description": description, "tags": tags or []},
         )
 
         return func

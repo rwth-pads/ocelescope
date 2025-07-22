@@ -2,10 +2,10 @@ import sys
 import importlib
 from pathlib import Path
 from types import ModuleType
-from typing import List
+from uuid import uuid4
 from .base import BasePlugin
 
-loaded_plugins: List[BasePlugin] = []
+loaded_plugins: dict[str, BasePlugin] = {}
 
 
 def load_plugins_from_folder(folder: Path):
@@ -36,4 +36,4 @@ def _register_plugins_from_module(module: ModuleType):
             and attr is not BasePlugin
         ):
             instance = attr()
-            loaded_plugins.append(instance)
+            loaded_plugins[str(uuid4())] = instance

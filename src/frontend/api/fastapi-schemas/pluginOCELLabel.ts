@@ -5,4 +5,4 @@
  * OpenAPI spec version: 0.9.12
  */
 
-export type TaskResponseObjectCentricDirectlyFollowsGraphError = string | null;
+export type PluginOCELLabel = string | null;

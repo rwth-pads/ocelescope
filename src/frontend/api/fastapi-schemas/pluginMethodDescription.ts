@@ -5,4 +5,4 @@
  * OpenAPI spec version: 0.9.12
  */
 
-export type TaskResponseTotemTaskId = string | null;
+export type PluginMethodDescription = string | null;

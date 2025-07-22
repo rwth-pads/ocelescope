@@ -5,4 +5,4 @@
  * OpenAPI spec version: 0.9.12
  */
 
-export type TaskResponseObjectCentricPetriNetError = string | null;
+export type BodyRunPluginInputOcels = {[key: string]: string};
