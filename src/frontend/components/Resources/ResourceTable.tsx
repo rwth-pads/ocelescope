@@ -61,7 +61,7 @@ const ResourceTable = () => {
         size={"auto"}
       >
         <Box w={700} h={700}>
-          {openedResource && <ResourceView resource={openedResource.entity} />}
+          {openedResource && <ResourceView id={openedResource.id} />}
         </Box>
       </Modal>
       <Modal

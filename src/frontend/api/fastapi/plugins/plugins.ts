@@ -145,9 +145,9 @@ export const getRunPluginUrl = (id: string,
 
 export const runPlugin = async (id: string,
     method: string,
-    bodyRunPlugin: BodyRunPlugin, options?: RequestInit): Promise<unknown> => {
+    bodyRunPlugin: BodyRunPlugin, options?: RequestInit): Promise<string> => {
   
-  return customFetch<unknown>(getRunPluginUrl(id,method),
+  return customFetch<string>(getRunPluginUrl(id,method),
   {      
     ...options,
     method: 'POST',

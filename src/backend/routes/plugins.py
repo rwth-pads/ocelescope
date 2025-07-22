@@ -20,7 +20,7 @@ def run_plugin(
     input: dict[str, Any],
     input_ocels: dict[str, str],
     session: ApiSession,
-):
+) -> str:
     method_map = loaded_plugins[id].get_method_map(id)
     runner = method_map[method]
     if runner is None:

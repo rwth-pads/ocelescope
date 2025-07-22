@@ -35,7 +35,7 @@ const useWaitForTask = ({ taskId, onSuccess }: UseTaskWaiterProps) => {
     }
   }, [task, onSuccess]);
 
-  return { isTaskRunning };
+  return { isTaskRunning, task };
 };
 
 export default useWaitForTask;

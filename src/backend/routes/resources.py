@@ -33,7 +33,7 @@ def add_resource(session: ApiSession, resource: Resource):
     return resource.id
 
 
-@resources_router.get("/{resource_id}")
+@resources_router.get("/{resource_id}", operation_id="getResource")
 def get_resource(resource_id: str, session: ApiSession) -> Resource:
     return session.get_resource(resource_id)
 

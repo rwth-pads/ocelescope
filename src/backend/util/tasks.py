@@ -3,7 +3,12 @@ import functools
 from enum import Enum
 import uuid
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional, cast
+
+from pydantic.main import BaseModel
+
+from ocel.ocel_wrapper import OCELWrapper
+from resources import ResourceUnion, ResourceBase
 
 if TYPE_CHECKING:
     from api.session import Session
@@ -18,6 +23,11 @@ class TaskState(str, Enum):
     CANCELLED = "CANCELLED"
 
 
+class TaskResult(BaseModel):
+    ocel_ids: list[str]
+    output_ids: list[str]
+
+
 class Task:
     def __init__(self, id, name, fn, args, kwargs, session, metadata=None):
         self.id = id
@@ -29,7 +39,7 @@ class Task:
         self.metadata = metadata or {}
         self.state = TaskState.PENDING
         self.thread = None
-        self.result = None
+        self.result: Optional[TaskResult] = None
         self.stop_event = threading.Event()
 
     def start(self):
@@ -39,12 +49,24 @@ class Task:
     def run(self):
         self.state = TaskState.STARTED
         try:
-            self.result = self.fn(
+            result = self.fn(
                 *self.args,
                 session=self.session,
                 stop_event=self.stop_event,
                 **self.kwargs,
             )
+            result_items = result if isinstance(result, (list, tuple)) else [result]
+            self.result = TaskResult(**{"ocel_ids": [], "output_ids": []})
+            for result in result_items:
+                if isinstance(result, OCELWrapper):
+                    self.result.ocel_ids.append(self.session.add_ocel(result))
+                if isinstance(result, ResourceBase):
+                    self.result.output_ids.append(
+                        self.session.add_resource(
+                            entity=cast(ResourceUnion, result), source="plugin"
+                        ).id
+                    )
+
             self.state = TaskState.SUCCESS
         except Exception:
             self.state = TaskState.FAILURE

@@ -65,7 +65,7 @@ class Session:
                 key=task.id,
                 name=task.name,
                 state=task.state,
-                has_result=task.result is not None,
+                result=task.result,
                 metadata=task.metadata,
             )
             for task in self._tasks.values()

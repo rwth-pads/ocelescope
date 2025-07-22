@@ -206,7 +206,7 @@ export const useAddResource = <TError = HTTPValidationError,
     /**
  * @summary Get Resource
  */
-export const getGetResourceResourcesResourceIdGetUrl = (resourceId: string,) => {
+export const getGetResourceUrl = (resourceId: string,) => {
 
 
   
@@ -214,9 +214,9 @@ export const getGetResourceResourcesResourceIdGetUrl = (resourceId: string,) => 
   return `http://localhost:8000/resources/${resourceId}`
 }
 
-export const getResourceResourcesResourceIdGet = async (resourceId: string, options?: RequestInit): Promise<ResourceOutput> => {
+export const getResource = async (resourceId: string, options?: RequestInit): Promise<ResourceOutput> => {
   
-  return customFetch<ResourceOutput>(getGetResourceResourcesResourceIdGetUrl(resourceId),
+  return customFetch<ResourceOutput>(getGetResourceUrl(resourceId),
   {      
     ...options,
     method: 'GET'
@@ -227,67 +227,67 @@ export const getResourceResourcesResourceIdGet = async (resourceId: string, opti
 
 
 
-export const getGetResourceResourcesResourceIdGetQueryKey = (resourceId: string,) => {
+export const getGetResourceQueryKey = (resourceId: string,) => {
     return [`http://localhost:8000/resources/${resourceId}`] as const;
     }
 
     
-export const getGetResourceResourcesResourceIdGetQueryOptions = <TData = Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>, TError = HTTPValidationError>(resourceId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+export const getGetResourceQueryOptions = <TData = Awaited<ReturnType<typeof getResource>>, TError = HTTPValidationError>(resourceId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getResource>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetResourceResourcesResourceIdGetQueryKey(resourceId);
+  const queryKey =  queryOptions?.queryKey ?? getGetResourceQueryKey(resourceId);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>> = ({ signal }) => getResourceResourcesResourceIdGet(resourceId, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getResource>>> = ({ signal }) => getResource(resourceId, { signal, ...requestOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, enabled: !!(resourceId),  staleTime: 300000,  ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, enabled: !!(resourceId),  staleTime: 300000,  ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getResource>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetResourceResourcesResourceIdGetQueryResult = NonNullable<Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>>
-export type GetResourceResourcesResourceIdGetQueryError = HTTPValidationError
+export type GetResourceQueryResult = NonNullable<Awaited<ReturnType<typeof getResource>>>
+export type GetResourceQueryError = HTTPValidationError
 
 
-export function useGetResourceResourcesResourceIdGet<TData = Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>, TError = HTTPValidationError>(
- resourceId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>, TError, TData>> & Pick<
+export function useGetResource<TData = Awaited<ReturnType<typeof getResource>>, TError = HTTPValidationError>(
+ resourceId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getResource>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>,
+          Awaited<ReturnType<typeof getResource>>,
           TError,
-          Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>
+          Awaited<ReturnType<typeof getResource>>
         > , 'initialData'
       >, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetResourceResourcesResourceIdGet<TData = Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>, TError = HTTPValidationError>(
- resourceId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>, TError, TData>> & Pick<
+export function useGetResource<TData = Awaited<ReturnType<typeof getResource>>, TError = HTTPValidationError>(
+ resourceId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getResource>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>,
+          Awaited<ReturnType<typeof getResource>>,
           TError,
-          Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>
+          Awaited<ReturnType<typeof getResource>>
         > , 'initialData'
       >, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetResourceResourcesResourceIdGet<TData = Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>, TError = HTTPValidationError>(
- resourceId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+export function useGetResource<TData = Awaited<ReturnType<typeof getResource>>, TError = HTTPValidationError>(
+ resourceId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getResource>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get Resource
  */
 
-export function useGetResourceResourcesResourceIdGet<TData = Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>, TError = HTTPValidationError>(
- resourceId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getResourceResourcesResourceIdGet>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+export function useGetResource<TData = Awaited<ReturnType<typeof getResource>>, TError = HTTPValidationError>(
+ resourceId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getResource>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetResourceResourcesResourceIdGetQueryOptions(resourceId,options)
+  const queryOptions = getGetResourceQueryOptions(resourceId,options)
 
   const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
