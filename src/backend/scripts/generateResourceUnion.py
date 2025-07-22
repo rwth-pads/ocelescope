@@ -63,7 +63,7 @@ from typing import Annotated, Any, Union
 from pydantic import Field
 from pydantic.main import BaseModel
 
-__all__ = [{", ".join(exports + ['"ResourceUnion"'])}]
+__all__ = [{", ".join(exports + ['"ResourceUnion"', "'Resource'"])}]
 
 ResourceUnion = Annotated[
     Union[{", ".join(class_names)}],
