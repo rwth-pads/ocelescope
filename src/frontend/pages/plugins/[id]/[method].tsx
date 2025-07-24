@@ -1,15 +1,7 @@
 import { usePlugins } from "@/api/fastapi/plugins/plugins";
 import PluginForm from "@/components/PluginForm/PluginForm";
-import ResourceView from "@/components/Resources/ResourceView";
 import useWaitForTask from "@/hooks/useTaskWaiter";
-import {
-  Box,
-  Container,
-  LoadingOverlay,
-  Stack,
-  Text,
-  Title,
-} from "@mantine/core";
+import { Container, LoadingOverlay, Stack, Text, Title } from "@mantine/core";
 import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
 
@@ -44,15 +36,6 @@ const PluginPage = () => {
           <Text>{methodDescription.description}</Text>
         </Stack>
 
-        {taskId && (
-          <Box w={"100%"} h={500} pos={"relative"}>
-            {task?.result ? (
-              task.result.output_ids.map((id) => <ResourceView id={id} />)
-            ) : (
-              <LoadingOverlay visible={true} />
-            )}
-          </Box>
-        )}
         {methodDescription && (
           <PluginForm
             pluginId={id as string}
