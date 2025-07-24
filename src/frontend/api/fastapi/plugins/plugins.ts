@@ -134,20 +134,22 @@ export function usePlugins<TData = Awaited<ReturnType<typeof plugins>>, TError =
 /**
  * @summary Run Plugin
  */
-export const getRunPluginUrl = (id: string,
+export const getRunPluginUrl = (name: string,
+    version: string,
     method: string,) => {
 
 
   
 
-  return `http://localhost:8000/plugins/run/${id}/${method}`
+  return `http://localhost:8000/plugins/run/${name}/${version}/${method}`
 }
 
-export const runPlugin = async (id: string,
+export const runPlugin = async (name: string,
+    version: string,
     method: string,
     bodyRunPlugin: BodyRunPlugin, options?: RequestInit): Promise<string> => {
   
-  return customFetch<string>(getRunPluginUrl(id,method),
+  return customFetch<string>(getRunPluginUrl(name,version,method),
   {      
     ...options,
     method: 'POST',
@@ -161,8 +163,8 @@ export const runPlugin = async (id: string,
 
 
 export const getRunPluginMutationOptions = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof runPlugin>>, TError,{id: string;method: string;data: BodyRunPlugin}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof runPlugin>>, TError,{id: string;method: string;data: BodyRunPlugin}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof runPlugin>>, TError,{name: string;version: string;method: string;data: BodyRunPlugin}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof runPlugin>>, TError,{name: string;version: string;method: string;data: BodyRunPlugin}, TContext> => {
 
 const mutationKey = ['runPlugin'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -174,10 +176,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof runPlugin>>, {id: string;method: string;data: BodyRunPlugin}> = (props) => {
-          const {id,method,data} = props ?? {};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof runPlugin>>, {name: string;version: string;method: string;data: BodyRunPlugin}> = (props) => {
+          const {name,version,method,data} = props ?? {};
 
-          return  runPlugin(id,method,data,requestOptions)
+          return  runPlugin(name,version,method,data,requestOptions)
         }
 
         
@@ -193,11 +195,11 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
  * @summary Run Plugin
  */
 export const useRunPlugin = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof runPlugin>>, TError,{id: string;method: string;data: BodyRunPlugin}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof runPlugin>>, TError,{name: string;version: string;method: string;data: BodyRunPlugin}, TContext>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof runPlugin>>,
         TError,
-        {id: string;method: string;data: BodyRunPlugin},
+        {name: string;version: string;method: string;data: BodyRunPlugin},
         TContext
       > => {
 
