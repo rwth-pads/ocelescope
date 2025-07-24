@@ -1,14 +1,15 @@
+from datetime import datetime
 import threading
 import functools
 from enum import Enum
 import uuid
 
-from typing import TYPE_CHECKING, Any, Optional, cast
+from typing import TYPE_CHECKING, Any, Optional
 
 from pydantic.main import BaseModel
 
 from ocel.ocel_wrapper import OCELWrapper
-from resources import ResourceUnion, ResourceBase
+from outputs.base import OutputBase
 
 if TYPE_CHECKING:
     from api.session import Session
@@ -35,7 +36,7 @@ class Task:
         self.fn = fn
         self.args = args
         self.kwargs = kwargs
-        self.session = session
+        self.session: Session = session
         self.metadata = metadata or {}
         self.state = TaskState.PENDING
         self.thread = None
@@ -60,11 +61,12 @@ class Task:
             for result in result_items:
                 if isinstance(result, OCELWrapper):
                     self.result.ocel_ids.append(self.session.add_ocel(result))
-                if isinstance(result, ResourceBase):
+                if isinstance(result, OutputBase):
                     self.result.output_ids.append(
-                        self.session.add_resource(
-                            entity=cast(ResourceUnion, result), source="plugin"
-                        ).id
+                        self.session.add_output(
+                            output=result,
+                            name=f"{self.name}_{result.type}_{datetime.now().isoformat()}",
+                        )
                     )
 
             self.state = TaskState.SUCCESS
