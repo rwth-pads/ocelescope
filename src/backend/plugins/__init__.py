@@ -1,16 +1,9 @@
-from .loader import (
-    load_plugins_from_folder,
-    loaded_plugins,
-)
-
+from plugins.registry import PluginRegistry, plugin_method
 from .base import BasePlugin
 
-from .decorators import plugin_metadata, plugin_method
 
-__all__ = [
-    "loaded_plugins",
-    "load_plugins_from_folder",
-    "BasePlugin",
-    "plugin_metadata",
-    "plugin_method",
-]
+plugin_registry = PluginRegistry()
+
+register_plugin = plugin_registry.register
+
+__all__ = ["BasePlugin", "register_plugin", "plugin_method"]

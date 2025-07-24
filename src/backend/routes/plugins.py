@@ -2,26 +2,32 @@ from typing import Any
 from fastapi.routing import APIRouter
 from api.dependencies import ApiSession
 from api.exceptions import NotFound
-from plugins import loaded_plugins
+from plugins import plugin_registry
 from plugins.base import PluginDescription
 
 plugin_router = APIRouter(prefix="/plugins", tags=["plugins"])
 
 
 @plugin_router.get("/", operation_id="plugins")
-def list_plugins() -> dict[str, PluginDescription]:
-    return {id: plugin.describe() for id, plugin in loaded_plugins.items()}
+def list_plugins() -> dict[tuple[str, str], PluginDescription]:
+    return {
+        id: plugin.describe() for id, plugin in plugin_registry.all_plugins().items()
+    }
 
 
-@plugin_router.post("/run/{id}/{method}", operation_id="runPlugin")
+@plugin_router.post("/run/{name}/{version}/{method}", operation_id="runPlugin")
 def run_plugin(
-    id: str,
+    name: str,
+    version: str,
     method: str,
     input: dict[str, Any],
     input_ocels: dict[str, str],
     session: ApiSession,
 ) -> str:
-    method_map = loaded_plugins[id].get_method_map(id)
+    # TODO: Make better task plugin interactions
+    method_map = plugin_registry.get_plugin(name=name, version=version).get_method_map(
+        f"{name}_{version}"
+    )
     runner = method_map[method]
     if runner is None:
         raise NotFound("Plugin mehtod could not be found")

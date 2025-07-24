@@ -1,5 +1,4 @@
 from __future__ import annotations
-from pathlib import Path
 
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -15,8 +14,7 @@ from api.utils import (
 from ocel.default_ocel import (
     load_default_ocels,
 )
-from plugins.loader import load_plugins_from_folder
-from registrar import register_extensions, register_modules
+from registrar import register_extensions, register_modules, register_initial_plugins
 
 from fastapi import FastAPI
 from routes import routes
@@ -55,7 +53,7 @@ app.exception_handler(Exception)(error_handler_server)
 
 register_modules(app)
 register_extensions()
-load_plugins_from_folder(Path("./example_plugins"))
+register_initial_plugins()
 
 for route in routes:
     app.include_router(route)
