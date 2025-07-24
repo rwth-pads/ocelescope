@@ -3,10 +3,10 @@ import pm4py
 from pydantic.fields import Field
 from pydantic.main import BaseModel
 
+
 from .util import convert_flat_pm4py_to_ocpn, compute_ocdfg
 from ocel.ocel_wrapper import OCELWrapper
-from plugins.base import BasePlugin
-from plugins.decorators import plugin_metadata, plugin_method
+from plugins import register_plugin, plugin_method, BasePlugin
 
 
 class PetriNetInput(BaseModel, frozen=True):
@@ -21,7 +21,7 @@ class PetriNetInput(BaseModel, frozen=True):
     )
 
 
-@plugin_metadata(
+@register_plugin(
     name="Berti Discovery",
     description="A plugin to discover object centric process models using the pm4py library",
     version="1",

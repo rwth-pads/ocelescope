@@ -1,10 +1,60 @@
+from dataclasses import dataclass
+from typing import Literal, Optional
 import pm4py
 from pm4py.objects.ocel.obj import OCEL
 
 from pm4py.objects.petri_net.obj import PetriNet as PMNet
 
-from resources.ocdfg import Edge, ObjectActivityEdge, ObjectCentricDirectlyFollowsGraph
-from resources.ocpn import Arc, ObjectCentricPetriNet, Place, Transition
+
+@dataclass
+class Edge:
+    source: str
+    target: str
+    object_type: str
+
+
+@dataclass
+class ObjectActivityEdge:
+    object_type: str
+    activity: str
+
+
+@dataclass
+class ObjectCentricDirectlyFollowsGraph:
+    object_types: list[str]
+    activities: list[str]
+    edges: list[Edge]
+    start_activities: list[ObjectActivityEdge]
+    end_activities: list[ObjectActivityEdge]
+    type: Literal["ocdfg"]
+
+
+@dataclass
+class Place:
+    id: str
+    object_type: str
+    place_type: Optional[Literal["sink", "source", None]]
+
+
+@dataclass
+class Transition:
+    id: str
+    label: Optional[str]
+
+
+@dataclass
+class Arc:
+    source: str
+    target: str
+    variable: bool = False
+
+
+@dataclass
+class ObjectCentricPetriNet:
+    places: list[Place]
+    transitions: list[Transition]
+    arcs: list[Arc]
+    type: Literal["ocpn"]
 
 
 def convert_flat_pm4py_to_ocpn(flat_nets: dict[str, PMNet]) -> ObjectCentricPetriNet:
@@ -30,7 +80,6 @@ def convert_flat_pm4py_to_ocpn(flat_nets: dict[str, PMNet]) -> ObjectCentricPetr
                         if place.name == "sink"
                         else None,
                         object_type=object_type,
-                        annotation={},
                     )
                 )
                 seen_places.add(qualified_id)
@@ -39,7 +88,8 @@ def convert_flat_pm4py_to_ocpn(flat_nets: dict[str, PMNet]) -> ObjectCentricPetr
             label = transition.label or transition.name  # Use fallback if label is None
             if label not in transition_map:
                 transition_map[label] = Transition(
-                    id=label, label=transition.label, annotation={}
+                    id=label,
+                    label=transition.label,
                 )
 
         for arc in pm_net.arcs:
@@ -67,7 +117,11 @@ def convert_flat_pm4py_to_ocpn(flat_nets: dict[str, PMNet]) -> ObjectCentricPetr
                 target_id = arc.target.label or arc.target.name
 
             arcs.append(
-                Arc(source=source_id, target=target_id, variable=False, annotation={})
+                Arc(
+                    source=source_id,
+                    target=target_id,
+                    variable=False,
+                )
             )
 
     # Assemble the final Petri net and OCPN
@@ -76,7 +130,6 @@ def convert_flat_pm4py_to_ocpn(flat_nets: dict[str, PMNet]) -> ObjectCentricPetr
         places=place_set,
         transitions=list(transition_map.values()),
         arcs=arcs,
-        annotation={},
     )
 
 
@@ -88,15 +141,6 @@ def compute_ocdfg(ocel: OCEL) -> ObjectCentricDirectlyFollowsGraph:
         for key, events in values.items():
             edge_count_dict[(object_type, key)] = len(events)
 
-    start_edge_count = {
-        object_type: {activity: len(events) for activity, events in activities.items()}
-        for object_type, activities in ocdfg["start_activities"]["events"].items()
-    }
-
-    end_edge_count = {
-        object_type: {activity: len(events) for activity, events in activities.items()}
-        for object_type, activities in ocdfg["end_activities"]["events"].items()
-    }
     edges = []
     for object_type, raw_edges in ocdfg["edges"]["event_couples"].items():
         edges = edges + (
@@ -105,9 +149,6 @@ def compute_ocdfg(ocel: OCEL) -> ObjectCentricDirectlyFollowsGraph:
                     object_type=object_type,
                     source=source,
                     target=target,
-                    annotation={
-                        "label": edge_count_dict[(object_type, (source, target))]
-                    },
                 )
                 for source, target in raw_edges
             ]
@@ -117,7 +158,6 @@ def compute_ocdfg(ocel: OCEL) -> ObjectCentricDirectlyFollowsGraph:
         ObjectActivityEdge(
             object_type=object_type,
             activity=activity,
-            annotation={"label": start_edge_count[object_type][activity]},
         )
         for object_type, activities in ocdfg["start_activities"]["events"].items()
         for activity in activities.keys()
@@ -127,7 +167,6 @@ def compute_ocdfg(ocel: OCEL) -> ObjectCentricDirectlyFollowsGraph:
         ObjectActivityEdge(
             object_type=object_type,
             activity=activity,
-            annotation={"label": end_edge_count[object_type][activity]},
         )
         for object_type, activities in ocdfg["end_activities"]["events"].items()
         for activity in activities.keys()
@@ -140,5 +179,4 @@ def compute_ocdfg(ocel: OCEL) -> ObjectCentricDirectlyFollowsGraph:
         object_types=ocdfg["object_types"],
         end_activities=end_activity_edges,
         start_activities=start_activity_edges,
-        annotation={"start_count": start_edge_count, "end_count": end_edge_count},
     )
