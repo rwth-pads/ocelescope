@@ -1,3 +1,3 @@
-from .plugin import BertiDiscoverPlugin
+from .plugin import BertiDiscovery
 
-__all__ = ["BertiDiscoverPlugin"]
+__all__ = ["BertiDiscovery"]

@@ -26,7 +26,7 @@ class PetriNetInput(BaseModel, frozen=True):
     description="A plugin to discover object centric process models using the pm4py library",
     version="1",
 )
-class BertiDiscover(BasePlugin):
+class BertiDiscovery(BasePlugin):
     @plugin_method(label="Discover object centric Petri Net")
     def discover_petri_net(self, input: PetriNetInput, ocel: OCELWrapper):
         petri_net = pm4py.discover_oc_petri_net(
