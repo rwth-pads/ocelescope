@@ -44,6 +44,7 @@ class PluginMethod(BaseModel):
 
 class PluginMetadata(BaseModel):
     name: str
+    label: str
     version: str
     description: Optional[str]
 
@@ -119,6 +120,7 @@ class BasePlugin:
         return PluginDescription(
             metadata=PluginMetadata(
                 name=plugin_meta.get("name", cls.__name__),
+                label=plugin_meta.get("label", ""),
                 version=plugin_meta.get("version", "0.1"),
                 description=plugin_meta.get("description", ""),
             ),

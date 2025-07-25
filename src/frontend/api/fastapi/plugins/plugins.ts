@@ -26,7 +26,7 @@ import type {
 import type {
   BodyRunPlugin,
   HTTPValidationError,
-  Plugins200
+  PluginDescription
 } from '../../fastapi-schemas';
 
 import { customFetch } from '../../fetcher';
@@ -47,9 +47,9 @@ export const getPluginsUrl = () => {
   return `http://localhost:8000/plugins/`
 }
 
-export const plugins = async ( options?: RequestInit): Promise<Plugins200> => {
+export const plugins = async ( options?: RequestInit): Promise<PluginDescription[]> => {
   
-  return customFetch<Plugins200>(getPluginsUrl(),
+  return customFetch<PluginDescription[]>(getPluginsUrl(),
   {      
     ...options,
     method: 'GET'

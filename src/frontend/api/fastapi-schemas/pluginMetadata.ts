@@ -8,6 +8,7 @@ import type { PluginMetadataDescription } from './pluginMetadataDescription';
 
 export interface PluginMetadata {
   name: string;
+  label: string;
   version: string;
   description: PluginMetadataDescription;
 }

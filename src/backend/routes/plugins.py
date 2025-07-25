@@ -9,10 +9,8 @@ plugin_router = APIRouter(prefix="/plugins", tags=["plugins"])
 
 
 @plugin_router.get("/", operation_id="plugins")
-def list_plugins() -> dict[tuple[str, str], PluginDescription]:
-    return {
-        id: plugin.describe() for id, plugin in plugin_registry.all_plugins().items()
-    }
+def list_plugins() -> list[PluginDescription]:
+    return [plugin.describe() for plugin in plugin_registry.all_plugins().values()]
 
 
 @plugin_router.post("/run/{name}/{version}/{method}", operation_id="runPlugin")

@@ -6,25 +6,20 @@ import Link from "next/link";
 import { useState } from "react";
 
 const PluginOverview: React.FC = () => {
-  const { data: plugins = {} } = usePlugins();
+  const { data: plugins } = usePlugins();
 
   const [expandedPlugins, setExpandedPlugins] = useState<string[]>([]);
-
-  const columns = Object.entries(plugins).map(([id, description]) => ({
-    id,
-    ...description,
-  }));
 
   return (
     <Container>
       <Title size={"h3"}> Plugins</Title>
       <DataTable
         columns={[
-          { title: "Name", accessor: "metadata.name" },
+          { title: "Name", accessor: "metadata.label" },
           { title: "Description", accessor: "metadata.description" },
           { title: "Version", accessor: "metadata.version" },
         ]}
-        records={columns}
+        records={plugins}
         rowExpansion={{
           allowMultiple: false,
           expanded: {
@@ -48,7 +43,10 @@ const PluginOverview: React.FC = () => {
                         <ActionIcon
                           size={"md"}
                           component={Link}
-                          href={`plugins/${record.id}/${name}`}
+                          href={{
+                            query: { version: record.metadata.version },
+                            pathname: `plugins/${record.metadata.name}/${name}`,
+                          }}
                           color="green"
                           variant="subtle"
                         >

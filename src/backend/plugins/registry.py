@@ -29,8 +29,9 @@ class PluginRegistry:
     def __init__(self) -> None:
         self._registry: dict[tuple[str, str], type[BasePlugin]] = {}
 
-    def register(self, name: str, version: str, description: str):
+    def register(self, label: Optional[str], version: str, description: str):
         def decorator(cls: type[BasePlugin]):
+            name = cls.__name__
             key = (name, version)
             if key in self._registry:
                 raise ValueError(f"Plugin '{name}' v'{version}' already registered")
@@ -40,6 +41,7 @@ class PluginRegistry:
                 "_plugin_metadata",
                 {
                     "name": name,
+                    "label": label or name,
                     "version": version,
                     "description": description,
                 },

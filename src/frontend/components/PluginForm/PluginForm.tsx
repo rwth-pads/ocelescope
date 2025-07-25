@@ -9,27 +9,29 @@ import { useMemo } from "react";
 import { useRunPlugin } from "@/api/fastapi/plugins/plugins";
 
 type PluginFormProps = {
-  pluginId: string;
-  pluginMetod: PluginMethod;
+  pluginName: string;
+  pluginVersion: string;
+  pluginMethod: PluginMethod;
   onSuccess: (taskId: string) => void;
 };
 const PluginForm: React.FC<PluginFormProps> = ({
-  pluginMetod,
-  pluginId,
+  pluginMethod,
+  pluginName,
+  pluginVersion,
   onSuccess,
 }) => {
   const { data } = useGetOcels();
 
   const { mutate } = useRunPlugin({ mutation: { onSuccess } });
   const defaultValue = Object.fromEntries(
-    pluginMetod.input_ocels.map(({ name }) => [name, ""]),
+    pluginMethod.input_ocels.map(({ name }) => [name, ""]),
   );
 
   const autofilledDefaultValue = useMemo(
     () =>
       data?.current_ocel_id
         ? Object.fromEntries(
-            pluginMetod.input_ocels.map(({ name }) => [
+            pluginMethod.input_ocels.map(({ name }) => [
               name,
               data.current_ocel_id,
             ]),
@@ -46,32 +48,35 @@ const PluginForm: React.FC<PluginFormProps> = ({
   return (
     <>
       <Stack gap={0}>
-        {(pluginMetod.input_ocels ?? []).map(({ name, label, description }) => (
-          <Controller
-            control={control}
-            name={name}
-            rules={{ required: true }}
-            render={({ field }) => (
-              <OcelSelect
-                label={label}
-                required
-                description={description}
-                onChange={field.onChange}
-                value={field.value}
-              />
-            )}
-          />
-        ))}
+        {(pluginMethod.input_ocels ?? []).map(
+          ({ name, label, description }) => (
+            <Controller
+              control={control}
+              name={name}
+              rules={{ required: true }}
+              render={({ field }) => (
+                <OcelSelect
+                  label={label}
+                  required
+                  description={description}
+                  onChange={field.onChange}
+                  value={field.value}
+                />
+              )}
+            />
+          ),
+        )}
       </Stack>
-      {pluginMetod.input_model && (
+      {pluginMethod.input_model && (
         <Form
-          schema={pluginMetod.input_model}
+          schema={pluginMethod.input_model}
           validator={validator}
           onSubmit={({ formData }) =>
             handleSubmit((data) => {
               mutate({
-                id: pluginId,
-                method: pluginMetod.name,
+                name: pluginName,
+                version: pluginVersion,
+                method: pluginMethod.name,
                 data: {
                   input: formData as BodyRunPluginInput,
                   input_ocels: data as Record<string, string>,
