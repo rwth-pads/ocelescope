@@ -86,7 +86,6 @@ def register_initial_plugins():
             sys.path.insert(0, str(folder))
 
         for subdir in folder.iterdir():
-            print(subdir)
             if not subdir.is_dir() or not (subdir / "__init__.py").exists():
                 continue
 

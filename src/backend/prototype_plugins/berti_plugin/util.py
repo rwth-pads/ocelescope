@@ -58,7 +58,6 @@ class ObjectCentricPetriNet:
 
 
 def convert_flat_pm4py_to_ocpn(flat_nets: dict[str, PMNet]) -> ObjectCentricPetriNet:
-    print("adsas")
     place_set: list[Place] = []
     transition_map: dict[str, Transition] = {}
     arcs: list[Arc] = []
