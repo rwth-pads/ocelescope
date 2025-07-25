@@ -65,7 +65,7 @@ class Task:
                     self.result.output_ids.append(
                         self.session.add_output(
                             output=result,
-                            name=f"{self.name}_{result.type}_{datetime.now().isoformat()}",
+                            name=f"{result.type}_{datetime.now().strftime('%Y-%m-%d_%H:%M')}",
                         )
                     )
 

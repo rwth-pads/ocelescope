@@ -21,7 +21,7 @@ class Arc(BaseModel):
     variable: bool = False
 
 
-@register_output()
+@register_output(label="Petri Net")
 class ObjectCentricPetriNet(OutputBase):
     places: list[Place]
     transitions: list[Transition]

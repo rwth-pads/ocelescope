@@ -1,4 +1,5 @@
-from typing import Callable, TypeVar, get_type_hints
+from dataclasses import dataclass
+from typing import Callable, Optional, TypeVar, get_type_hints
 import hashlib
 
 import json
@@ -7,39 +8,51 @@ from pydantic.main import BaseModel
 from outputs.vizualizations import Visualization
 from .base import OutputBase
 
+
 T = TypeVar("T", bound=OutputBase)
+
+
+@dataclass
+class OutputRegistryEntry:
+    type: str
+    label: str
+    shema_hash: str
 
 
 class OutputRegistry:
     def __init__(self) -> None:
-        self._output_schema_hashes: dict[str, str] = {}
+        self.outputs: dict[str, OutputRegistryEntry] = {}
         self._visualizers: dict[str, Callable] = {}
 
     def _schema_hash(self, cls: type[BaseModel]) -> str:
         schema = json.dumps(cls.model_json_schema(), sort_keys=True)
         return hashlib.sha256(schema.encode()).hexdigest()
 
-    def register_output(self):
+    def register_output(self, label: Optional[str] = None):
         def decorator(cls: type[T]):
             output_type = cls.model_fields["type"].default
             output_hash = self._schema_hash(cls)
 
             if (
-                output_type in self._output_schema_hashes
-                and self._output_schema_hashes[output_type] != output_hash
+                output_type in self.outputs
+                and self.outputs[output_type].shema_hash != output_hash
             ):
                 raise ValueError(
                     f"Conflicting output definition for type '{output_type}'.\n"
                     f"Previous schema differs from new one."
                 )
 
-            self._output_schema_hashes[output_type] = output_hash
+            if output_type not in self.outputs:
+                self.outputs[output_type] = OutputRegistryEntry(
+                    type=output_type, label=label or output_type, shema_hash=output_hash
+                )
+
             return cls
 
         return decorator
 
     def register_visualizer(self):
-        def decorator(fn: Callable[[OutputBase], Visualization]):
+        def decorator(fn: Callable[[T], Visualization]):
             hints = get_type_hints(fn)
 
             param_types = list(hints.values())
@@ -65,3 +78,7 @@ class OutputRegistry:
             raise ValueError("No registered vizualizations found")
 
         return self._visualizers[output.type](output)
+
+    def get_registred_outputs(self):
+        print(self.outputs)
+        print(self._visualizers)

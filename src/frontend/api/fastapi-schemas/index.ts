@@ -90,6 +90,7 @@ export * from './ocelotGetObjectChangesParams';
 export * from './ocelotObjectInfoParams';
 export * from './ocelotPaginatedEventsParams';
 export * from './ocelotPaginatedObjectsParams';
+export * from './outputApi';
 export * from './paginatedResponse';
 export * from './pluginDescription';
 export * from './pluginDescriptionMethods';

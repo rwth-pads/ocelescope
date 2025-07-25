@@ -41,7 +41,6 @@ const PluginPage = () => {
           <Title>{pluginFormProps.pluginMethod.label}</Title>
           <Text>{pluginFormProps.pluginMethod.description}</Text>
         </Stack>
-
         {pluginFormProps && (
           <PluginForm onSuccess={setTaskId} {...pluginFormProps} />
         )}

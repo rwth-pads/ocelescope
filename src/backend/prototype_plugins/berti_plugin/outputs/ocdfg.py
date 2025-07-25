@@ -14,7 +14,7 @@ class ObjectActivityEdge(BaseModel):
     activity: str
 
 
-@register_output()
+@register_output(label="Directly Follows Graph")
 class ObjectCentricDirectlyFollowsGraph(OutputBase):
     type: str = "ocdfg"
     object_types: list[str]
@@ -25,5 +25,5 @@ class ObjectCentricDirectlyFollowsGraph(OutputBase):
 
 
 @register_vizulization()
-def visualize_ocdfg(output: OutputBase) -> Graph:
+def visualize_ocdfg(output: ObjectCentricDirectlyFollowsGraph) -> Graph:
     return Graph(type="graph", edges=[], nodes=[])
