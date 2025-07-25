@@ -1,60 +1,10 @@
-from dataclasses import dataclass
-from typing import Literal, Optional
 import pm4py
 from pm4py.objects.ocel.obj import OCEL
 
 from pm4py.objects.petri_net.obj import PetriNet as PMNet
 
-
-@dataclass
-class Edge:
-    source: str
-    target: str
-    object_type: str
-
-
-@dataclass
-class ObjectActivityEdge:
-    object_type: str
-    activity: str
-
-
-@dataclass
-class ObjectCentricDirectlyFollowsGraph:
-    object_types: list[str]
-    activities: list[str]
-    edges: list[Edge]
-    start_activities: list[ObjectActivityEdge]
-    end_activities: list[ObjectActivityEdge]
-    type: Literal["ocdfg"]
-
-
-@dataclass
-class Place:
-    id: str
-    object_type: str
-    place_type: Optional[Literal["sink", "source", None]]
-
-
-@dataclass
-class Transition:
-    id: str
-    label: Optional[str]
-
-
-@dataclass
-class Arc:
-    source: str
-    target: str
-    variable: bool = False
-
-
-@dataclass
-class ObjectCentricPetriNet:
-    places: list[Place]
-    transitions: list[Transition]
-    arcs: list[Arc]
-    type: Literal["ocpn"]
+from .outputs.ocdfg import Edge, ObjectActivityEdge, ObjectCentricDirectlyFollowsGraph
+from .outputs.oc_petri_net import Arc, ObjectCentricPetriNet, Place, Transition
 
 
 def convert_flat_pm4py_to_ocpn(flat_nets: dict[str, PMNet]) -> ObjectCentricPetriNet:

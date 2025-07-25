@@ -1,29 +1,29 @@
+from typing import Literal, Optional
+
 from pydantic.main import BaseModel
-from outputs import register_output, OutputBase, register_vizulization
-from outputs.vizualizations.graphs import Graph
+from outputs import OutputBase, register_output
 
 
-class Edge(BaseModel):
+class Place(BaseModel):
+    id: str
+    object_type: str
+    place_type: Optional[Literal["sink", "source", None]]
+
+
+class Transition(BaseModel):
+    id: str
+    label: Optional[str]
+
+
+class Arc(BaseModel):
     source: str
     target: str
-    object_type: str
-
-
-class ObjectActivityEdge(BaseModel):
-    object_type: str
-    activity: str
+    variable: bool = False
 
 
 @register_output()
-class ObjectCentricDirectlyFollowsGraph(OutputBase):
-    type: str = "ocdfg"
-    object_types: list[str]
-    activities: list[str]
-    edges: list[Edge]
-    start_activities: list[ObjectActivityEdge]
-    end_activities: list[ObjectActivityEdge]
-
-
-@register_vizulization()
-def visualize_ocdfg(output: OutputBase) -> Graph:
-    return Graph(type="graph", edges=[], nodes=[])
+class ObjectCentricPetriNet(OutputBase):
+    places: list[Place]
+    transitions: list[Transition]
+    arcs: list[Arc]
+    type: str = "ocpn"

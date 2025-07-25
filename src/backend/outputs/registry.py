@@ -1,4 +1,4 @@
-from typing import Callable, get_type_hints
+from typing import Callable, TypeVar, get_type_hints
 import hashlib
 
 import json
@@ -6,6 +6,8 @@ from pydantic.main import BaseModel
 
 from outputs.vizualizations import Visualization
 from .base import OutputBase
+
+T = TypeVar("T", bound=OutputBase)
 
 
 class OutputRegistry:
@@ -18,7 +20,7 @@ class OutputRegistry:
         return hashlib.sha256(schema.encode()).hexdigest()
 
     def register_output(self):
-        def decorator(cls: type[OutputBase]):
+        def decorator(cls: type[T]):
             output_type = cls.model_fields["type"].default
             output_hash = self._schema_hash(cls)
 
