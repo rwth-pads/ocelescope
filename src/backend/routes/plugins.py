@@ -39,7 +39,12 @@ def run_plugin(
         "input": input_arg,
         **ocel_kwargs,
         "session": session,
-        "metadata": {"plugin_id": id, "method_map": method},
+        "metadata": {
+            "type": "plugin",
+            "name": name,
+            "version": version,
+            "method": method,
+        },
     }
     result = runner["method"](**method_kwargs)
 
