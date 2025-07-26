@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { DataTable } from "mantine-datatable";
 import dayjs from "dayjs";
+import Viewer from "./Viewer";
 
 const OutputTable: React.FC = () => {
   const { data: outputs } = useOutputs();
@@ -78,6 +79,9 @@ const OutputTable: React.FC = () => {
           },
         ]}
         records={outputs}
+        rowExpansion={{
+          content: ({ record }) => <Viewer id={record.id!} />,
+        }}
       />
     </Stack>
   );

@@ -73,7 +73,7 @@ class OutputRegistry:
 
         return decorator
 
-    def visualize(self, output: OutputBase) -> Visualization:  # type: ignore
+    def visualize(self, output: T) -> Visualization:  # type: ignore
         if output.type not in self._visualizers:
             raise ValueError("No registered vizualizations found")
 

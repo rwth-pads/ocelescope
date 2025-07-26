@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 from fastapi.routing import APIRouter
 from api.dependencies import ApiSession
 from api.exceptions import NotFound
@@ -18,9 +18,9 @@ def run_plugin(
     name: str,
     version: str,
     method: str,
-    input: dict[str, Any],
     input_ocels: dict[str, str],
     session: ApiSession,
+    input: Optional[dict[str, Any]] = None,
 ) -> str:
     # TODO: Make better task plugin interactions
     method_map = plugin_registry.get_plugin(name=name, version=version).get_method_map(
@@ -31,12 +31,13 @@ def run_plugin(
         raise NotFound("Plugin mehtod could not be found")
 
     input_arg = (
-        runner["input_model"](**input) if runner["input_model"] is not None else None
+        runner["input_model"](**input)
+        if runner["input_model"] is not None and input is not None
+        else None
     )
 
     ocel_kwargs = {a: session.get_ocel(b) for a, b in input_ocels.items()}
     method_kwargs = {
-        "input": input_arg,
         **ocel_kwargs,
         "session": session,
         "metadata": {
@@ -46,6 +47,9 @@ def run_plugin(
             "method": method,
         },
     }
+    if input is not None:
+        setattr(method_kwargs, "input", input_arg)
+
     result = runner["method"](**method_kwargs)
 
     return result

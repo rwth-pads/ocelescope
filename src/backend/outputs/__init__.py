@@ -5,12 +5,12 @@ from .registry import OutputRegistry
 output_registry = OutputRegistry()
 
 register_output = output_registry.register_output
-register_vizulization = output_registry.register_visualizer
+register_visulization = output_registry.register_visualizer
 
 __all__ = [
     "OutputBase",
     "Visualization",
     "output_registry",
     "register_output",
-    "register_vizulization",
+    "register_visulization",
 ]

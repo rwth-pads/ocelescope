@@ -4,5 +4,6 @@
  * OCEAn
  * OpenAPI spec version: 0.9.12
  */
+import type { BodyRunPluginInputAnyOf } from './bodyRunPluginInputAnyOf';
 
-export type BodyRunPluginInput = { [key: string]: unknown };
+export type BodyRunPluginInput = BodyRunPluginInputAnyOf | null;

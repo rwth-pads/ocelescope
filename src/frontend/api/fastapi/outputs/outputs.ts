@@ -20,6 +20,8 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  HTTPValidationError,
+  Output200,
   OutputApi
 } from '../../fastapi-schemas';
 
@@ -115,6 +117,101 @@ export function useOutputs<TData = Awaited<ReturnType<typeof outputs>>, TError =
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getOutputsQueryOptions(options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+/**
+ * @summary Get Output
+ */
+export const getOutputUrl = (outputId: string,) => {
+
+
+  
+
+  return `http://localhost:8000/outputs/${outputId}`
+}
+
+export const output = async (outputId: string, options?: RequestInit): Promise<Output200> => {
+  
+  return customFetch<Output200>(getOutputUrl(outputId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+export const getOutputQueryKey = (outputId: string,) => {
+    return [`http://localhost:8000/outputs/${outputId}`] as const;
+    }
+
+    
+export const getOutputQueryOptions = <TData = Awaited<ReturnType<typeof output>>, TError = HTTPValidationError>(outputId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof output>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getOutputQueryKey(outputId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof output>>> = ({ signal }) => output(outputId, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(outputId),  staleTime: 300000,  ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof output>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type OutputQueryResult = NonNullable<Awaited<ReturnType<typeof output>>>
+export type OutputQueryError = HTTPValidationError
+
+
+export function useOutput<TData = Awaited<ReturnType<typeof output>>, TError = HTTPValidationError>(
+ outputId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof output>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof output>>,
+          TError,
+          Awaited<ReturnType<typeof output>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useOutput<TData = Awaited<ReturnType<typeof output>>, TError = HTTPValidationError>(
+ outputId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof output>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof output>>,
+          TError,
+          Awaited<ReturnType<typeof output>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useOutput<TData = Awaited<ReturnType<typeof output>>, TError = HTTPValidationError>(
+ outputId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof output>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Output
+ */
+
+export function useOutput<TData = Awaited<ReturnType<typeof output>>, TError = HTTPValidationError>(
+ outputId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof output>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getOutputQueryOptions(outputId,options)
 
   const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

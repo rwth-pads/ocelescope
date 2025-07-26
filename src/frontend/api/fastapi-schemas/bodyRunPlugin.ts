@@ -4,10 +4,10 @@
  * OCEAn
  * OpenAPI spec version: 0.9.12
  */
-import type { BodyRunPluginInput } from './bodyRunPluginInput';
 import type { BodyRunPluginInputOcels } from './bodyRunPluginInputOcels';
+import type { BodyRunPluginInput } from './bodyRunPluginInput';
 
 export interface BodyRunPlugin {
-  input: BodyRunPluginInput;
   input_ocels: BodyRunPluginInputOcels;
+  input?: BodyRunPluginInput;
 }

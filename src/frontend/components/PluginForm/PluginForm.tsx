@@ -67,7 +67,7 @@ const PluginForm: React.FC<PluginFormProps> = ({
           ),
         )}
       </Stack>
-      {pluginMethod.input_model && (
+      {pluginMethod.input_model ? (
         <Form
           schema={pluginMethod.input_model}
           validator={validator}
@@ -106,6 +106,21 @@ const PluginForm: React.FC<PluginFormProps> = ({
             ),
           }}
         />
+      ) : (
+        <Button
+          onClick={() =>
+            handleSubmit((data) => {
+              mutate({
+                name: pluginName,
+                version: pluginVersion,
+                method: pluginMethod.name,
+                data: {
+                  input_ocels: data as Record<string, string>,
+                },
+              });
+            })()
+          }
+        ></Button>
       )}
     </>
   );
