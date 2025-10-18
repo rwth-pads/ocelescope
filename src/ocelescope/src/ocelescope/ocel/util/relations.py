@@ -6,6 +6,21 @@ from pydantic.main import BaseModel
 
 
 class RelationCountSummary(BaseModel):
+    """Summary statistics for the number of relations between two entities.
+
+    This model captures aggregate information about relations of a specific type
+    (`qualifier`) between a given source and target. It records the minimum,
+    maximum, and total counts observed across datasets, logs, or OCEL events.
+
+    Attributes:
+        qualifier (str): The type or qualifier of the relation (e.g., "belongs_to", "causes").
+        source (str): The identifier or name of the source entity in the relation.
+        target (str): The identifier or name of the target entity in the relation.
+        min_count (int): The smallest number of occurrences of this relation observed.
+        max_count (int): The largest number of occurrences of this relation observed.
+        sum (int): The total number of occurrences across all observations.
+    """
+
     qualifier: str
     source: str
     target: str

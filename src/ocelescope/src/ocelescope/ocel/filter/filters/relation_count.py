@@ -5,12 +5,27 @@ from pandas.core.frame import DataFrame
 from pandas.core.series import Series
 from pydantic import BaseModel
 
-from ocelescope.ocel.util.relations import getO2OWithTypes
-
 from ocelescope.ocel.filter.base import BaseFilter, FilterResult
+from ocelescope.ocel.util.relations import getO2OWithTypes
 
 
 class RelationCountFilterConfig(BaseModel):
+    """Configuration model for relation-count-based filters.
+
+    Specifies filtering conditions based on the number of relations (e.g., event–object
+    or object–object) that connect source and target entities in an OCEL.
+
+    Attributes:
+        source (str): The source entity type (e.g., an activity name or object type).
+        target (str): The target entity type related to the source.
+        mode (Optional[Literal["include", "exclude"]]): Whether to include or exclude
+            entities that meet the count range condition. Defaults to "include".
+        range (tuple[Optional[int], Optional[int]]): Inclusive (min, max) range for
+            the number of target relations per source. None means no bound.
+        qualifier (Optional[str]): Optional relation qualifier to restrict filtering
+            to specific types of relationships (e.g., "created", "belongsTo").
+    """
+
     source: str
     target: str
     mode: Optional[Literal["include", "exclude"]] = "include"
@@ -87,6 +102,20 @@ def filter_by_relation_counts(
 
 
 class E2OCountFilter(BaseFilter, RelationCountFilterConfig):
+    """Filter events or objects based on event-to-object (E2O) relation counts.
+
+    This filter selects events (or objects) whose number of linked objects (or
+    linked events) of a certain type falls within a specified range. It supports
+    both inclusion and exclusion modes.
+
+    Attributes:
+        direction (Literal["source", "target"]):
+            Determines whether the source of the relation is an event ("source")
+            or an object ("target"). Defaults to "source".
+        (Inherited from RelationCountFilterConfig):
+            source, target, mode, range, qualifier.
+    """
+
     direction: Literal["source", "target"] = "source"
 
     def filter(self, ocel):
@@ -122,6 +151,19 @@ class E2OCountFilter(BaseFilter, RelationCountFilterConfig):
 
 
 class O2OCountFilter(BaseFilter, RelationCountFilterConfig):
+    """Filter objects based on object-to-object (O2O) relation counts.
+
+    This filter selects objects whose number of related objects (of a given type)
+    falls within a specified range. It supports both inclusion and exclusion logic.
+
+    Attributes:
+        direction (Literal["source", "target"]):
+            Determines whether the source perspective is the left or right side
+            of the O2O relation. Defaults to "source".
+        (Inherited from RelationCountFilterConfig):
+            source, target, mode, range, qualifier.
+    """
+
     direction: Literal["source", "target"] = "source"
 
     def filter(self, ocel):

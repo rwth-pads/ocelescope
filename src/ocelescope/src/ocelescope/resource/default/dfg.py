@@ -1,23 +1,59 @@
 from pydantic import BaseModel
 
 from ocelescope.resource.resource import Resource
-
 from ocelescope.visualization import generate_color_map
 from ocelescope.visualization.default.graph import Graph, GraphEdge, GraphNode, GraphvizLayoutConfig
 
 
 class Edge(BaseModel):
+    """Represents a directed connection between two activities in a Directly Follows Graph.
+
+    Each edge links a source activity to a target activity, annotated with
+    the object type that connects them.
+
+    Attributes:
+        source (str): The identifier or label of the source activity.
+        target (str): The identifier or label of the target activity.
+        object_type (str): The object type mediating the directly-follows relation.
+    """
+
     source: str
     target: str
     object_type: str
 
 
 class ObjectActivityEdge(BaseModel):
+    """Represents a connection between an object type and an activity node.
+
+    Used to describe start and end relations between object types and
+    their corresponding activities in a Directly Follows Graph.
+
+    Attributes:
+        object_type (str): The type of object participating in the relation.
+        activity (str): The name of the activity associated with this object type.
+    """
+
     object_type: str
     activity: str
 
 
 class DirectlyFollowsGraph(Resource):
+    """Resource representation of an Object-Centric Directly Follows Graph (DFG).
+
+    This graph visualizes how activities directly follow one another in an OCEL,
+    differentiated by object types. It also includes start and end nodes for each
+    object type to indicate where execution begins and ends.
+
+    Attributes:
+        label (str): Display label for the resource.
+        description (str): Short textual description of the resource.
+        object_types (list[str]): List of object types included in the graph.
+        activities (list[str]): List of activity names (nodes) in the graph.
+        edges (list[Edge]): Directed edges between activities by object type.
+        start_activities (list[ObjectActivityEdge]): Mappings from object types to start activities.
+        end_activities (list[ObjectActivityEdge]): Mappings from object types to end activities.
+    """
+
     label = "Directly Follows Graph"
     description = "A object-centric directly follows graph"
 

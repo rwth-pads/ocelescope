@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Union, cast
+from typing import cast
 
 import pandas as pd
 from pandas.api.types import is_datetime64_any_dtype, is_numeric_dtype
@@ -12,16 +12,34 @@ from ..base import BaseFilter, FilterResult
 
 
 class AttributeFilterConfig(BaseModel):
+    """Configuration for filtering attributes in event or object data.
+
+    Defines filters that can be applied to attributes such as numeric ranges,
+    date/time intervals, nominal values, or regular expressions. Used by both
+    `EventAttributeFilter` and `ObjectAttributeFilter` to specify filtering
+    conditions.
+
+    Attributes:
+        target_type (str): The type of entity being filtered (e.g., "event" or "object").
+        attribute (str): The name of the attribute (column) to filter on.
+        time_range (Optional[Tuple[Optional[str], Optional[str]]]): A tuple of start and
+            end timestamps (ISO format) for date/time filtering.
+        number_range (Optional[Tuple[Optional[Union[int, float]], Optional[Union[int, float]]]]):
+            A tuple defining lower and upper numeric bounds for filtering numeric attributes.
+        values (Optional[list[Union[str, int, float]]]): A list of nominal values to match.
+        regex (Optional[str]): A regular expression for string pattern matching.
+    """
+
     target_type: str
     attribute: str
 
     # Range filters
-    time_range: Optional[Tuple[Optional[str], Optional[str]]] = None
-    number_range: Optional[Tuple[Optional[Union[int, float]], Optional[Union[int, float]]]] = None
+    time_range: tuple[str | None, str | None] | None = None
+    number_range: tuple[int | float | None, int | float | None] | None = None
 
     # Nominal filters
-    values: Optional[list[Union[str, int, float]]] = None
-    regex: Optional[str] = None
+    values: list[str | int | float] | None = None
+    regex: str | None = None
 
 
 def filter_by_attribute(attribute_df: DataFrame, type_column: str, config: AttributeFilterConfig):
@@ -72,6 +90,23 @@ def filter_by_attribute(attribute_df: DataFrame, type_column: str, config: Attri
 
 
 class EventAttributeFilter(BaseFilter, AttributeFilterConfig):
+    """Filter events based on attribute conditions.
+
+    Applies attribute-based filters to event data using the configuration fields
+    inherited from `AttributeFilterConfig`. Supports numeric, time, nominal, and
+    regex-based filtering of event attributes.
+
+    Methods:
+        filter(ocel): Applies the configured attribute filter to the OCEL event log
+            and returns a `FilterResult` containing the filtered events.
+
+    Example:
+        ```python
+        config = EventAttributeFilter(attribute="cost", number_range=(10, 100))
+        result = config.filter(ocel)
+        ```
+    """
+
     def filter(self, ocel):
         return FilterResult(
             events=filter_by_attribute(
@@ -83,6 +118,23 @@ class EventAttributeFilter(BaseFilter, AttributeFilterConfig):
 
 
 class ObjectAttributeFilter(BaseFilter, AttributeFilterConfig):
+    """Filter objects based on attribute conditions.
+
+    Applies attribute-based filters to object data using the configuration fields
+    inherited from `AttributeFilterConfig`. Evaluates attributes in the enriched
+    object table and returns a mask identifying valid objects.
+
+    Methods:
+        filter(ocel): Applies the configured attribute filter to the OCEL object data
+            and returns a `FilterResult` containing the filtered objects.
+
+    Example:
+        ```python
+        config = ObjectAttributeFilter(attribute="lifecycle_state", values=["active"])
+        result = config.filter(ocel)
+        ```
+    """
+
     def filter(self, ocel):
         enriched_objects = get_objects_with_object_changes(ocel.ocel)
 

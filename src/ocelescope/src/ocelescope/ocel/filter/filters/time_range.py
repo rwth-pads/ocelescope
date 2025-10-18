@@ -6,6 +6,21 @@ from ocelescope.ocel.filter.base import BaseFilter, FilterResult
 
 
 class TimeFrameFilter(BaseFilter):
+    """Filter events in an OCEL based on their timestamp range.
+
+    This filter includes or excludes events whose timestamps fall within
+    a specified time interval. The time range can be open-ended by setting
+    either boundary to None.
+
+    Attributes:
+        time_range (tuple[Optional[str], Optional[str]]):
+            The start and end of the time window as ISO 8601 strings.
+            Use None for an unbounded start or end.
+        mode (Literal["exclude", "include"]):
+            Determines whether matching events are kept ("include") or removed
+            ("exclude"). Defaults to "include".
+    """
+
     time_range: tuple[Optional[str], Optional[str]]
     mode: Literal["exclude", "include"] = "include"
 

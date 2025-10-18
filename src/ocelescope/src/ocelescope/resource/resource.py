@@ -1,5 +1,6 @@
 from abc import ABC
 from typing import ClassVar, Generic, TypeVar
+
 from pydantic import BaseModel, computed_field
 
 from ocelescope import Visualization
@@ -21,7 +22,7 @@ class Resource(BaseModel, ABC):
         """Return the simple type name of this resource.
 
         Returns:
-            str: The class name (e.g., ``"PetriNet"``).
+            The class name (e.g., ``"PetriNet"``).
         """
         return cls.__name__
 
@@ -37,7 +38,7 @@ class Resource(BaseModel, ABC):
         or ``None`` if no visualization exists.
 
         Returns:
-            Optional[Visualization]: A visualization object or ``None``.
+            A visualization object or ``None``.
         """
 
         return

@@ -11,6 +11,18 @@ from pydantic.fields import Field
 # --- Attribute Type Models ---
 @dataclass
 class IntegerAttribute:
+    """Statistical summary of an integer-type attribute.
+
+    Represents an event or object attribute that stores integer values,
+    including its observed range in the dataset.
+
+    Attributes:
+        attribute (str): The name of the attribute.
+        type (Literal["integer"]): Discriminator indicating integer type.
+        min (int): Minimum observed value of the attribute.
+        max (int): Maximum observed value of the attribute.
+    """
+
     attribute: str
     type: Literal["integer"]
     min: int
@@ -19,6 +31,17 @@ class IntegerAttribute:
 
 @dataclass
 class FloatAttribute:
+    """Statistical summary of a float-type attribute.
+
+    Represents an attribute with continuous numeric values.
+
+    Attributes:
+        attribute (str): The name of the attribute.
+        type (Literal["float"]): Discriminator indicating float type.
+        min (float): Minimum observed value.
+        max (float): Maximum observed value.
+    """
+
     attribute: str
     type: Literal["float"]
     min: float
@@ -27,6 +50,17 @@ class FloatAttribute:
 
 @dataclass
 class BooleanAttribute:
+    """Summary of a boolean-type attribute.
+
+    Captures the distribution of True and False values across events or objects.
+
+    Attributes:
+        attribute (str): The name of the attribute.
+        type (Literal["boolean"]): Discriminator indicating boolean type.
+        true_count (int): Number of True occurrences.
+        false_count (int): Number of False occurrences.
+    """
+
     attribute: str
     type: Literal["boolean"]
     true_count: int
@@ -35,6 +69,17 @@ class BooleanAttribute:
 
 @dataclass
 class DateAttribute:
+    """Summary of a date or datetime-type attribute.
+
+    Captures the temporal range of date values observed.
+
+    Attributes:
+        attribute (str): The name of the attribute.
+        type (Literal["date"]): Discriminator indicating date type.
+        min (str): Minimum (earliest) observed date value as ISO string.
+        max (str): Maximum (latest) observed date value as ISO string.
+    """
+
     attribute: str
     type: Literal["date"]
     min: str
@@ -43,11 +88,29 @@ class DateAttribute:
 
 @dataclass
 class NominalAttribute:
+    """Summary of a nominal (categorical) attribute.
+
+    Represents an attribute with discrete symbolic values, such as labels or categories.
+
+    Attributes:
+        attribute (str): The name of the attribute.
+        type (Literal["nominal"]): Discriminator indicating nominal type.
+        num_unique (int): Number of unique values observed.
+    """
+
     attribute: str
     type: Literal["nominal"]
     num_unique: int
 
 
+"""Union model representing any supported attribute summary.
+
+Each instance corresponds to one of the five attribute summary types
+(`IntegerAttribute`, `FloatAttribute`, `BooleanAttribute`, `DateAttribute`, `NominalAttribute`),
+distinguished by the `type` discriminator.
+
+Used to represent summarized attribute metadata in OCEL analysis.
+"""
 AttributeSummary = Annotated[
     Union[
         IntegerAttribute,
