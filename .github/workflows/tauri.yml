@@ -5,7 +5,10 @@ on:
   push:
     branches:
       - ci-test # optional: auto-run on your test branch
-
+  pull_request: # 👈 runs automatically for pull requests
+    branches:
+      - main # PRs targeting main branch
+      - release
 jobs:
   build:
     name: Build Tauri app with uv backend
