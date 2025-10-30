@@ -1,0 +1,88 @@
+name: build-tauri
+
+on:
+  workflow_dispatch: # 👈 manual trigger from GitHub UI
+  push:
+    branches:
+      - ci-test # optional: auto-run on your test branch
+
+jobs:
+  build:
+    name: Build Tauri app with uv backend
+    runs-on: ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            args: "--target aarch64-apple-darwin"
+          - platform: macos-latest
+            args: "--target x86_64-apple-darwin"
+          - platform: ubuntu-22.04
+            args: ""
+          - platform: windows-latest
+            args: ""
+
+    steps:
+      # 🧱 Checkout repository
+      - uses: actions/checkout@v5
+
+      # 🐍 Setup uv + Python
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+
+      # ⚙️ Cache uv dependencies
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ hashFiles('src/backend/uv.lock') }}
+
+      # 📦 Sync backend dependencies
+      - name: Sync backend dependencies
+        working-directory: src/backend
+        run: uv sync --locked --all-extras --dev
+
+      # 🏗️ Build backend binary
+      - name: Build backend binary
+        working-directory: src/backend
+        run: uv run pyinstaller --clean main.spec
+
+      # 🧩 Verify binary output
+      - name: Verify backend binary output
+        run: ls -R src/frontend/src-tauri/bin/api
+
+      # ⚙️ Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      # 🦀 Setup Rust (for Tauri)
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          # Adds cross-targets for macOS builds (needed for universal testing)
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      # 🧰 (Linux only) Install Tauri system deps
+      - name: Install Tauri system dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      # 📦 Install frontend dependencies
+      - name: Install frontend dependencies
+        working-directory: src/frontend
+        run: yarn install --frozen-lockfile
+
+      # 🚀 Build Tauri app
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        with:
+          projectPath: src/frontend # 👈 must point to the Tauri project
+          args: ${{ matrix.args }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
