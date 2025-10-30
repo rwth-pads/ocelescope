@@ -23,7 +23,7 @@ target_triple_map = {
     ("linux", "aarch64"): "aarch64-unknown-linux-gnu",
     ("darwin", "x86_64"): "x86_64-apple-darwin",
     ("darwin", "aarch64"): "aarch64-apple-darwin",
-    ("windows", "x86_64"): "x86_64-pc-windows-msvc",
+    ("windows", "x86_64"): "x86_64-pc-windows-msvc.exe",
 }
 
 target_triple = target_triple_map.get((system, machine), f"{machine}-{system}")

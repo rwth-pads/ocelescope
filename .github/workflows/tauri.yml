@@ -21,7 +21,7 @@ jobs:
             args: "--target aarch64-apple-darwin"
           - platform: macos-13
             args: "--target x86_64-apple-darwin"
-          - platform: ubuntu-22.04
+          - platform: ubuntu-24.04
             args: ""
           - platform: windows-latest
             args: ""
@@ -40,6 +40,11 @@ jobs:
         with:
           python-version: "3.13"
 
+      - name: Install SuiteSparse (macOS only)
+        if: startsWith(matrix.platform, 'macos')
+        run: |
+          brew update
+          brew install suite-sparse
       # ⚙️ Cache uv dependencies
       - uses: actions/cache@v4
         with:
@@ -75,11 +80,18 @@ jobs:
 
       # 🧰 (Linux only) Install Tauri system deps
       - name: Install Tauri system dependencies
-        if: matrix.platform == 'ubuntu-22.04'
+        if: matrix.platform == 'ubuntu-24.04'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
-
+          sudo apt-get install -y libappindicator3-dev librsvg2-dev patchelf
+          sudo apt install -y \
+          libwebkit2gtk-4.1-0=2.44.0-2 \
+          libwebkit2gtk-4.1-dev=2.44.0-2 \
+          libjavascriptcoregtk-4.1-0=2.44.0-2 \
+          libjavascriptcoregtk-4.1-dev=2.44.0-2 \
+          gir1.2-javascriptcoregtk-4.1=2.44.0-2 \
+          gir1.2-webkit2-4.1=2.44.0-2 \
+          xdg-utils
       # 📦 Install frontend dependencies
       - name: Install frontend dependencies
         working-directory: src/frontend
@@ -91,7 +103,15 @@ jobs:
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
         with:
-          projectPath: src/frontend # 👈 must point to the Tauri project
+          projectPath: src/frontend
           args: ${{ matrix.args }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # 📤 Upload built Tauri app as an artifact (for PR testing or CI validation)
+      - name: Upload Tauri build artifacts
+        if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/ci-test' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: tauri-${{ matrix.platform }}
+          path: |
+            src/frontend/src-tauri/target/release/bundle/
