@@ -3,6 +3,7 @@ use tauri::path::BaseDirectory;
 use tauri::{Emitter, Manager, RunEvent};
 use tauri_plugin_shell::process::{CommandChild, CommandEvent};
 use tauri_plugin_shell::ShellExt;
+use std::fs;
 
 // Wrapper struct for sidecar process with automatic cleanup
 struct SidecarProcess {
@@ -120,10 +121,18 @@ fn toggle_fullscreen(window: tauri::Window) {
 
 // Helper function to spawn the sidecar and monitor its stdout/stderr
 fn spawn_and_monitor_sidecar(app_handle: tauri::AppHandle) -> Result<(), String> {
+
+    let plugin_dir = app_handle
+        .path()
+        .resolve("plugins", BaseDirectory::AppConfig)
+        .map_err(|e| format!("Failed to resolve plugin dir: {}", e))?;
+    fs::create_dir_all(&plugin_dir).ok(); // just make sure it exists
+    //
     let data_folder_path = app_handle
         .path()
         .resolve("../../../data", BaseDirectory::Resource)
         .map_err(|e| format!("Failed to resolve data folder path: {}", e));
+
 
     // Check if a sidecar process already exists
     if let Some(state) = app_handle.try_state::<Arc<Mutex<SidecarProcess>>>() {
@@ -139,7 +148,9 @@ fn spawn_and_monitor_sidecar(app_handle: tauri::AppHandle) -> Result<(), String>
         .shell()
         .sidecar("main")
         .map_err(|e| e.to_string())?
-        .env("DATA_DIR", data_folder_path?);
+        .env("DATA_DIR", data_folder_path?)
+        .env("PLUGIN_DIR", &plugin_dir)
+        .env("FRONTEND_URL","tauri://localhost");
 
     let (mut rx, child) = sidecar_command.spawn().map_err(|e| e.to_string())?;
     // Store the child process in the app state
@@ -235,7 +246,17 @@ fn start_sidecar(app_handle: tauri::AppHandle) -> Result<String, String> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    #[cfg(debug_assertions)]
+    let devtools = tauri_plugin_devtools::init();
+
+    let mut builder = tauri::Builder::default();
+
+    #[cfg(debug_assertions)]
+    {
+        builder = builder.plugin(devtools);
+    }
+
+    builder
         // Add any necessary plugins
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_http::init())
