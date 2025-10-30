@@ -79,7 +79,9 @@ jobs:
       # 📦 Install frontend dependencies
       - name: Install frontend dependencies
         working-directory: src/frontend
-        run: yarn install --frozen-lockfile
+        run: |
+          npm ci
+          npm run generate:api
 
       # 🚀 Build Tauri app
       - name: Build Tauri app
