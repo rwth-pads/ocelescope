@@ -6,6 +6,8 @@ import R1 from "@/modules/ocelot/pages/eventOverview";
 import R2 from "@/modules/ocelot/pages/events";
 import R3 from "@/modules/ocelot/pages/objectOverview";
 import R4 from "@/modules/ocelot/pages/objects";
+import statistics_module from "@/modules/statistics";
+import R5 from "@/modules/statistics/pages/index";
 
 const moduleMap = {
   filter: {
@@ -21,6 +23,12 @@ const moduleMap = {
       events: R2,
       objectOverview: R3,
       objects: R4,
+    },
+  },
+  statistics: {
+    ...statistics_module,
+    routes: {
+      Statistics: R5,
     },
   },
 } as const;
