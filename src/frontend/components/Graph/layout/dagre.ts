@@ -1,5 +1,5 @@
-import dagre, { GraphLabel } from "@dagrejs/dagre";
-import { Node, useReactFlow } from "@xyflow/react";
+import dagre, { type GraphLabel } from "@dagrejs/dagre";
+import { type Node, useReactFlow } from "@xyflow/react";
 import { useCallback } from "react";
 
 export const useDagreLayout = () => {

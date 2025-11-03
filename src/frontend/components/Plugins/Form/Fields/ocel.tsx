@@ -7,10 +7,11 @@ import {
   useObjectIds,
 } from "@/api/fastapi/ocels/ocels";
 import { MultiSelect, Select } from "@mantine/core";
-import { FieldProps } from "@rjsf/utils";
-import { Control, useWatch } from "react-hook-form";
-import { PluginInputType } from "..";
-import React, { memo, useState } from "react";
+import type { FieldProps } from "@rjsf/utils";
+import { type Control, useWatch } from "react-hook-form";
+import type { PluginInputType } from "..";
+import type React from "react";
+import { memo, useState } from "react";
 import { useDebouncedValue } from "@mantine/hooks";
 
 type OcelFieldProps = {

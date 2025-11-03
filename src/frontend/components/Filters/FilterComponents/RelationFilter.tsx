@@ -9,11 +9,16 @@ import {
 } from "@mantine/core";
 import { memo, useMemo } from "react";
 import { PlusIcon, X } from "lucide-react";
-import { OCELFilter, RelationCountSummary } from "@/api/fastapi-schemas";
+import type { OCELFilter, RelationCountSummary } from "@/api/fastapi-schemas";
 import { useE2o, useO2o } from "@/api/fastapi/ocels/ocels";
-import { Control, Controller, useFieldArray, useWatch } from "react-hook-form";
-import { FilterType } from "@/types/filters";
-import { FilterPageComponentProps } from "..";
+import {
+  type Control,
+  Controller,
+  useFieldArray,
+  useWatch,
+} from "react-hook-form";
+import type { FilterType } from "@/types/filters";
+import type { FilterPageComponentProps } from "..";
 
 const RelationFilter: React.FC<{
   soureRelations?: RelationCountSummary[];

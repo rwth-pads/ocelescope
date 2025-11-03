@@ -1,5 +1,7 @@
-import { ReactNode, useEffect, useMemo, useRef } from "react";
-import useEntityClick, { CytoscapeClickEntity } from "../hooks/useEntityClick";
+import { type ReactNode, useEffect, useMemo, useRef } from "react";
+import useEntityClick, {
+  type CytoscapeClickEntity,
+} from "../hooks/useEntityClick";
 
 import { useFloating, flip, shift, offset, arrow } from "@floating-ui/react";
 import { Paper } from "@mantine/core";

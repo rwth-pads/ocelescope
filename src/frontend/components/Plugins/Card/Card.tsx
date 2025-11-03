@@ -1,4 +1,4 @@
-import { PluginApi } from "@/api/fastapi-schemas";
+import type { PluginApi } from "@/api/fastapi-schemas";
 import { useGetExtensionMeta } from "@/api/fastapi/ocels/ocels";
 import { useDeletePlugin } from "@/api/fastapi/plugins/plugins";
 import { useGetResourceMeta } from "@/api/fastapi/resources/resources";

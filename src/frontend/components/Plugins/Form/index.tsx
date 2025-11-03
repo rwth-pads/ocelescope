@@ -1,4 +1,4 @@
-import { PluginMethod } from "@/api/fastapi-schemas";
+import type { PluginMethod } from "@/api/fastapi-schemas";
 import { Button, Stack } from "@mantine/core";
 import OcelSelect from "@/components/OcelSelect/OcelSelect";
 import { Controller, useForm } from "react-hook-form";
