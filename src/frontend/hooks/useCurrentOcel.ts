@@ -14,7 +14,7 @@ const useCurrentOcel = () => {
     if (!ocelId && ocels.length > 0) {
       setOcel(ocels[0].id);
     }
-  }, [ocels, ocelId]);
+  }, [ocels, ocelId, setOcel, clearOcel]);
 
   return { id: ocelId, setCurrentOcel: setOcel };
 };

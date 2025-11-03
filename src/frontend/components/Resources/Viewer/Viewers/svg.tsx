@@ -3,6 +3,7 @@ import { saveAs } from "file-saver";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import { DownloadIcon, MaximizeIcon, MinusIcon, PlusIcon } from "lucide-react";
 import type { VisualizationProps } from "..";
+import { ReactSVG } from "react-svg";
 import { Fragment } from "react";
 
 export const SvgPanWrapper: React.FC<{
@@ -78,9 +79,12 @@ const SvgViewer: React.FC<VisualizationProps<"svg">> = ({
 
   return (
     <Wrapper onDownload={handleDownload}>
-      <div
-        style={{ width: "100%", height: "100%" }}
-        dangerouslySetInnerHTML={{ __html: cleanedSvg }}
+      <ReactSVG
+        src={`data:image/svg+xml;utf8,${encodeURIComponent(cleanedSvg)}`}
+        beforeInjection={(svg) => {
+          svg.setAttribute("width", "100%");
+          svg.setAttribute("height", "100%");
+        }}
       />
     </Wrapper>
   );

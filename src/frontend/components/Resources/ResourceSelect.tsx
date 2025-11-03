@@ -12,7 +12,7 @@ const ResourceSelect: React.FC<
       {...props}
       defaultValue={resources[0]?.id}
       data={resources.map(({ name, id }) => ({ value: id, label: name }))}
-    ></Select>
+    />
   );
 };
 

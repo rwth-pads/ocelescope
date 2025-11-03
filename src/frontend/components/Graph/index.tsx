@@ -129,7 +129,7 @@ const InnerFlow: React.FC<Props> = ({
               movedNodes.includes(edge.target) ||
               movedNodes.includes(edge.source)
                 ? undefined
-                : edge.data!.position!,
+                : edge.data?.position,
           },
         })),
       );
@@ -140,9 +140,13 @@ const InnerFlow: React.FC<Props> = ({
 
   const { layout } = layoutToHook[layoutOptions.type]();
 
+  const hasMeasuredNodes = nodes.some(({ measured }) => !!measured);
+
   useEffect(() => {
-    void layout(layoutOptions?.options);
-  }, [initialNodes, initialEdges, nodes.some(({ measured }) => !!measured)]);
+    if (hasMeasuredNodes) {
+      void layout(layoutOptions?.options);
+    }
+  }, [layout, layoutOptions, hasMeasuredNodes]);
 
   return (
     <ReactFlow
@@ -164,7 +168,7 @@ const InnerFlow: React.FC<Props> = ({
         }
         <ActionIcon
           variant="transparent"
-          onClick={() => handleDownload(`ocelot`)}
+          onClick={() => handleDownload("ocelot")}
         >
           <DownloadIcon color={"black"} size={18} />
         </ActionIcon>

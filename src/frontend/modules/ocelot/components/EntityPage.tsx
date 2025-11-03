@@ -60,7 +60,7 @@ const EntityPage: React.FC<{ type: "events" | "objects" }> = ({ type }) => {
 
   const entityNames = useMemo(
     () => Object.keys((type === "events" ? eventCounts : objectCounts) ?? {}),
-    [eventCounts, objectCounts],
+    [eventCounts, objectCounts, type],
   );
 
   //TODO: Make this in a collapsable table rather then extra collumns
@@ -71,7 +71,7 @@ const EntityPage: React.FC<{ type: "events" | "objects" }> = ({ type }) => {
     const relations = (type === "events" ? e2o : o2o) ?? [];
 
     return relations.filter(({ source }) => source === currentTab);
-  }, [e2o, o2o, currentTab]);
+  }, [e2o, o2o, currentTab, type]);
 
   const { data: eventEntities } = useOcelotPaginatedEvents(
     {

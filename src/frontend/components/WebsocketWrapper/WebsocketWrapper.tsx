@@ -15,7 +15,7 @@ const WebsocketWrapper = () => {
     sessionId ? env.websocketUrl : null,
     sessionId
       ? {
-          queryParams: { session_id: sessionId! },
+          queryParams: { session_id: sessionId },
           retryOnError: true,
           reconnectInterval: 1000,
           share: true,
@@ -45,7 +45,7 @@ const WebsocketWrapper = () => {
       case "invalidation":
         invalidate(message.routes);
     }
-  }, [lastJsonMessage]);
+  }, [lastJsonMessage, invalidate]);
 
   return null;
 };

@@ -79,7 +79,6 @@ const EntityTable: React.FC = () => {
           break;
         case "resource":
           deleteResource({ resourceId: id });
-          break;
       }
     },
     [deleteResource, deleteOcel],
@@ -89,6 +88,7 @@ const EntityTable: React.FC = () => {
       switch (entityType) {
         case "ocel":
           renameOcel({ params: { ocel_id: id, new_name: newName } });
+          break;
         case "resource":
           renameResource({ resourceId: id, params: { new_name: newName } });
       }
@@ -129,10 +129,12 @@ const EntityTable: React.FC = () => {
 
   return (
     <>
-      <ResourceModal
-        id={viewedResouce}
-        onClose={() => setViewedResource(undefined)}
-      />
+      {viewedResouce && (
+        <ResourceModal
+          id={viewedResouce}
+          onClose={() => setViewedResource(undefined)}
+        />
+      )}
       {entities.length ? (
         <DataTable<Entity>
           withTableBorder
@@ -223,7 +225,7 @@ const EntityTable: React.FC = () => {
                     >
                       Rename
                     </Menu.Item>
-                    {type == "resource" && (
+                    {type === "resource" && (
                       <MenuItem
                         leftSection={<EyeIcon size={16} />}
                         onClick={() => setViewedResource(id)}

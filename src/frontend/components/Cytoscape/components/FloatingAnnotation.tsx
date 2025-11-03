@@ -37,24 +37,23 @@ const FloatingAnnotation: React.FC<{
             bottom: top + height,
           }) as DOMRect,
       };
-    } else {
-      const m = entity.midpoint!;
-      const x = containerRect.left + m.x;
-      const y = containerRect.top + m.y;
-      return {
-        getBoundingClientRect: () =>
-          ({
-            x,
-            y,
-            width: 0,
-            height: 0,
-            top: y,
-            left: x,
-            right: x,
-            bottom: y,
-          }) as DOMRect,
-      };
     }
+    const m = entity.midpoint;
+    const x = containerRect.left + m.x;
+    const y = containerRect.top + m.y;
+    return {
+      getBoundingClientRect: () =>
+        ({
+          x,
+          y,
+          width: 0,
+          height: 0,
+          top: y,
+          left: x,
+          right: x,
+          bottom: y,
+        }) as DOMRect,
+    };
   }, [entity, container]);
 
   const { x, y, refs, strategy } = useFloating({
@@ -76,7 +75,7 @@ const FloatingAnnotation: React.FC<{
 
   const child = useMemo(
     () => (entity ? children(entity) : undefined),
-    [entity],
+    [entity, children],
   );
 
   if (!entity || !virtualRef || child == null) return null;

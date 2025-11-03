@@ -32,7 +32,7 @@ const PluginPage = () => {
     if (!pluginMethod && !isLoading) {
       router.push("/plugins");
     }
-  }, [isLoading, pluginMethod]);
+  }, [isLoading, pluginMethod, router]);
 
   const [currentTask, setCurrentTask] = useState<string>();
 
@@ -69,7 +69,7 @@ const PluginPage = () => {
           pluginId={id as string}
           method={pluginMethod}
         />
-        <ResultSection taskId={currentTask} />
+        {currentTask && <ResultSection taskId={currentTask} />}
       </Stack>
     </Container>
   );

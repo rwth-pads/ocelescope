@@ -6,6 +6,7 @@ import type {
 } from "@/api/fastapi-schemas";
 import { DataTable, type DataTableSortStatus } from "mantine-datatable";
 import { useMemo } from "react";
+
 const EntityTable: React.FC<{
   entities: PaginatedResponse;
   attributes?: (EventAttributes200Item | ObjectAttributes200Item)[];
@@ -43,7 +44,7 @@ const EntityTable: React.FC<{
         accessor: qualifier !== "" ? qualifier : target,
       })),
     ],
-    [withTimestamp, attributes],
+    [withTimestamp, attributes, relations],
   );
 
   const records = useMemo(

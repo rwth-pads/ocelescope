@@ -1,10 +1,5 @@
-// context/NotificationContext.tsx
 import { useGetSystemTasks } from "@/api/fastapi/tasks/tasks";
-import {
-  hideNotification,
-  showNotification,
-  // updateNotification, // (unused)
-} from "@mantine/notifications";
+import { hideNotification, showNotification } from "@mantine/notifications";
 import { createContext, useContext, useEffect, useState } from "react";
 
 type NotificationEntry = {
@@ -23,7 +18,6 @@ const NotificationContext = createContext<NotificationContextType | undefined>(
   undefined,
 );
 
-// stable empty array to avoid a new [] reference every render
 const EMPTY_TASKS: any[] = [];
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -56,13 +50,10 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     },
   );
 
-  // keep tasks reference stable when data is undefined
   const tasks = data ?? EMPTY_TASKS;
 
   useEffect(() => {
-    // react to task updates; use functional update to avoid stale 'notifications'
     setNotifications((prev) => {
-      // which notifications have all their tasks finished?
       const finished = prev.filter(
         (n) =>
           !n.tasks.some((taskId) =>
@@ -70,19 +61,15 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
           ),
       );
 
-      if (finished.length === 0) return prev; // no change, avoid rerender
+      if (finished.length === 0) return prev;
 
-      // hide finished notifications
-      finished.forEach(({ id }) => {
+      for (const id in finished) {
         try {
           hideNotification(id);
-        } catch {
-          // ignore if already hidden
-        }
-      });
+        } catch {}
+      }
 
       const finishedIds = new Set(finished.map((f) => f.id));
-      // IMPORTANT: return the filtered list (the bug was missing 'return')
       return prev.filter((n) => !finishedIds.has(n.id));
     });
   }, [tasks]);
