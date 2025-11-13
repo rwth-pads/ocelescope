@@ -1,14 +1,13 @@
 name: build-tauri
 
 on:
-  workflow_dispatch: # 👈 manual trigger from GitHub UI
   push:
     branches:
-      - ci-test # optional: auto-run on your test branch
-  pull_request: # 👈 runs automatically for pull requests
+      - ci-test
+  pull_request:
     branches:
-      - main # PRs targeting main branch
-      - release
+      - main
+
 jobs:
   build:
     name: Build Tauri app with uv backend
@@ -30,88 +29,79 @@ jobs:
       TAURI_BUILD: true
       RUST_BACKTRACE: 1
       NO_STRIP: true
+
     steps:
-      # 🧱 Checkout repository
       - uses: actions/checkout@v5
 
-      # 🐍 Setup uv + Python
       - name: Setup uv
         uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.13"
 
-      - name: Install SuiteSparse (macOS only)
-        if: startsWith(matrix.platform, 'macos')
-        run: |
-          brew update
-          brew install suite-sparse
-      # ⚙️ Cache uv dependencies
       - uses: actions/cache@v4
         with:
           path: ~/.cache/uv
           key: ${{ runner.os }}-uv-${{ hashFiles('src/backend/uv.lock') }}
 
-      # 📦 Sync backend dependencies
       - name: Sync backend dependencies
         working-directory: src/backend
         run: uv sync --locked --all-extras --dev
 
-      # 🏗️ Build backend binary
       - name: Build backend binary
         working-directory: src/backend
         run: uv run pyinstaller --clean main.spec
 
-      # 🧩 Verify binary output
       - name: Verify backend binary output
         run: ls -R src/frontend/src-tauri/bin/api
 
-      # ⚙️ Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
 
-      # 🦀 Setup Rust (for Tauri)
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          # Adds cross-targets for macOS builds (needed for universal testing)
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
-      # 🧰 (Linux only) Install Tauri system deps
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            src/frontend/src-tauri -> target
+
       - name: Install Tauri system dependencies
         if: matrix.platform == 'ubuntu-24.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y libappindicator3-dev librsvg2-dev patchelf
           sudo apt install -y \
-          libwebkit2gtk-4.1-0=2.44.0-2 \
-          libwebkit2gtk-4.1-dev=2.44.0-2 \
-          libjavascriptcoregtk-4.1-0=2.44.0-2 \
-          libjavascriptcoregtk-4.1-dev=2.44.0-2 \
-          gir1.2-javascriptcoregtk-4.1=2.44.0-2 \
-          gir1.2-webkit2-4.1=2.44.0-2 \
-          xdg-utils
-      # 📦 Install frontend dependencies
+            libwebkit2gtk-4.1-0 \
+            libwebkit2gtk-4.1-dev \
+            libjavascriptcoregtk-4.1-0 \
+            libjavascriptcoregtk-4.1-dev \
+            gir1.2-javascriptcoregtk-4.1 \
+            gir1.2-webkit2-4.1 \
+            xdg-utils
+
       - name: Install frontend dependencies
         working-directory: src/frontend
         run: |
           npm ci
           npm run generate:api
 
-      # 🚀 Build Tauri app
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
         with:
           projectPath: src/frontend
+          includeRelease: false
           args: ${{ matrix.args }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # 📤 Upload built Tauri app as an artifact (for PR testing or CI validation)
+
       - name: Upload Tauri build artifacts
         if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/ci-test' }}
         uses: actions/upload-artifact@v4
         with:
           name: tauri-${{ matrix.platform }}
-          path: |
-            src/frontend/src-tauri/target/release/bundle/
+          path: src/frontend/src-tauri/target/**/release/bundle/
