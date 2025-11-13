@@ -85,7 +85,6 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         with:
           projectPath: src/frontend
-          includeRelease: false
           args: ${{ matrix.args }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
