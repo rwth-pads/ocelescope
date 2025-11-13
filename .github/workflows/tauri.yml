@@ -18,7 +18,7 @@ jobs:
         include:
           - platform: macos-latest
             args: "--target aarch64-apple-darwin"
-          - platform: ubuntu-24.04
+          - platform: ubuntu-22.04
             args: ""
           - platform: windows-latest
             args: ""
@@ -61,19 +61,17 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
-      - name: Install Tauri system dependencies
-        if: matrix.platform == 'ubuntu-24.04'
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src/frontend/src-tauri -> target"
+
+      - name: install dependencies
+        if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libappindicator3-dev librsvg2-dev patchelf
-          sudo apt install -y \
-            libwebkit2gtk-4.1-0 \
-            libwebkit2gtk-4.1-dev \
-            libjavascriptcoregtk-4.1-0 \
-            libjavascriptcoregtk-4.1-dev \
-            gir1.2-javascriptcoregtk-4.1 \
-            gir1.2-webkit2-4.1 \
-            xdg-utils
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
       - name: Install frontend dependencies
         working-directory: src/frontend
