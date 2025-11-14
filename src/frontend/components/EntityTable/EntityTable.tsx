@@ -34,7 +34,7 @@ import {
 import useInvalidate from "@/hooks/useInvalidateResources";
 import dayjs from "@/util/dayjs";
 import uniqolor from "uniqolor";
-import { OCELExtensions } from "@/types/ocel";
+import type { OCELExtensions } from "@/types/ocel";
 import { useDownloadFile } from "@/hooks/useDownload";
 import ResourceModal from "../Resources/ResourceModal";
 

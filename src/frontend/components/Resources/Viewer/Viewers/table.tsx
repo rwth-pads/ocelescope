@@ -1,6 +1,7 @@
-import { VisualizationByType } from "@/types/resources";
+import type { VisualizationByType } from "@/types/resources";
 
-import React, { useEffect, useMemo, useState } from "react";
+import type React from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DataTable, type DataTableColumn } from "mantine-datatable";
 import dayjs from "@/util/dayjs";
 import { formatDate, formatDateTime } from "@/util/formatters";

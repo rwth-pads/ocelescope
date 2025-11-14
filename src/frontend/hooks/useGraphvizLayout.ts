@@ -109,8 +109,8 @@ export const toDot = (visualization: VisualizationByType<"graph">) => {
 const parsePos = (s?: string) => {
   if (!s) return;
   const [xs, ys] = s.split(",");
-  const x = parseFloat(xs);
-  const y = parseFloat(ys);
+  const x = Number.parseFloat(xs);
+  const y = Number.parseFloat(ys);
   if (Number.isFinite(x) && Number.isFinite(y)) return { x, y };
 };
 
@@ -150,7 +150,7 @@ export const useGraphvizLayout = (
           if (!p) return;
           nodePos[o.name] = {
             ...p,
-            width: o.width ? parseFloat(o.width) * 72 : undefined,
+            width: o.width ? Number.parseFloat(o.width) * 72 : undefined,
           };
         });
 

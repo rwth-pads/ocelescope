@@ -1,4 +1,4 @@
-import {
+import type {
   ObjectAttributes200Item,
   RelationCountSummary,
 } from "@/api/fastapi-schemas";

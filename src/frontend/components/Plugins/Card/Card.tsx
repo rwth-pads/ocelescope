@@ -1,4 +1,4 @@
-import { PluginApi } from "@/api/fastapi-schemas";
+import type { PluginApi } from "@/api/fastapi-schemas";
 import { useDeletePlugin } from "@/api/fastapi/plugins/plugins";
 import { GenericCard } from "@/components/Cards/GenericCard";
 import UploadModal from "@/components/UploadModal/UploadModal";

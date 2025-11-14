@@ -26,7 +26,7 @@ import Link from "next/link";
 import { useLogout } from "@/api/fastapi/session/session";
 import { useQueryClient } from "@tanstack/react-query";
 import { getModuleRoute } from "@/lib/modules";
-import {
+import type {
   ModuleName,
   ModuleRouteDefinition,
   ModuleRouteName,

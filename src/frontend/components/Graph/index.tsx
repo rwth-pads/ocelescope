@@ -1,26 +1,27 @@
-import React, { ComponentProps, useCallback, useEffect, useState } from "react";
+import type React from "react";
+import { type ComponentProps, useCallback, useEffect, useState } from "react";
 import {
   ReactFlow,
   useEdgesState,
-  Node,
-  Edge,
+  type Node,
+  type Edge,
   ReactFlowProvider,
   Controls,
-  NodeChange,
+  type NodeChange,
   applyNodeChanges,
 } from "@xyflow/react";
 
 import CircleNode, {
-  CircleNodeType,
+  type CircleNodeType,
 } from "@/components/Graph/nodes/CircleNode";
 import RectangleNode, {
-  RectangleNodeType,
+  type RectangleNodeType,
 } from "@/components/Graph/nodes/RectangleNode";
-import FloatingEdge, { FloatingEdgeType } from "./edges/FloatingEdge";
+import FloatingEdge, { type FloatingEdgeType } from "./edges/FloatingEdge";
 import { useDagreLayout } from "./layout/dagre";
-import { GraphLabel } from "@dagrejs/dagre";
+import type { GraphLabel } from "@dagrejs/dagre";
 import { useElkLayout } from "./layout/elk";
-import LoopingEdge, { LoopingEdgeType } from "./edges/LoopEdge";
+import LoopingEdge, { type LoopingEdgeType } from "./edges/LoopEdge";
 import { ActionIcon } from "@mantine/core";
 import { DownloadIcon } from "lucide-react";
 import { toPng } from "html-to-image";

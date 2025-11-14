@@ -1,6 +1,7 @@
-import React, { ComponentProps, useEffect, useRef } from "react";
+import type React from "react";
+import { type ComponentProps, useEffect, useRef } from "react";
 import CytoscapeComponent from "react-cytoscapejs";
-import { Core } from "cytoscape";
+import type { Core } from "cytoscape";
 import { CytoscapeContext } from "./CytoscapeContext";
 
 const CytoscapeGraph: React.FC<

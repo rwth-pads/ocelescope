@@ -1,4 +1,4 @@
-import { PluginMethod } from "@/api/fastapi-schemas";
+import type { PluginMethod } from "@/api/fastapi-schemas";
 import { useGetExtensionMeta } from "@/api/fastapi/ocels/ocels";
 import { useGetPlugin } from "@/api/fastapi/plugins/plugins";
 import { useGetResourceMeta } from "@/api/fastapi/resources/resources";
