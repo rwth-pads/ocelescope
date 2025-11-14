@@ -131,10 +131,12 @@ const EntityTable: React.FC = () => {
 
   return (
     <>
-      <ResourceModal
-        id={viewedResouce}
-        onClose={() => setViewedResource(undefined)}
-      />
+      {viewedResouce && (
+        <ResourceModal
+          id={viewedResouce}
+          onClose={() => setViewedResource(undefined)}
+        />
+      )}
       {entities.length ? (
         <DataTable<Entity>
           withTableBorder

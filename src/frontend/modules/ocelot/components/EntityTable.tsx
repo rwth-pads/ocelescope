@@ -44,7 +44,7 @@ const EntityTable: React.FC<{
         title: `${qualifier} (${target})`,
       })),
     ],
-    [withTimestamp, attributes],
+    [withTimestamp, attributes, relations],
   );
 
   const records = useMemo(
