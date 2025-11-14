@@ -114,35 +114,42 @@ const InnerFlow: React.FC<Props> = ({
     }),
   );
 
-  const onNodesChange = useCallback((changes: NodeChange[]) => {
-    const positionChange = changes.filter(
-      (change) => change.type === "position",
-    );
-    if (positionChange.length > 0) {
-      const movedNodes = positionChange.map((change) => change.id);
-      setEdges((edges) =>
-        edges.map((edge) => ({
-          ...edge,
-          data: {
-            ...edge.data,
-            position:
-              movedNodes.includes(edge.target) ||
-              movedNodes.includes(edge.source)
-                ? undefined
-                : edge.data!.position!,
-          },
-        })),
+  const onNodesChange = useCallback(
+    (changes: NodeChange[]) => {
+      const positionChange = changes.filter(
+        (change) => change.type === "position",
       );
-    }
+      if (positionChange.length > 0) {
+        const movedNodes = positionChange.map((change) => change.id);
+        setEdges((edges) =>
+          edges.map((edge) => ({
+            ...edge,
+            data: {
+              ...edge.data,
+              position:
+                movedNodes.includes(edge.target) ||
+                movedNodes.includes(edge.source)
+                  ? undefined
+                  : edge.data?.position,
+            },
+          })),
+        );
+      }
 
-    setNodes((nds) => applyNodeChanges(changes, nds));
-  }, []);
+      setNodes((nds) => applyNodeChanges(changes, nds));
+    },
+    [setEdges],
+  );
 
   const { layout } = layoutToHook[layoutOptions.type]();
 
+  const hasMeasuredNodes = nodes.some(({ measured }) => !!measured);
+
   useEffect(() => {
-    void layout(layoutOptions?.options);
-  }, [initialNodes, initialEdges, nodes.some(({ measured }) => !!measured)]);
+    if (hasMeasuredNodes) {
+      void layout(layoutOptions?.options);
+    }
+  }, [layout, layoutOptions, hasMeasuredNodes]);
 
   return (
     <ReactFlow
@@ -164,7 +171,7 @@ const InnerFlow: React.FC<Props> = ({
         }
         <ActionIcon
           variant="transparent"
-          onClick={() => handleDownload(`ocelot`)}
+          onClick={() => handleDownload("ocelot")}
         >
           <DownloadIcon color={"black"} size={18} />
         </ActionIcon>
