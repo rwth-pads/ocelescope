@@ -16,18 +16,16 @@ export const PluginCard: React.FC<{ plugin: PluginApi }> = ({ plugin }) => {
       description={description ?? ""}
       version={version}
       menuItems={
-        <>
-          <Menu.Item
-            leftSection={<Trash2Icon />}
-            color="red.6"
-            fw="bold"
-            onClick={() => {
-              deletePlugin({ pluginId: plugin.id });
-            }}
-          >
-            Delete
-          </Menu.Item>
-        </>
+        <Menu.Item
+          leftSection={<Trash2Icon />}
+          color="red.6"
+          fw="bold"
+          onClick={() => {
+            deletePlugin({ pluginId: plugin.id });
+          }}
+        >
+          Delete
+        </Menu.Item>
       }
       cta={{ link: `plugins/${plugin.id}`, title: "View Plugin" }}
     />

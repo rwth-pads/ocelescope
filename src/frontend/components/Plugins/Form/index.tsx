@@ -46,10 +46,11 @@ const PluginInput: React.FC<PluginInputProps> = ({
   });
 
   const onSubmit = useCallback(
-    handleSubmit((data) =>
-      runPlugin({ data, methodName: method.name, pluginId }),
-    ),
-    [handleSubmit, pluginId, method.name],
+    () =>
+      handleSubmit((data) =>
+        runPlugin({ data, methodName: method.name, pluginId }),
+      )(),
+    [handleSubmit, pluginId, method, runPlugin],
   );
 
   return (
