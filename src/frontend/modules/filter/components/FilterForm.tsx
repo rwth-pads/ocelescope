@@ -133,7 +133,7 @@ const FilterForm: React.FC<{
       {Object.entries(filterMap).map(([filterType, { filterPage }]) => {
         const Component = filterPage;
         return (
-          <Tabs.Panel value={filterType} p={"md"}>
+          <Tabs.Panel key={filterType} value={filterType} p={"md"}>
             <Component
               control={control}
               ocelParams={{
