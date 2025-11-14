@@ -111,7 +111,7 @@ const ocelFieldMap: Record<string, React.FC<OcelFieldProps>> = {
 export const wrapFieldsWithContext = (control: Control<PluginInputType>) => {
   const wrapped: Record<string, React.FC<FieldProps>> = {};
 
-  Object.entries(ocelFieldMap).forEach(([name, Field]) => {
+  for (const [name, Field] of Object.entries(ocelFieldMap)) {
     const Comp: React.FC<FieldProps> = ({
       schema,
       required,
@@ -137,7 +137,7 @@ export const wrapFieldsWithContext = (control: Control<PluginInputType>) => {
     };
 
     wrapped[name] = memo(Comp);
-  });
+  }
 
   return wrapped;
 };

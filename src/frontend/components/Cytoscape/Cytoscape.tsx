@@ -112,7 +112,9 @@ const CytoscapeGraph: React.FC<
       <CytoscapeComponent
         style={{ width: "100%", height: "100%" }}
         stylesheet={[...nodeStyles, ...edgeStyles]}
-        cy={(cy) => (cytoscapeRef.current = cy)}
+        cy={(cy) => {
+          cytoscapeRef.current = cy;
+        }}
         {...props}
       />
       {children}

@@ -31,7 +31,7 @@ export const GenericCard: React.FC<{
           {tags && (
             <Group gap={"xs"}>
               {tags.map((tag) => (
-                <Badge size="sm" color={uniqolor(tag).color}>
+                <Badge key={tag} size="sm" color={uniqolor(tag).color}>
                   {tag}
                 </Badge>
               ))}

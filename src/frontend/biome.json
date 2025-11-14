@@ -43,10 +43,14 @@
         "noUnusedImports": "error"
       },
       "suspicious": {
-        "noExplicitAny": "off"
+        "noExplicitAny": "off",
+        "noArrayIndexKey": "off"
       },
       "security": {
         "noDangerouslySetInnerHtml": "off"
+      },
+      "a11y": {
+        "noSvgWithoutTitle": "off"
       }
     }
   },

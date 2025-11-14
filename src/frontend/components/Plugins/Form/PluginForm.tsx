@@ -81,7 +81,7 @@ const PluginForm: React.FC<PluginFormProps> = ({
 
   const computedFields = useMemo(
     () => getComputedSelect({ methodName, pluginId, control }),
-    [methodName, pluginId],
+    [methodName, pluginId, control],
   );
 
   return (

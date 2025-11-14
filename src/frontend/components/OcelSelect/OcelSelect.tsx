@@ -13,7 +13,7 @@ const OcelSelect: React.FC<
     <Select
       {...props}
       data={ocels.map(({ name, id }) => ({ value: id, label: name }))}
-    ></Select>
+    />
   );
 };
 
