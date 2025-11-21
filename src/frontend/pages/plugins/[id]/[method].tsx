@@ -3,6 +3,7 @@ import {
   useGetPluginMethod,
 } from "@/api/fastapi/plugins/plugins";
 import PluginInput from "@/components/Plugins/Form";
+import PluginTaskList from "@/components/Plugins/PluginTaskList/PluginTaskList";
 import ResultSection from "@/components/Plugins/ResultSection/ResultSection";
 import {
   Anchor,
@@ -61,6 +62,10 @@ const PluginPage = () => {
               <Text c="dimmed">{pluginMethod?.description}</Text>
             )}
           </Stack>
+          <PluginTaskList
+            pluginId={id as string}
+            methodName={method as string}
+          />
         </Stack>
         <PluginInput
           onSuccess={setCurrentTask}

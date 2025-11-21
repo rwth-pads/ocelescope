@@ -1,3 +1,4 @@
+import asyncio
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -56,6 +57,9 @@ class PluginTask(TaskBase, Generic[P]):
         self.method_name = method_name
         self.input = input
         self.result: PluginOutput = PluginOutput()
+
+        self.start_date: str | None
+        self.finish_date: str | None
 
         self.session = session
 
@@ -165,7 +169,7 @@ class PluginTask(TaskBase, Generic[P]):
         return generate_tuple_hash("plugin", plugin_name, method_name, input, filter)
 
     @classmethod
-    def create_plugin_task(
+    async def create_plugin_task(
         cls,
         session: "Session",
         plugin_id: str,
@@ -197,5 +201,8 @@ class PluginTask(TaskBase, Generic[P]):
         session._dedupe_keys[key] = task.id
 
         print(f"[Task] Starting in thread (ID: {task.id})")
-        task.start()
+
+        loop = asyncio.get_running_loop()
+        loop.run_in_executor(None, task.run)
+
         return task.id

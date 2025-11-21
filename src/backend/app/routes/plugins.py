@@ -51,7 +51,7 @@ def get_plugin_method(plugin_id: str, method_name: str) -> PluginMethod | None:
 
 
 @plugin_router.post("/{plugin_id}/{method_name}", operation_id="runPlugin")
-def run_plugin(
+async def run_plugin(
     input_ocels: dict[str, str],
     input_resources: dict[str, str],
     session: ApiSession,
@@ -59,7 +59,7 @@ def run_plugin(
     method_name: str,
     input: dict[str, Any] = {},
 ) -> str:
-    return PluginTask.create_plugin_task(
+    return await PluginTask.create_plugin_task(
         session,
         plugin_id=plugin_id,
         method_name=method_name,

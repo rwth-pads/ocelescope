@@ -2110,13 +2110,13 @@
         }
       }
     },
-    "/tasks/plugin": {
+    "/tasks/plugins": {
       "get": {
         "tags": [
           "tasks"
         ],
         "summary": "returns all tasks of a session",
-        "operationId": "getPluginTasks",
+        "operationId": "pluginTasks",
         "parameters": [
           {
             "name": "plugin_id",
@@ -2171,7 +2171,7 @@
                   "items": {
                     "$ref": "#/components/schemas/PluginTaskSummary"
                   },
-                  "title": "Response Getplugintasks"
+                  "title": "Response Plugintasks"
                 }
               }
             }

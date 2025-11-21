@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, cast
+from typing import cast
 
 from fastapi import Query
 from fastapi.routing import APIRouter
@@ -50,12 +50,12 @@ def get_system_task(session: ApiSession, task_id: str) -> SystemTaskSummary:
 
 
 @tasks_router.get(
-    "/plugin", summary="returns all tasks of a session", operation_id="getPluginTasks"
+    "/plugins", summary="returns all tasks of a session", operation_id="pluginTasks"
 )
 def get_plugin_tasks(
     session: ApiSession,
-    plugin_id: Optional[str],
-    method_name: Optional[str],
+    plugin_id: str | None,
+    method_name: str | None,
     only_running: bool = True,
 ) -> list[PluginTaskSummary]:
     def filter_tasks(task: PluginTask):
