@@ -10,7 +10,7 @@ from ocelescope.ocel.constants.pm4py import (
 )
 from ocelescope.ocel.managers.base import BaseManager
 from ocelescope.ocel.models.relations import RelationCountSummary
-from ocelescope.ocel.util.relations import summarize_e2o_counts
+from ocelescope.ocel.util.relations import SUMMARY_DIRECTION, summarize_e2o_counts
 from ocelescope.util.cache import instance_lru_cache
 
 if TYPE_CHECKING:
@@ -108,9 +108,8 @@ class E2OManager(BaseManager):
     # ---------------------------------------------------------
     # Summary
     # ---------------------------------------------------------
-    @property
     @instance_lru_cache()
-    def summary(self) -> list[RelationCountSummary]:
+    def summary(self, direction: SUMMARY_DIRECTION = "source") -> list[RelationCountSummary]:
         """
         Compute summary statistics for E2O relationships.
 
@@ -119,8 +118,15 @@ class E2OManager(BaseManager):
 
         Uses the shared utility `summarize_e2o_counts`.
 
+        Args:
+            direction (SUMMARY_DIRECTION, optional):
+                Whether the summary should be computed from the perspective
+                of the source object (``"source"``) or the target object
+                (``"target"``). Defaults to ``"source"``.
+
+
         Returns:
             list[RelationCountSummary]:
                 A list of structured summaries of E2O relations.
         """
-        return summarize_e2o_counts(self._ocel.ocel)
+        return summarize_e2o_counts(self._ocel.ocel, direction)

@@ -10,7 +10,7 @@ from ocelescope.ocel.constants.pm4py import (
 )
 from ocelescope.ocel.managers.base import BaseManager
 from ocelescope.ocel.models.relations import RelationCountSummary
-from ocelescope.ocel.util.relations import summarize_o2o_counts
+from ocelescope.ocel.util.relations import SUMMARY_DIRECTION, summarize_o2o_counts
 from ocelescope.util.cache import instance_lru_cache
 
 if TYPE_CHECKING:
@@ -85,17 +85,22 @@ class O2OManager(BaseManager):
 
         return df
 
-    @property
     @instance_lru_cache()
-    def summary(self) -> list[RelationCountSummary]:
+    def summary(self, direction: SUMMARY_DIRECTION = "source") -> list[RelationCountSummary]:
         """
         Compute summary statistics for O2O relationships.
 
         Summaries include min/max/total numbers of target objects
         per source object, grouped by qualifier and type.
 
+        Args:
+            direction (SUMMARY_DIRECTION, optional):
+                Whether the summary should be computed from the perspective
+                of the source object (``"source"``) or the target object
+                (``"target"``). Defaults to ``"source"``.
+
         Returns:
             list[RelationCountSummary]:
                 A list of structured relation count summaries.
         """
-        return summarize_o2o_counts(self._ocel.ocel)
+        return summarize_o2o_counts(self._ocel.ocel, direction)

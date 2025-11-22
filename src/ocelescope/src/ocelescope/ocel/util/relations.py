@@ -1,12 +1,14 @@
-from typing import Literal, Optional, cast
+from typing import Literal, cast
 
 import pandas as pd
 from pm4py.objects.ocel.obj import OCEL
 
 from ocelescope.ocel.models.relations import RelationCountSummary
 
+SUMMARY_DIRECTION = Literal["source", "target"]
 
-def getO2OWithTypes(ocel, direction: Literal["source", "target"] = "source"):
+
+def getO2OWithTypes(ocel, direction: SUMMARY_DIRECTION = "source"):
     o2o_with_types = pd.merge(
         ocel.o2o,
         ocel.objects[[ocel.object_id_column, ocel.object_type_column]],
@@ -105,7 +107,7 @@ def summarize_relation_counts(
 
 
 def summarize_e2o_counts(
-    ocel: OCEL, direction: Optional[Literal["source", "target"]] = "source"
+    ocel: OCEL, direction: SUMMARY_DIRECTION = "source"
 ) -> list[RelationCountSummary]:
     source_id_col = ocel.event_id_column if direction == "source" else ocel.object_id_column
     source_type_col = ocel.event_activity if direction == "source" else ocel.object_type_column
@@ -125,7 +127,7 @@ def summarize_e2o_counts(
 
 
 def summarize_o2o_counts(
-    ocel: OCEL, direction: Optional[Literal["source", "target"]] = "source"
+    ocel: OCEL, direction: SUMMARY_DIRECTION = "source"
 ) -> list[RelationCountSummary]:
     o2o = getO2OWithTypes(ocel, direction=direction or "source")
 
