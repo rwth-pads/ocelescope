@@ -9,44 +9,67 @@ from pm4py.objects.ocel.obj import OCEL as PM4PYOCEL
 
 from ocelescope.ocel.extensions.manager import ExtensionManager
 from ocelescope.ocel.filter.base import BaseFilter
-from ocelescope.ocel.managers.events import EventsManager
-from ocelescope.ocel.managers.objects import ObjectsManager
+from ocelescope.ocel.managers import E2OManager, EventsManager, O2OManager, ObjectsManager
 from ocelescope.ocel.models.meta import OCELMeta
 
 
 class OCEL:
+    """
+    High-level wrapper for an OCEL 2.0 event log.
+
+    This class provides a structured access layer over a PM4PY OCEL instance.
+    It exposes convenient managers for objects, events, E2O relations, O2O
+    relations, and extensions. It also supports reading, writing, and
+    filtering OCEL logs.
+
+    Attributes:
+        ocel (PM4PYOCEL):
+            The underlying PM4PY OCEL object containing the raw OCEL data
+            (events, objects, relations).
+        meta (OCELMeta):
+            Metadata associated with this OCEL instance, including file path,
+            unique ID, and any additional user-defined information.
+        extensions (ExtensionManager):
+            Manages all loaded OCEL extensions and handles exporting of
+            extension data.
+        objects (ObjectsManager):
+            Provides structured access to all object-related information such
+            as types, attributes, and object tables.
+        events (EventsManager):
+            Provides structured access to event-level information such as
+            activities, event attributes, and event tables.
+        e2o (E2OManager):
+            Manages event-to-object relations, including typed relations and
+            qualifier-based summaries.
+        o2o (O2OManager):
+            Manages object-to-object relations, providing typed lookups and
+            relation-count summaries.
+    """
+
     def __init__(self, ocel: PM4PYOCEL, meta: OCELMeta | None = None):
         self.ocel = ocel
         self.meta = meta or OCELMeta()
         self.extensions = ExtensionManager(self)
         self.objects = ObjectsManager(self)
         self.events = EventsManager(self)
-
-    @property
-    def e2o(self):
-        return self.ocel.relations
-
-    @property
-    def o2o(self):
-        return self.ocel.o2o
+        self.e2o = E2OManager(self)
+        self.o2o = O2OManager(self)
 
     def filter(self, pipeline: list[BaseFilter]) -> OCEL:
         """
         Apply a sequence of filters to this OCEL instance.
 
-        Each filter in the pipeline is executed in order, and their results are
-        combined to produce a filtered view of the underlying OCEL. A new OCEL
-        instance is returned containing only the events and objects that satisfy
-        all filters.
+        Filters are executed in sequence, and their boolean masks are merged
+        to produce a refined subset of events and objects. A new OCEL instance
+        is returned containing only the items that satisfy all filters.
 
         Args:
-            pipeline: A list of filter objects derived from ``BaseFilter``.
-                Each filter defines its own selection criteria for events and/or
-                objects.
+            pipeline (list[BaseFilter]):
+                A list of filter objects, each implementing a ``filter()`` method
+                that returns a ``FilterResult`` mask.
 
         Returns:
-            OCEL: A new OCEL instance containing only the filtered subset of
-            events and objects.
+            OCEL: A new OCEL instance representing the filtered view of the log.
         """
         from ocelescope.ocel.filter.engine import apply_filters
 
@@ -55,9 +78,21 @@ class OCEL:
     @staticmethod
     def read(path: str | Path, meta: dict[str, Any] = {}) -> OCEL:
         """
-        Read an OCEL2 (.jsonocel / .xmlocel / .sqlite) file
-        and return an OCEL wrapper.
+        Read an OCEL file (.jsonocel, .xmlocel, or .sqlite) from disk.
+
+        Automatically detects the file format based on extension and loads the
+        OCEL into a structured wrapper.
+
+        Args:
+            path (str | Path):
+                Path to the OCEL file on disk.
+            meta (dict[str, Any], optional):
+                Additional metadata to attach to the OCELMeta container.
+
+        Returns:
+            OCEL: A fully constructed OCEL wrapper instance.
         """
+
         path = Path(path)
 
         with warnings.catch_warnings(record=True):
@@ -75,7 +110,20 @@ class OCEL:
 
     def write(self, path: str | Path):
         """
-        Write the OCEL to disk based on file extension.
+        Write the OCEL log and all registered extensions to disk.
+
+        The output format is inferred from the file extension. Supported file
+        types are:
+            - .jsonocel
+            - .xmlocel
+            - .sqlite
+
+        Args:
+            path (str | Path):
+                Destination file path.
+
+        Raises:
+            ValueError: If the file extension is not supported.
         """
         path = Path(path)
 
@@ -90,10 +138,6 @@ class OCEL:
                 raise ValueError(f"Unsupported extension: {path.suffix}")
 
         self.extensions.export_all(path)
-
-    @property
-    def id(self) -> str:
-        return self.meta.id
 
     def __str__(self):
         return f"OCEL [{len(self.events.df)} events, {len(self.objects.df)} objects]"
