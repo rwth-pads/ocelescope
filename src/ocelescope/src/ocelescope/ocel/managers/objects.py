@@ -48,7 +48,7 @@ class ObjectsManager(BaseManager):
         Returns:
             DataFrame: A pandas DataFrame containing all dynamic updates to object attributes.
         """
-        return self._ocel.object_changes
+        return self._ocel.ocel.object_changes
 
     @property
     @instance_lru_cache()
