@@ -9,6 +9,7 @@ from pm4py.objects.ocel.obj import OCEL as PM4PYOCEL
 
 from ocelescope.ocel.extensions.manager import ExtensionManager
 from ocelescope.ocel.filter.base import BaseFilter
+from ocelescope.ocel.managers.events import EventsManager
 from ocelescope.ocel.managers.objects import ObjectsManager
 from ocelescope.ocel.models.meta import OCELMeta
 
@@ -19,10 +20,7 @@ class OCEL:
         self.meta = meta or OCELMeta()
         self.extensions = ExtensionManager(self)
         self.objects = ObjectsManager(self)
-
-    @property
-    def events(self):
-        return self.ocel.events
+        self.events = EventsManager(self)
 
     @property
     def e2o(self):
@@ -98,7 +96,7 @@ class OCEL:
         return self.meta.id
 
     def __str__(self):
-        return f"OCEL [{len(self.events)} events, {len(self.objects.df)} objects]"
+        return f"OCEL [{len(self.events.df)} events, {len(self.objects.df)} objects]"
 
     def __repr__(self):
         return str(self)
