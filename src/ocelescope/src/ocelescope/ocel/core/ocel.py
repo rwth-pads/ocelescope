@@ -3,7 +3,6 @@ from __future__ import annotations
 import warnings
 from pathlib import Path
 from typing import Any
-from uuid import uuid4
 
 import pm4py
 from pm4py.objects.ocel.obj import OCEL as PM4PYOCEL
@@ -16,7 +15,6 @@ from ocelescope.ocel.models.meta import OCELMeta
 
 class OCEL:
     def __init__(self, ocel: PM4PYOCEL, meta: OCELMeta | None = None):
-        self._id = id or str(uuid4())
         self.ocel = ocel
         self.meta = meta or OCELMeta()
         self.extensions = ExtensionManager(self)
