@@ -1,7 +1,4 @@
-from dataclasses import dataclass
-from typing import Optional
-from ocelescope import OCEL
-from ocelescope.ocel.filter import OCELFilter
+from ocelescope import OCEL, BaseFilter
 from pydantic.main import BaseModel
 
 from app.internal.registry.extension import OCELExtensionDescription
@@ -22,8 +19,20 @@ class OcelListResponse(BaseModel):
     ocels: list[OcelMetadata]
 
 
-@dataclass
-class Filtered_Ocel:
-    original: OCEL
-    filter: Optional[OCELFilter] = None
-    filtered: Optional[OCEL] = None
+class SessionOCEL:
+    def __init__(self, ocel: OCEL):
+        self.origin: OCEL = ocel
+        self.applied_filter: list[BaseFilter] = []
+        self._filtered_ocel: OCEL = ocel
+
+    @property
+    def ocel(self):
+        return self._filtered_ocel
+
+    def apply_filter(self, pipeline: list[BaseFilter]):
+        self.applied_filter = pipeline
+        self._filtered_ocel = (
+            self.origin.filter(self.applied_filter)
+            if len(self.applied_filter) >= 0
+            else self.origin
+        )
