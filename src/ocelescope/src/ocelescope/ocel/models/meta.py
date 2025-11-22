@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from ocelescope.ocel.util.factories import uuid_factory
+from ocelescope.util.pydantic import uuid_factory
 
 
 @dataclass
