@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Optional, cast
 import pandas as pd
 import pm4py
 
+from ocelescope.ocel.constants.pm4py import OID_COL
 from ocelescope.ocel.filter.base import BaseFilter, FilterResult
 
 if TYPE_CHECKING:
@@ -12,7 +13,7 @@ if TYPE_CHECKING:
 def compute_combined_masks(ocel: "OCEL", filters: list[BaseFilter]) -> FilterResult:
     combined = FilterResult(
         events=pd.Series(True, index=ocel.events.index),
-        objects=pd.Series(True, index=ocel.objects.index),
+        objects=pd.Series(True, index=ocel.objects.df.index),
     )
 
     for filter in filters:
@@ -33,7 +34,7 @@ def apply_filters(ocel: "OCEL", filters: list[BaseFilter]) -> "OCEL":
     )
 
     filtered_object_ids: Optional[pd.Series] = (
-        cast(pd.Series, ocel.objects[ocel.ocel.object_id_column][masks.objects])
+        cast(pd.Series, ocel.objects.df[OID_COL][masks.objects])
         if masks.objects is not None
         else None
     )
