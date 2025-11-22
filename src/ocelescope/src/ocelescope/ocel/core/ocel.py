@@ -34,10 +34,6 @@ class OCEL:
     def o2o(self):
         return self.ocel.o2o
 
-    @property
-    def object_changes(self):
-        return self.ocel.object_changes
-
     def filter(self, pipeline: list[BaseFilter]) -> OCEL:
         """
         Apply a sequence of filters to this OCEL instance.
