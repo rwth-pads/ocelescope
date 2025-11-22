@@ -2,16 +2,8 @@ from typing import Literal, Optional, cast
 
 import pandas as pd
 from pm4py.objects.ocel.obj import OCEL
-from pydantic.main import BaseModel
 
-
-class RelationCountSummary(BaseModel):
-    qualifier: str
-    source: str
-    target: str
-    min_count: int
-    max_count: int
-    sum: int
+from ocelescope.ocel.models.relations import RelationCountSummary
 
 
 def getO2OWithTypes(ocel, direction: Literal["source", "target"] = "source"):
@@ -132,7 +124,9 @@ def summarize_e2o_counts(
     )
 
 
-def summarize_o2o_counts(ocel: OCEL, direction: Optional[Literal["source", "target"]] = "source"):
+def summarize_o2o_counts(
+    ocel: OCEL, direction: Optional[Literal["source", "target"]] = "source"
+) -> list[RelationCountSummary]:
     o2o = getO2OWithTypes(ocel, direction=direction or "source")
 
     return summarize_relation_counts(
