@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from pathlib import Path
 from typing import Literal, Optional
 
@@ -324,6 +324,8 @@ def import_default_ocel(
     # Load OCEL
     ocel = default_ocel.get_ocel_copy(use_abbreviations=False)
 
+    ocel.meta.extra = {"name": default_ocel.name, "upload_date": str(datetime.now())}
+
     session.add_ocel(ocel)
     response.status_code = 200
 
@@ -336,7 +338,7 @@ def download_ocel(
     ext: OCELFileExtensions,
 ) -> TempFileResponse:
     name = ocel.meta.extra["name"]
-    tmp_file_prefix = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + name
+    tmp_file_prefix = datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + name
 
     file_response = TempFileResponse(
         prefix=tmp_file_prefix, suffix=ext, filename=name + ext
