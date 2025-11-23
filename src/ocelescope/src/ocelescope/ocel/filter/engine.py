@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 def compute_combined_masks(ocel: "OCEL", filters: list[BaseFilter]) -> FilterResult:
     combined = FilterResult(
-        events=pd.Series(True, index=ocel.events.index),
+        events=pd.Series(True, index=ocel.events.df.index),
         objects=pd.Series(True, index=ocel.objects.df.index),
     )
 
@@ -28,7 +28,7 @@ def apply_filters(ocel: "OCEL", filters: list[BaseFilter]) -> "OCEL":
     masks = compute_combined_masks(ocel, filters)
 
     filtered_event_ids: Optional[pd.Series] = (
-        cast(pd.Series, ocel.events[ocel.ocel.event_id_column][masks.events])
+        cast(pd.Series, ocel.events.df[ocel.ocel.event_id_column][masks.events])
         if masks.events is not None
         else None
     )
@@ -47,4 +47,8 @@ def apply_filters(ocel: "OCEL", filters: list[BaseFilter]) -> "OCEL":
     if filtered_object_ids is not None:
         filtered_ocel = pm4py.filter_ocel_objects(filtered_ocel, filtered_object_ids, positive=True)
 
-    return OCEL(filtered_ocel, ocel.meta)
+    # TODO: Don't do this step
+    filtered_ocel = OCEL(filtered_ocel, ocel.meta)
+    filtered_ocel.meta = ocel.meta
+
+    return filtered_ocel

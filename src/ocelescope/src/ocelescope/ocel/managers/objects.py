@@ -143,7 +143,7 @@ class ObjectsManager(BaseManager):
 
     @property
     @instance_lru_cache()
-    def object_attribute_summary(self) -> dict[str, list[AttributeSummary]]:
+    def attribute_summary(self) -> dict[str, list[AttributeSummary]]:
         """
         Summarize all object attributes grouped by object type.
 
