@@ -88,7 +88,7 @@ class ObjectsManager(BaseManager):
         Check whether all provided object types exist in the OCEL.
 
         Args:
-            otypes: Iterable of object type names to verify.
+            types: Iterable of object type names to verify.
 
         Returns:
             bool: True if all types exist, False otherwise.
