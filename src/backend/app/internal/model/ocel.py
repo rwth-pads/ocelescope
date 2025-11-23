@@ -1,4 +1,16 @@
-from ocelescope import OCEL, BaseFilter
+from typing import TypedDict
+
+from ocelescope import (
+    OCEL,
+    BaseFilter,
+    E2OCountFilter,
+    EventAttributeFilter,
+    EventTypeFilter,
+    O2OCountFilter,
+    ObjectAttributeFilter,
+    ObjectTypeFilter,
+    TimeFrameFilter,
+)
 from pydantic.main import BaseModel
 
 from app.internal.registry.extension import OCELExtensionDescription
@@ -17,6 +29,17 @@ class UploadingOcelMetadata(BaseModel):
 
 class OcelListResponse(BaseModel):
     ocels: list[OcelMetadata]
+
+
+# TODO: Remove this concept completly
+class OCELFilter(TypedDict, total=False):
+    object_types: ObjectTypeFilter
+    event_type: EventTypeFilter
+    time_range: TimeFrameFilter
+    o2o_count: list[O2OCountFilter]
+    e2o_count: list[E2OCountFilter]
+    event_attributes: list[EventAttributeFilter]
+    object_attributes: list[ObjectAttributeFilter]
 
 
 class SessionOCEL:
