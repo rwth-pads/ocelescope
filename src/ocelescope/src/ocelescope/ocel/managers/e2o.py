@@ -32,13 +32,6 @@ class E2OManager(BaseManager):
     """
 
     def __init__(self, ocel: "OCEL"):
-        """
-        Initialize the E2O manager.
-
-        Args:
-            ocel (OCEL): Parent OCEL instance containing
-                the underlying PM4PY OCEL object.
-        """
         super().__init__()
         self._ocel = ocel
 
