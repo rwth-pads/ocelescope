@@ -6,6 +6,7 @@ from typing import Any
 
 import pm4py
 from pm4py.objects.ocel.obj import OCEL as PM4PYOCEL
+from pm4py.objects.ocel.obj import deepcopy
 
 from ocelescope.ocel.extensions.manager import ExtensionManager
 from ocelescope.ocel.filter.base import BaseFilter
@@ -138,6 +139,12 @@ class OCEL:
                 raise ValueError(f"Unsupported extension: {path.suffix}")
 
         self.extensions.export_all(path)
+
+    def __deepcopy__(self, memo: dict[int, Any]):
+        # TODO revisit this. Are the underlying DataFrames mutable? If not, might optimize this
+        pm4py_ocel = deepcopy(self.ocel, memo)
+        ocel = OCEL(ocel=pm4py_ocel, meta=OCELMeta(extra=self.meta.extra))
+        return ocel
 
     def __str__(self):
         return f"OCEL [{len(self.events.df)} events, {len(self.objects.df)} objects]"
