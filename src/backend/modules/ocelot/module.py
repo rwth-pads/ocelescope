@@ -106,6 +106,7 @@ class State(Module):
         sorted_df = self.get_sorted_objects(
             ocel=ocel, object_type=object_type, sort_by=sort_by
         )
+
         return get_paginated_dataframe(
             df=sorted_df,
             non_attribute_fields=[
@@ -114,7 +115,7 @@ class State(Module):
             ],
             page=page,
             page_size=page_size,
-            relation_table=ocel.o2o.df.rename(
+            relation_table=ocel.o2o.typed_df.rename(
                 columns={
                     "ocel:oid_1": ocel.ocel.object_id_column,
                     "ocel:type_2": ocel.ocel.object_type_column,
