@@ -42,7 +42,7 @@ The Ocelescope project uses [just](https://github.com/casey/just) as a task runn
 | ``just up dev``  | Runs Ocelescope in dev mode at <http://localhost:3000>              |
 | ``just up prod`` | Builds and runs Ocelescope at <http://localhost:3000>               |
 
-To get a list of all available commands you can call
+To get a list of all available commands you can use the command:
 
 ```sh
 just
