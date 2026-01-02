@@ -32,7 +32,7 @@ just sync
 
 ### ▶️ Development Scripts
 
-The Ocelescope project uses just as a task runner. It allows you to run any commands from any point in the project.
+The Ocelescope project uses [just](https://github.com/casey/just) as a task runner. It allows you to run any commands from any point in the project.
 
 | Command          | Description                                                       |
 |------------------|-------------------------------------------------------------------|
