@@ -20,7 +20,7 @@ If you want to only run Ocelescope please use the installation instructions of t
 Ensure you have the following installed:
 
 - [Docker](https://docs.docker.com/get-docker/)
-- [UV](https://docs.astral.sh/uv/)
+- [uv](https://docs.astral.sh/uv/)
 - [npm](https://www.npmjs.com/package/npm)
 - [just](https://github.com/casey/just)
 
