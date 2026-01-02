@@ -30,8 +30,6 @@ To first setup the project you should run
 just sync
 ```
 
----
-
 ### ▶️ Development Scripts
 
 The Ocelescope project uses just as a task runner. It allows you to run any commands from any point in the project.
