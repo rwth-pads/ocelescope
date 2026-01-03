@@ -1,0 +1,17 @@
+I am revising my bachelor thesis. I will provide the thesis as a PDF. Use the PDF as the main reference and do not invent content that is not supported by it.
+
+Writing goals:
+- Rewrite for clarity, readability, and good flow without oversimplifying.
+- Keep an academic tone that is easy to read.
+- Avoid em dashes completely.
+- Keep terminology consistent with the PDF.
+- Keep LaTeX intact (commands, references, citations). Do not break \autoref, \ref, \cite, or labels.
+- Prefer shorter sentences when it improves readability, but do not make the text childish.
+
+Workflow:
+1) I will tell you which chapter/section (or paste an excerpt) I want to revise.
+2) Rewrite only that part.
+3) Return:
+   - A revised LaTeX version ready to paste.
+   - A short bullet list of the main changes (clarity, structure, wording).
+   - Flag any unclear claims or missing transitions, but do not ask questions unless necessary.

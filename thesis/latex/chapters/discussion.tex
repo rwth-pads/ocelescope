@@ -1,0 +1,70 @@
+\chapter{Discussion}
+\label{chap:discussion}
+
+This chapter discusses the design decisions made in this thesis and reflects on their implications for extensible tool support in OCPM.
+It also highlights limitations of the current approach and outlines open challenges that remain for future research and development.
+
+The main goal of this thesis was to reduce fragmentation in the current OCPM tool landscape.
+The analysis of existing tools showed that many systems reimplement similar functionality, have complex installation procedures, or lack long-term maintainability.
+The requirements derived directly from these observations proved highly useful in guiding the design of \textit{Ocelescope}.
+
+Implementing \textit{Ocelescope} as a web application makes it possible to run the interface in a responsive and cross-platform environment.
+The tool can run locally in a browser or be hosted.
+Running \textit{Ocelescope} inside a container allows the creation of images that remain stable despite changing dependencies.
+These images can run on all major operating systems and only require a container engine.
+Containers also provide isolated environments that increase protection during execution.
+
+Using Docker to build and manage containers simplifies installation.
+Users can run \textit{Ocelescope} with a single command, and predefined startup scripts set up configuration and enable distribution through an image registry.
+This registry also allows the creation of versioned images.
+The tool evaluation showed that Docker is still manageable for users with some technical experience.
+It is less clear how non-technical users would set it up.
+Since the module system targets domain users, hosting \textit{Ocelescope} remains a practical alternative.
+Packaging \textit{Ocelescope} into operating-system-dependent installers is possible but should only be considered once the need becomes clear.
+
+Splitting the web application into a TypeScript frontend and a Python backend allows the use of React for the user interface while relying on Python for process mining tasks.
+Both parts can then be developed within ecosystems where they are best supported.
+This separation also aligns with common development practices in modern web-based tools.
+
+Supporting two extension mechanisms, plugins and modules, allows \textit{Ocelescope} to serve different purposes.
+Plugins provide an environment for running OCPM techniques inside a unified tool without extra installation steps.
+Modules allow developers to use \textit{Ocelescope} as the foundation for specialized OCPM applications aimed at domain experts.
+The presence of both systems increases the complexity of the main framework, but it also ensures that improvements benefit both plugin users and module based tools.
+
+Plugins are designed as a simple way to package existing prototypes so that they run inside the \textit{Ocelescope} framework.
+This design encourages integration and, supported by good documentation, can motivate the creation of more OCPM plugins than currently exist for ProM.
+Defining plugins as functions with clear inputs and outputs follows established approaches used in other systems.
+Automatic generation of input interfaces reduces development effort but also imposes restrictions on possible user interfaces.
+Domain-specific inputs, such as graphical constraint builders, cannot be expressed naturally within the existing input system.
+Although this is a limitation, developers can still implement such interfaces through modules.
+This approach remains easier than building a complete tool from scratch.
+More specific input types can be added later if stable patterns emerge, for example a general constraint graph builder.
+
+The resource definitions introduced in this thesis provide an easy way to define artifacts that use an automatic exchange format.
+The visualization options are limited, but they provide a solid foundation for most use cases.
+If new visualization needs become common, additional types can be added to benefit all plugin developers.
+
+Packaging plugins as simple zip archives keeps development accessible.
+This choice restricts implementation to Python and Rust through Python bindings, but this is acceptable at the current stage.
+Plugins must run in the backend, which makes it infeasible to host \textit{Ocelescope} as a public plugin execution environment.
+Although these limitations are significant, alternative designs are currently not practical and may be reconsidered when underlying technologies mature.
+
+Modules fulfill their role as the place where \textit{Ocelescope} becomes a canvas for creating custom OCPM tools.
+They require both frontend and backend components to be built together with the rest of the framework.
+This allows better cohesion of the interface and improved backend performance because the backend can access all OCEL data in the session.
+Workflows support this process and simplify the build pipeline.
+They allow developers to create derivatives without deeper knowledge of the overall system.
+Modules allow developers to create tools that match the needs of specific user groups and help reduce fragmentation.
+Developers no longer need to redesign core functionality such as log management, inspection, or filtering.
+At the same time, they can build new components that benefit all \textit{Ocelescope} tools.
+
+In summary, the design of \textit{Ocelescope} reflects a balance between accessibility, extensibility, and long-term maintainability.
+Several trade-offs were unavoidable.
+The dual extension system increases complexity but supports different types of users.
+The simplified plugin interface limits expressiveness but enables fast development.
+The use of containers increases stability but may reduce accessibility for non-technical users.
+These decisions were made to create a practical foundation for OCPM tool support and to address the requirements derived from the tool analysis.
+The user studies and the proof-of-concept plugins indicate that the key plugin requirements are already met in practice.
+End-users were able to install \textit{Ocelescope} and execute plugins, and plugin developers were able to implement and integrate a plugin, with generally positive ratings for perceived usefulness and ease of use.
+The feedback from both studies also provided clear directions for refinement, in particular more responsive feedback during plugin execution, faster iteration during development, and clearer guidance for input configuration.
+At the same time, requirements related to broader base functionality and embedded extensions were not evaluated comprehensively and should be evaluated in future work.

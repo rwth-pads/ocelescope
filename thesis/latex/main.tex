@@ -1,0 +1,92 @@
+\documentclass[bachelor]{padsthesis}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Useful LaTeX Packages and Commands %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Outsourced to preamble.sty
+\usepackage{preamble}
+
+\addbibresource{references.bib}
+
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Config %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\author{Görkem-Emre Öztürk}
+\studentID{376808}
+\title{Ocelescope: An Extensible Web Framework for Object-Centric Process Mining}
+%\firstexaminer{Prof.\@ Dr.\@ Wil M.\,P. van der Aalst} % defaults to Prof. van der Aalst
+\secondexaminer{Prof. Dr. Sander J.J. Leemans}
+\advisor{Nina Graves, Aaron Küsters}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Title and Abstract %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\maketitle
+%\cleardoublepage
+
+\frontmatter
+
+\input{chapters/abstract.tex}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Content %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\mainmatter
+
+\input{chapters/introduction.tex}
+
+\input{chapters/related_work.tex}
+
+\input{chapters/prelim.tex}
+
+\input{chapters/requirements.tex}
+
+\input{chapters/design.tex}
+
+\input{chapters/implementation.tex}
+
+\input{chapters/evaluation.tex}
+
+\input{chapters/discussion.tex}
+
+\input{chapters/conclusion.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Appendix %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
+
+\chapter{Detailed Overview of Analyzed OCPM Tools}
+\label{app:tools}
+\includepdf{./appendix/ToolReview.pdf}
+
+\chapter{Tool Evaluation}
+\label{app:tool-evaluation}
+
+\section{Questionnaire}
+\label{app:tool-questionnaire}
+\includepdf[pages=-]{./appendix/ToolQuestionaire.pdf}
+
+\section{Tasks}
+\label{app:tool-evaluation-tasks}
+\includepdf[pages=-]{./appendix/ToolEvaluationTasks.pdf}
+
+\section{Results}
+\label{app:tool-evaluation-results}
+\includepdf[pages=-]{./appendix/ToolEvaluationResults.pdf}
+
+\chapter{Plugin Development Evaluation}
+\label{app:plugin-evaluation}
+
+\section{Questionnaire}
+\label{app:plugin-questionnaire}
+\includepdf[pages=-]{./appendix/PluginQuestionaire.pdf}
+
+\section{Tasks}
+\label{app:plugin-evaluation-tasks}
+\includepdf[pages=-]{./appendix/PluginEvaluationTask.pdf}
+
+\section{Results}
+\label{app:plugin-evaluation-results}
+\includepdf[pages=-]{./appendix/PluginResults.pdf}
+
+\backmatter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Bibliography %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\printbibliography
+
+Additionally, ChatGPT was used for proofreading to improve grammar and readability.
+\end{document}

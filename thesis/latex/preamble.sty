@@ -1,0 +1,221 @@
+\ProvidesPackage{preamble}
+
+%-------------------
+% Math
+%-------------------
+\RequirePackage{amsmath}
+\RequirePackage{amssymb}
+\RequirePackage{amsthm}
+\RequirePackage{mathtools}
+
+% Number sets
+\newcommand*{\B}{\lbrace 0,1\rbrace}
+\newcommand*{\N}{\mathbb N}
+\newcommand*{\Z}{\mathbb Z}
+\newcommand*{\Q}{\mathbb Q}
+\newcommand*{\R}{\mathbb R}
+
+\newcommand{\req}[1]{\textbf{\textsf{#1}}}
+
+% Mathematical symbols
+\newcommand*{\pto}{\rightharpoonup}
+\DeclareMathOperator*{\dom}{dom}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\newcommand*{\coloniff}{\;\vcentcolon\mathrel{\mkern-5mu}\iff}
+\newcommand*{\iffcolon}{\iff\mathrel{\mkern-5mu}\vcentcolon\;}
+\DeclarePairedDelimiter\abs\lvert\rvert
+\DeclarePairedDelimiter\seq\langle\rangle
+\providecommand\given{}
+\newcommand\SetSymbol[1][]{%
+	\nonscript\:#1\vert
+	\allowbreak
+	\nonscript\:
+	\mathopen{}}
+\DeclarePairedDelimiterX\Set[1]\lbrace\rbrace{%
+	\renewcommand\given{\SetSymbol[\delimsize]}
+	#1
+}
+\DeclarePairedDelimiterX\MultiSet[1]\lbrack\rbrack{%
+	\renewcommand\given{\SetSymbol[\delimsize]}
+	#1
+}
+\DeclarePairedDelimiterXPP{\lang}[1]{\mathcal L}{(}{)}{}{#1}
+
+% Process Mining specific symbols
+\newcommand*{\pset}{{\bullet}}
+\newcommand*{\nomove}{{\gg}}
+\DeclarePairedDelimiter{\fire}{\lbrack}{\rangle}
+\DeclarePairedDelimiter{\reach}{\lbrack}{\rangle}
+
+% Theorem styles
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}{Corollary}[theorem]
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+
+%-------------------
+% Lists and Tables
+%-------------------
+\RequirePackage{enumitem}
+\RequirePackage{booktabs}
+\RequirePackage{tabularx}
+\RequirePackage{array}
+\RequirePackage{multirow}
+\RequirePackage{pdflscape}
+\RequirePackage{makecell}
+
+%-------------------
+% Table column helpers
+%-------------------
+
+% Vertically centered column types
+\newcolumntype{S}{>{\centering\arraybackslash}m{1cm}} % Scope
+\newcolumntype{A}{m{4cm}}                             % Aspect
+\newcolumntype{R}{X}                                  % Requirement
+\newcolumntype{I}{c}                                  % ID
+
+\newcommand{\scoperow}[3][0pt]{%
+	\multirow[c]{#2}{*}[#1]{%
+		\centering\rotatebox{90}{\textbf{#3}}%
+	}%
+}
+
+%-------------------
+% Graphics
+%-------------------
+\RequirePackage[subrefformat=parens]{subcaption}
+\RequirePackage{rotating}
+\RequirePackage{pgf-pie}
+\RequirePackage{svg}
+\RequirePackage{tikz}
+\RequirePackage{pgfplots}
+\pgfplotsset{compat=1.18}
+%-------------------
+% Symbols
+%-------------------
+\RequirePackage{pifont} % For checkmarks and crosses
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+\newcommand{\kmark}{\boldmath$\sim$}
+
+\RequirePackage{float}
+%-------------------
+% Citations and References
+%-------------------
+\RequirePackage[autostyle=true]{csquotes}
+\RequirePackage[
+	backend=biber,
+	style=numeric-comp,
+	sorting=nyvt,
+	sortcites=true,
+	uniquename=init,
+	giveninits=true,
+	maxbibnames=99,
+	maxcitenames=2,
+	minnames=1,
+	%isbn=false,
+	%url=false,
+]{biblatex}
+\DeclareNameAlias{sortname}{family-given}
+\DeclareSourcemap{
+	\maps[datatype=bibtex]{
+		\map[overwrite]{
+			\step[fieldsource=doi, final]
+			\step[fieldset=issn, null]
+			\step[fieldset=url, null]
+			\step[fieldset=eprint, null]
+		}
+	}
+}\DeclareFieldFormat{eprint:urn}{%
+	URN\addcolon\space
+	\ifhyperref
+	{\href{http://www.nbn-resolving.org/#1}{\nolinkurl{#1}}}
+	{\nolinkurl{#1}}
+}
+
+
+%-------------------
+% Likert Macro
+%-------------------
+
+% Required for colors and resizing
+\RequirePackage{xcolor}
+\RequirePackage{graphicx}
+
+% Global Likert settings (change once, affects all bars)
+\newcommand{\likertheight}{8pt}   % bar height
+\newcommand{\likertunit}{3}       % mm per percentage point
+\newcommand{\likertwidth}{0.6}    % fraction of \textwidth
+
+%------------------------------------------------
+% 5-point Likert bar
+% Arguments:
+% #1 (optional) width factor (default = \likertwidth)
+% #2 Agree
+% #3 Strongly Agree
+% #4 Neutral
+% #5 Disagree
+% #6 Strongly Disagree
+%------------------------------------------------
+\newcommand{\likertbar}[6][\likertwidth]{%
+	\begin{tabular}{r c l}
+		\resizebox{#1\textwidth}{\likertheight}{%
+			\color{yellow}\rule{\the\numexpr#5*\likertunit\relax mm}{\likertheight}%
+			\color{orange}\rule{\the\numexpr#6*\likertunit\relax mm}{\likertheight}%
+			\color{lightgray}\rule{\the\numexpr#4*\likertunit\relax mm}{\likertheight}%
+			\color{cyan}\rule{\the\numexpr#2*\likertunit\relax mm}{\likertheight}%
+			\color{blue}\rule{\the\numexpr#3*\likertunit\relax mm}{\likertheight}%
+		} &
+	\end{tabular}%
+}
+
+%------------------------------------------------
+% 7-point Likert bar
+% Arguments:
+% #1 (optional) width factor (default = \likertwidth)
+% #2 Strongly Agree
+% #3 Agree
+% #4 Slightly Agree
+% #5 Neutral
+% #6 Slightly Disagree
+% #7 Disagree
+% #8 Strongly Disagree
+%------------------------------------------------
+\newcommand{\likertscaleSeven}[8][\likertwidth]{%
+	\begin{tabular}{r c l}
+		\resizebox{#1\textwidth}{\likertheight}{%
+			\color{red}\rule{\the\numexpr#2*\likertunit\relax mm}{\likertheight}%
+			\color{orange}\rule{\the\numexpr#3*\likertunit\relax mm}{\likertheight}%
+			\color{yellow}\rule{\the\numexpr#4*\likertunit\relax mm}{\likertheight}%
+			\color{lightgray}\rule{\the\numexpr#5*\likertunit\relax mm}{\likertheight}%
+			\color{cyan!60}\rule{\the\numexpr#6*\likertunit\relax mm}{\likertheight}%
+			\color{cyan}\rule{\the\numexpr#7*\likertunit\relax mm}{\likertheight}%
+			\color{blue}\rule{\the\numexpr#8*\likertunit\relax mm}{\likertheight}%
+		}
+	\end{tabular}%
+}
+%-------------------
+% Include PDF
+%-------------------
+\RequirePackage{pdfpages}
+%-------------------
+% Links
+%-------------------
+\RequirePackage{hyperref}
+\RequirePackage[noabbrev,capitalize]{cleveref}
+\RequirePackage{xurl}
+
+\RequirePackage{listings}
+%-------------------
+% Author Support
+%-------------------
+\RequirePackage{todonotes}
+\RequirePackage{afterpage}
+
+\endinput

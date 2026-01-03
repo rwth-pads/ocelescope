@@ -1,0 +1,52 @@
+\chapter{Conclusion}
+\label{chap:conclusion}
+
+This thesis set out to improve tool support for Object-Centric Process Mining (OCPM) by addressing recurring challenges in extensibility, maintainability, and reuse.
+
+To capture the current state of OCPM research tools, this thesis conducted a systematic literature review and analyzed the tools described in the OCPM literature.
+The results indicate a fragmented landscape in which tools either prioritize rapid implementation with little surrounding infrastructure or provide interactive applications with dedicated user interfaces.
+Tools in the first direction are often delivered as collections of research code with minimal integration, which makes them harder to reuse and frequently requires manual configuration.
+Tools in the second direction improve accessibility, but they often reimplement recurring boilerplate functionality, for example for data import and export, log inspection, filtering, and visualization.
+Across both directions, interoperability remains limited, and many tools are difficult to set up and run in practice.
+As a result, effective use often requires substantial technical knowledge.
+
+Building on these findings, this thesis designed an extensible architecture that integrates common OCPM functionality into a shared framework.
+The architecture follows a dual extension model that mirrors the two main development directions observed in existing research tools.
+Plugins provide a lightweight way to package and run OCPM techniques within a unified environment.
+They come with an automatically generated user interface, so developers can add functionality without implementing custom UI components.
+In contrast, modules use Ocelescope as a base for building specialized applications.
+They allow developers to implement specialized user interfaces and application-specific logic while reusing existing functionality, such as import and export, log inspection, and filtering.
+
+The framework was implemented as an open-source web application to support cross-platform use.
+To integrate OCPM functionality in an environment commonly used in research while supporting user interfaces built with widely used technologies, the framework combines a Python backend with a TypeScript frontend.
+It includes a dedicated Python library that supports plugin development and can also be used as a general-purpose library for OCPM functionality.
+The project is documented extensively and distributed via Docker to support a reproducible setup and consistent execution across platforms.
+Build and release steps are automated through GitHub Actions to support consistent packaging and distribution.
+
+The evaluation indicates that the proposed approach is feasible in practice.
+End users were able to install Ocelescope and execute plugins, and plugin developers were able to implement and integrate a plugin with generally positive ratings for perceived usefulness and ease of use.
+In addition, the proof-of-concept plugins demonstrate that the framework can support more demanding extension scenarios, including OCEL extensions and Rust implementations through Python bindings.
+
+Overall, this thesis provides a practical foundation for reducing fragmentation in OCPM research tooling by enabling reuse of common functionality and structured extension through plugins and modules.
+
+\paragraph{Future Work.}
+
+Several directions for future work follow from this thesis.
+
+\begin{itemize}
+	\item \textbf{Improved support for plugin development.}
+	      This includes clearer documentation, better guidance, and live updates during development to simplify the creation and testing of plugins.
+
+	\item \textbf{Extended plugin functionality.}
+	      Additional input types and more visualization options would make plugins suitable for a broader range of OCPM tasks.
+
+	\item \textbf{Better user interface for running plugins.}
+	      More responsive feedback, clearer progress indicators, and improved handling of long running tasks would make plugin execution easier to understand and use.
+
+	\item \textbf{Expansion of the OCPM features in the Ocelescope package.}
+	      Extending the current Ocelescope Python package with functionality such as performance analysis or variant calculations would help the framework support OCPM more completely.
+
+	\item \textbf{Evaluation of the module system in real settings.}
+	      Testing the module system on real life use cases would reveal recurring challenges.
+	      The framework could then be adapted to support these scenarios more effectively.
+\end{itemize}
