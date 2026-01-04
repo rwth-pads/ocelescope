@@ -1,0 +1,14 @@
+services:
+  backend:
+    image: grkmr/ocelescope_backend:v0.1-alpha.16
+    volumes:
+      - plugins_store:/plugins
+    restart: unless-stopped
+  frontend:
+    image: grkmr/ocelescope_frontend:v0.1-alpha.16
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+volumes:
+  plugins_store:
