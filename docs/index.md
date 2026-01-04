@@ -82,7 +82,7 @@ Here are some example plugins you can explore and use with Ocelescope
     ---
     Discover and check **object-centric declarative process constraints** ([:material-book-open-variant: OC-DECLARE](https://doi.org/10.1007/978-3-032-02867-9_11)) from object-centric event logs. Proof of concept for using **Rust via Python bindings** in Ocelescope plugins.
 
-    [:material-download: Download](https://github.com/Grkmr/OC-Declare/releases/download/v1.0.2/OcDeclare.zip){ .md-button }
+    [:material-download: Download](https://github.com/Grkmr/OC-Declare/releases/download/v1.0.3/OcDeclare.zip){ .md-button }
 
 * :simple-github:{ .lg .middle } **[Discqvery](https://github.com/Grkmr/qnets)**
 
