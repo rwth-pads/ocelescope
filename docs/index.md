@@ -35,11 +35,6 @@ docker compose up -d
 
 This will start both the **backend** (API) and **frontend** (web interface).
 
-### Accessing Ocelescope
-
-* **Frontend (Web UI):** [http://localhost:3000](http://localhost:3000)
-* **Backend (API):** [http://localhost:8000](http://localhost:8000)
-
 ### Uploading Plugins
 
 You can upload plugins directly from the **web interface** at:
