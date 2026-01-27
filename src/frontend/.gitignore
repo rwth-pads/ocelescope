@@ -44,3 +44,4 @@ api/*
 
 !api/fetcher.ts
 !api/openapi.json
+src-tauri/bin/api/*

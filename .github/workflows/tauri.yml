@@ -1,0 +1,101 @@
+name: build-tauri
+
+on:
+  push:
+    branches:
+      - ci-test
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build Tauri app with uv backend
+    runs-on: ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            args: "--target aarch64-apple-darwin"
+          - platform: ubuntu-latest
+            args: ""
+          - platform: windows-latest
+            args: ""
+
+    env:
+      TAURI_BUILD: true
+      RUST_BACKTRACE: 1
+      NO_STRIP: true
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ hashFiles('src/backend/uv.lock') }}
+
+      - name: Sync backend dependencies
+        working-directory: src/backend
+        run: uv sync --locked --all-extras --dev
+
+      - name: Build backend binary
+        working-directory: src/backend
+        run: uv run pyinstaller --clean main.spec
+
+      - name: Verify backend binary output
+        run: ls -R src/frontend/src-tauri/bin/api
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "src/frontend/src-tauri -> target"
+
+      - name: install dependencies
+        if: matrix.platform == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libappindicator3-dev librsvg2-dev patchelf
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-0=2.44.0-2 \
+            libwebkit2gtk-4.1-dev=2.44.0-2 \
+            libjavascriptcoregtk-4.1-0=2.44.0-2 \
+            libjavascriptcoregtk-4.1-dev=2.44.0-2 \
+            gir1.2-javascriptcoregtk-4.1=2.44.0-2 \
+            gir1.2-webkit2-4.1=2.44.0-2;
+      - name: Install frontend dependencies
+        working-directory: src/frontend
+        run: |
+          npm ci
+          npm run generate:api
+
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        with:
+          projectPath: src/frontend
+          args: ${{ matrix.args }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Tauri build artifacts
+        if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/ci-test' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: tauri-${{ matrix.platform }}
+          path: src/frontend/src-tauri/target/**/release/bundle/
