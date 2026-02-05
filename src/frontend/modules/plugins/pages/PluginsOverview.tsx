@@ -3,7 +3,7 @@ import { SimpleGrid } from "@mantine/core";
 import {
   PluginCard,
   UploadPluginCard,
-} from "../components/PluginOverview/PluginCard";
+} from "../components/PluginCard/PluginCard";
 
 const PluginsOverview: React.FC = () => {
   const { data: plugins = [] } = usePlugins();
