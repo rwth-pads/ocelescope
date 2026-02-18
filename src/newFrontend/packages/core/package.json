@@ -1,0 +1,62 @@
+{
+  "name": "@ocelescope/core",
+  "type": "module",
+  "version": "0.0.0",
+  "description": "A starter for creating a React component library.",
+  "author": "Author Name <author.name@mail.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/author/library#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/author/library.git"
+  },
+  "bugs": {
+    "url": "https://github.com/author/library/issues"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json",
+    "./styles": "./dist/styles/styles.js"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch ./src"
+  },
+  "peerDependencies": {
+    "@mantine/core": "^8.3.14",
+    "@mantine/dropzone": "^8.3.14",
+    "@mantine/hooks": "^8.3.14",
+    "@ocelescope/api-base": "*",
+    "@tanstack/react-query": "^5.90.20",
+    "@tanstack/react-query-devtools": "^5.91.3",
+    "clsx": "^2.1.1",
+    "file-saver": "^2.0.5",
+    "lucide-react": "^0.563.0",
+    "mantine-datatable": "^8.3.13",
+    "next": "^16.1.6",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "zod": "^4.3.6",
+    "zustand": "^5.0.11",
+    "@marko19907/string-to-color": "^1.0.2",
+    "dayjs": "^1.11.19"
+  },
+  "devDependencies": {
+    "@tsconfig/strictest": "^2.0.8",
+    "@types/css-modules": "^1.0.5",
+    "@types/file-saver": "^2.0.7",
+    "@types/node": "^25.0.3",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "bumpp": "^10.3.2",
+    "tsdown": "^0.18.1",
+    "typescript": "^5.9.3"
+  }
+}
